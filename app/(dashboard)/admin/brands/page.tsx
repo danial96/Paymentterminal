@@ -43,6 +43,7 @@ export default async function BrandsPage() {
               initialPhone={b.phone ?? ""}
               initialEmail={b.email ?? ""}
               initialWebsite={b.website ?? ""}
+              initialBrandColor={(b as { brandColor?: string | null }).brandColor ?? "#1a1a2e"}
             />
           </div>
         ))}

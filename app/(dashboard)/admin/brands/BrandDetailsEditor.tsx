@@ -8,17 +8,20 @@ export default function BrandDetailsEditor({
   initialPhone,
   initialEmail,
   initialWebsite,
+  initialBrandColor,
 }: {
   brandId: number;
   initialAddress: string;
   initialPhone: string;
   initialEmail: string;
   initialWebsite: string;
+  initialBrandColor: string;
 }) {
   const [address, setAddress] = useState(initialAddress);
   const [phone, setPhone] = useState(initialPhone);
   const [email, setEmail] = useState(initialEmail);
   const [website, setWebsite] = useState(initialWebsite);
+  const [brandColor, setBrandColor] = useState(initialBrandColor || "#1a1a2e");
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   async function handleSave() {
@@ -29,6 +32,7 @@ export default function BrandDetailsEditor({
       fd.append("phone", phone);
       fd.append("email", email);
       fd.append("website", website);
+      fd.append("brandColor", brandColor);
       const res = await fetch(`/api/admin/brands/${brandId}/details`, { method: "POST", body: fd });
       if (res.ok) {
         setStatus("saved");
@@ -52,6 +56,25 @@ export default function BrandDetailsEditor({
       </p>
 
       <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-1 col-span-2">
+          <label className="text-xs font-medium text-zinc-500">Invoice Accent Colour</label>
+          <div className="flex items-center gap-3">
+            <input
+              type="color"
+              value={brandColor}
+              onChange={e => setBrandColor(e.target.value)}
+              className="h-9 w-16 rounded border border-zinc-200 cursor-pointer p-0.5"
+            />
+            <input
+              type="text"
+              value={brandColor}
+              onChange={e => setBrandColor(e.target.value)}
+              placeholder="#1a1a2e"
+              className="w-28 rounded-md border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-sm text-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:bg-white transition-colors font-mono"
+            />
+            <span className="text-xs text-zinc-400">Used in invoice header, table & totals</span>
+          </div>
+        </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-zinc-500">Phone</label>
           <input

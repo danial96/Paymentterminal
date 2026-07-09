@@ -21,6 +21,7 @@ export async function POST(
       phone: (fd.get("phone") as string) || null,
       email: (fd.get("email") as string) || null,
       website: (fd.get("website") as string) || null,
+      brandColor: (fd.get("brandColor") as string) || "#1a1a2e",
     },
   });
 

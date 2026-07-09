@@ -21,7 +21,6 @@ export default async function DashboardLayout({
     ...(userHasPermission(user, "sellers")       ? [{ href: "/sellers",       label: "Sellers" }]       : []),
     ...(userHasPermission(user, "monthly_sales") ? [{ href: "/monthly-sales", label: "Monthly Sales" }] : []),
     ...(userHasPermission(user, "renewals")      ? [{ href: "/renewals",      label: "Renewals" }]      : []),
-    ...(userHasPermission(user, "invoices")      ? [{ href: "/invoices",      label: "Invoices" }]      : []),
   ];
 
   const adminLinks = [
@@ -39,6 +38,7 @@ export default async function DashboardLayout({
         navLinks={navLinks}
         adminLinks={adminLinks}
         isAdmin={isAdmin}
+        hasInvoicesPermission={isAdmin || userHasPermission(user, "invoices")}
       />
       <div className="flex flex-1 flex-col min-w-0">
         {/* Top header bar */}

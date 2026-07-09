@@ -7,15 +7,18 @@ type LineItem = { description: string; quantity: number; unitPrice: number };
 type Client = { id: number; name: string; email: string | null; phone: string | null };
 type StripeAccount = { id: number; name: string; brandId: number | null };
 type Brand = { id: number; name: string };
+type BankAccount = { id: number; label: string; bankName: string | null; accountName: string | null; accountNumber: string | null; sortCode: string | null; iban: string | null; swift: string | null };
 
 export default function InvoiceForm({
   clients,
   stripeAccounts,
   brands,
+  bankAccounts,
 }: {
   clients: Client[];
   stripeAccounts: StripeAccount[];
   brands: Brand[];
+  bankAccounts: BankAccount[];
 }) {
   const [items, setItems] = useState<LineItem[]>([{ description: "", quantity: 1, unitPrice: 0 }]);
   const [discountAmount, setDiscountAmount] = useState(0);
@@ -23,6 +26,9 @@ export default function InvoiceForm({
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [clientSearch, setClientSearch] = useState("");
   const [showClientDropdown, setShowClientDropdown] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"stripe" | "bank_transfer">("stripe");
+  const [showBankName, setShowBankName] = useState(true);
+  const [bankFields, setBankFields] = useState({ bankName: "", accountName: "", accountNumber: "", sortCode: "", iban: "", swift: "" });
   const [isPending, startTransition] = useTransition();
 
   const subtotal = items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
@@ -219,15 +225,84 @@ export default function InvoiceForm({
               Invoice Settings
             </h2>
 
+            {/* Payment Method Toggle */}
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-zinc-500">Stripe Account *</label>
-              <select name="stripeAccountId" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <option value="">— Select account —</option>
-                {stripeAccounts.filter((a) => a).map((a) => (
-                  <option key={a.id} value={a.id}>{a.name}</option>
-                ))}
-              </select>
+              <label className="text-xs font-medium text-zinc-500">Payment Method</label>
+              <div className="flex rounded-md overflow-hidden border border-zinc-300">
+                <button type="button" onClick={() => setPaymentMethod("stripe")}
+                  className={`flex-1 py-2 text-sm font-medium transition-colors ${paymentMethod === "stripe" ? "bg-indigo-600 text-white" : "bg-white text-zinc-600 hover:bg-zinc-50"}`}>
+                  Stripe
+                </button>
+                <button type="button" onClick={() => setPaymentMethod("bank_transfer")}
+                  className={`flex-1 py-2 text-sm font-medium transition-colors border-l border-zinc-300 ${paymentMethod === "bank_transfer" ? "bg-indigo-600 text-white" : "bg-white text-zinc-600 hover:bg-zinc-50"}`}>
+                  Bank Transfer
+                </button>
+              </div>
+              <input type="hidden" name="paymentMethod" value={paymentMethod} />
+              <input type="hidden" name="showBankName" value={showBankName ? "true" : "false"} />
             </div>
+
+            {paymentMethod === "stripe" && (
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-zinc-500">Stripe Account</label>
+                <select name="stripeAccountId" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                  <option value="">— Select account —</option>
+                  {stripeAccounts.filter((a) => a).map((a) => (
+                    <option key={a.id} value={a.id}>{a.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {paymentMethod === "bank_transfer" && (
+              <div className="flex flex-col gap-3">
+                {bankAccounts.length > 0 && (
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-medium text-zinc-500">Saved Account</label>
+                    <select
+                      onChange={(e) => {
+                        const acc = bankAccounts.find(a => String(a.id) === e.target.value);
+                        if (acc) setBankFields({ bankName: acc.bankName ?? "", accountName: acc.accountName ?? "", accountNumber: acc.accountNumber ?? "", sortCode: acc.sortCode ?? "", iban: acc.iban ?? "", swift: acc.swift ?? "" });
+                      }}
+                      className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      <option value="">— Pick saved account —</option>
+                      {bankAccounts.map(a => <option key={a.id} value={a.id}>{a.label}</option>)}
+                    </select>
+                  </div>
+                )}
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-zinc-500">Bank Name</label>
+                  <input name="bankName" value={bankFields.bankName} onChange={e => setBankFields(f => ({ ...f, bankName: e.target.value }))} placeholder="e.g. Barclays" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                  <label className="flex items-center gap-2 mt-1 cursor-pointer select-none">
+                    <input type="checkbox" checked={showBankName} onChange={e => setShowBankName(e.target.checked)} className="rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500" />
+                    <span className="text-xs text-zinc-500">Show bank name on invoice</span>
+                  </label>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-zinc-500">Account Name</label>
+                  <input name="bankAccountName" value={bankFields.accountName} onChange={e => setBankFields(f => ({ ...f, accountName: e.target.value }))} placeholder="e.g. Softcube Ltd" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-medium text-zinc-500">Account Number</label>
+                    <input name="bankAccountNumber" value={bankFields.accountNumber} onChange={e => setBankFields(f => ({ ...f, accountNumber: e.target.value }))} placeholder="12345678" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-medium text-zinc-500">Sort Code</label>
+                    <input name="bankSortCode" value={bankFields.sortCode} onChange={e => setBankFields(f => ({ ...f, sortCode: e.target.value }))} placeholder="00-00-00" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-zinc-500">IBAN <span className="text-zinc-400 font-normal">(optional)</span></label>
+                  <input name="bankIban" value={bankFields.iban} onChange={e => setBankFields(f => ({ ...f, iban: e.target.value }))} placeholder="GB00 XXXX 0000 0000 0000 00" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-zinc-500">SWIFT / BIC <span className="text-zinc-400 font-normal">(optional)</span></label>
+                  <input name="bankSwift" value={bankFields.swift} onChange={e => setBankFields(f => ({ ...f, swift: e.target.value }))} placeholder="BARCGB22" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                </div>
+              </div>
+            )}
 
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-zinc-500">Brand</label>

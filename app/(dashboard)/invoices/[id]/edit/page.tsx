@@ -8,11 +8,12 @@ export default async function EditInvoicePage({ params }: { params: Promise<{ id
   await requirePermission("invoices");
   const { id } = await params;
 
-  const [invoice, clients, stripeAccounts, brands] = await Promise.all([
+  const [invoice, clients, stripeAccounts, brands, bankAccounts] = await Promise.all([
     prisma.invoice.findUnique({ where: { id: Number(id) } }),
     prisma.client.findMany({ where: { deletedAt: null }, orderBy: { name: "asc" }, select: { id: true, name: true, email: true, phone: true } }),
     prisma.stripeAccount.findMany({ where: { isActive: true }, orderBy: { name: "asc" }, select: { id: true, name: true, brandId: true } }),
     prisma.brand.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    prisma.bankAccount.findMany({ orderBy: [{ isDefault: "desc" }, { createdAt: "asc" }] }),
   ]);
 
   if (!invoice) notFound();
@@ -36,6 +37,14 @@ export default async function EditInvoicePage({ params }: { params: Promise<{ id
     notes: invoice.notes ?? null,
     terms: invoice.terms ?? null,
     dueDate: invoice.dueDate ? invoice.dueDate.toISOString().split("T")[0] : null,
+    paymentMethod: (invoice as { paymentMethod?: string }).paymentMethod ?? "stripe",
+    showBankName: (invoice as { showBankName?: boolean }).showBankName !== false,
+    bankName: (invoice as { bankName?: string | null }).bankName ?? null,
+    bankAccountName: (invoice as { bankAccountName?: string | null }).bankAccountName ?? null,
+    bankAccountNumber: (invoice as { bankAccountNumber?: string | null }).bankAccountNumber ?? null,
+    bankSortCode: (invoice as { bankSortCode?: string | null }).bankSortCode ?? null,
+    bankIban: (invoice as { bankIban?: string | null }).bankIban ?? null,
+    bankSwift: (invoice as { bankSwift?: string | null }).bankSwift ?? null,
   };
 
   return (
@@ -55,6 +64,7 @@ export default async function EditInvoicePage({ params }: { params: Promise<{ id
         clients={clients}
         stripeAccounts={stripeAccounts}
         brands={brands}
+        bankAccounts={bankAccounts}
       />
     </div>
   );

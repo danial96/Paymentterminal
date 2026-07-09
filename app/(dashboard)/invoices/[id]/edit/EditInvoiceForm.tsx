@@ -7,6 +7,7 @@ type LineItem = { description: string; quantity: number; unitPrice: number };
 type Client = { id: number; name: string; email: string | null; phone: string | null };
 type StripeAccount = { id: number; name: string; brandId: number | null };
 type Brand = { id: number; name: string };
+type BankAccount = { id: number; label: string; bankName: string | null; accountName: string | null; accountNumber: string | null; sortCode: string | null; iban: string | null; swift: string | null };
 
 type Invoice = {
   id: number;
@@ -25,6 +26,14 @@ type Invoice = {
   notes: string | null;
   terms: string | null;
   dueDate: string | null;
+  paymentMethod: string;
+  showBankName: boolean;
+  bankName: string | null;
+  bankAccountName: string | null;
+  bankAccountNumber: string | null;
+  bankSortCode: string | null;
+  bankIban: string | null;
+  bankSwift: string | null;
 };
 
 export default function EditInvoiceForm({
@@ -32,11 +41,13 @@ export default function EditInvoiceForm({
   clients,
   stripeAccounts,
   brands,
+  bankAccounts,
 }: {
   invoice: Invoice;
   clients: Client[];
   stripeAccounts: StripeAccount[];
   brands: Brand[];
+  bankAccounts: BankAccount[];
 }) {
   const [items, setItems] = useState<LineItem[]>(invoice.items);
   const [discountAmount, setDiscountAmount] = useState(invoice.discountAmount ?? 0);
@@ -44,6 +55,29 @@ export default function EditInvoiceForm({
   const [clientSearch, setClientSearch] = useState(invoice.clientName);
   const [showClientDropdown, setShowClientDropdown] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<number | null>(invoice.clientId);
+  const [paymentMethod, setPaymentMethod] = useState<"stripe" | "bank_transfer">(
+    invoice.paymentMethod === "bank_transfer" ? "bank_transfer" : "stripe"
+  );
+  const [showBankName, setShowBankName] = useState(invoice.showBankName);
+
+  function findMatchingAccountId() {
+    if (!invoice.bankAccountNumber && !invoice.bankIban) return "";
+    const match = bankAccounts.find(a =>
+      (a.accountNumber && a.accountNumber === invoice.bankAccountNumber) ||
+      (a.iban && a.iban === invoice.bankIban)
+    );
+    return match ? String(match.id) : "";
+  }
+
+  const [selectedSavedAccount, setSelectedSavedAccount] = useState(findMatchingAccountId);
+  const [bankFields, setBankFields] = useState({
+    bankName: invoice.bankName ?? "",
+    accountName: invoice.bankAccountName ?? "",
+    accountNumber: invoice.bankAccountNumber ?? "",
+    sortCode: invoice.bankSortCode ?? "",
+    iban: invoice.bankIban ?? "",
+    swift: invoice.bankSwift ?? "",
+  });
   const [isPending, startTransition] = useTransition();
 
   const subtotal = items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
@@ -223,15 +257,88 @@ export default function EditInvoiceForm({
               <svg className="h-4 w-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
               Invoice Settings
             </h2>
+
+            {/* Payment Method Toggle */}
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-zinc-500">Stripe Account</label>
-              <select name="stripeAccountId" defaultValue={invoice.stripeAccountId?.toString() ?? ""} className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <option value="">— Select account —</option>
-                {stripeAccounts.map((a) => (
-                  <option key={a.id} value={a.id}>{a.name}</option>
-                ))}
-              </select>
+              <label className="text-xs font-medium text-zinc-500">Payment Method</label>
+              <div className="flex rounded-md overflow-hidden border border-zinc-300">
+                <button type="button" onClick={() => setPaymentMethod("stripe")}
+                  className={`flex-1 py-2 text-sm font-medium transition-colors ${paymentMethod === "stripe" ? "bg-indigo-600 text-white" : "bg-white text-zinc-600 hover:bg-zinc-50"}`}>
+                  Stripe
+                </button>
+                <button type="button" onClick={() => setPaymentMethod("bank_transfer")}
+                  className={`flex-1 py-2 text-sm font-medium transition-colors border-l border-zinc-300 ${paymentMethod === "bank_transfer" ? "bg-indigo-600 text-white" : "bg-white text-zinc-600 hover:bg-zinc-50"}`}>
+                  Bank Transfer
+                </button>
+              </div>
+              <input type="hidden" name="paymentMethod" value={paymentMethod} />
+              <input type="hidden" name="showBankName" value={showBankName ? "true" : "false"} />
             </div>
+
+            {paymentMethod === "stripe" && (
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-zinc-500">Stripe Account</label>
+                <select name="stripeAccountId" defaultValue={invoice.stripeAccountId?.toString() ?? ""} className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                  <option value="">— Select account —</option>
+                  {stripeAccounts.map((a) => (
+                    <option key={a.id} value={a.id}>{a.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {paymentMethod === "bank_transfer" && (
+              <div className="flex flex-col gap-3">
+                {bankAccounts.length > 0 && (
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-medium text-zinc-500">Saved Account</label>
+                    <select
+                      value={selectedSavedAccount}
+                      onChange={(e) => {
+                        setSelectedSavedAccount(e.target.value);
+                        const acc = bankAccounts.find(a => String(a.id) === e.target.value);
+                        if (acc) setBankFields({ bankName: acc.bankName ?? "", accountName: acc.accountName ?? "", accountNumber: acc.accountNumber ?? "", sortCode: acc.sortCode ?? "", iban: acc.iban ?? "", swift: acc.swift ?? "" });
+                      }}
+                      className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      <option value="">— Pick saved account —</option>
+                      {bankAccounts.map(a => <option key={a.id} value={a.id}>{a.label}</option>)}
+                    </select>
+                  </div>
+                )}
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-zinc-500">Bank Name</label>
+                  <input name="bankName" value={bankFields.bankName} onChange={e => setBankFields(f => ({ ...f, bankName: e.target.value }))} placeholder="e.g. Barclays" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                  <label className="flex items-center gap-2 mt-1 cursor-pointer select-none">
+                    <input type="checkbox" checked={showBankName} onChange={e => setShowBankName(e.target.checked)} className="rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500" />
+                    <span className="text-xs text-zinc-500">Show bank name on invoice</span>
+                  </label>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-zinc-500">Account Name</label>
+                  <input name="bankAccountName" value={bankFields.accountName} onChange={e => setBankFields(f => ({ ...f, accountName: e.target.value }))} placeholder="e.g. Softcube Ltd" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-medium text-zinc-500">Account Number</label>
+                    <input name="bankAccountNumber" value={bankFields.accountNumber} onChange={e => setBankFields(f => ({ ...f, accountNumber: e.target.value }))} placeholder="12345678" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-medium text-zinc-500">Sort Code</label>
+                    <input name="bankSortCode" value={bankFields.sortCode} onChange={e => setBankFields(f => ({ ...f, sortCode: e.target.value }))} placeholder="00-00-00" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-zinc-500">IBAN <span className="text-zinc-400 font-normal">(optional)</span></label>
+                  <input name="bankIban" value={bankFields.iban} onChange={e => setBankFields(f => ({ ...f, iban: e.target.value }))} placeholder="GB00 XXXX 0000 0000 0000 00" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-zinc-500">SWIFT / BIC <span className="text-zinc-400 font-normal">(optional)</span></label>
+                  <input name="bankSwift" value={bankFields.swift} onChange={e => setBankFields(f => ({ ...f, swift: e.target.value }))} placeholder="BARCGB22" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                </div>
+              </div>
+            )}
+
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-zinc-500">Brand</label>
               <select name="brandId" defaultValue={invoice.brandId?.toString() ?? ""} className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">

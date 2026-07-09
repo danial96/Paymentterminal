@@ -55,6 +55,7 @@ model Brand {
   id          Int      @id @default(autoincrement())
   name        String   @unique
   logoUrl     String?
+  brandColor  String?  @default("#1a1a2e")
   address     String?  @db.Text
   phone       String?
   email       String?
@@ -198,12 +199,33 @@ model Invoice {
   terms                String?       @db.Text
   dueDate              DateTime?
   status               InvoiceStatus @default(draft)
+  paymentMethod        String        @default("stripe")
+  showBankName         Boolean       @default(true)
+  bankName             String?
+  bankAccountName      String?
+  bankAccountNumber    String?
+  bankSortCode         String?
+  bankIban             String?
+  bankSwift            String?
   stripePaymentLinkId  String?
   stripePaymentLinkUrl String?
   paidAt               DateTime?
   sentAt               DateTime?
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
+}
+
+model BankAccount {
+  id            Int      @id @default(autoincrement())
+  label         String
+  bankName      String?
+  accountName   String?
+  accountNumber String?
+  sortCode      String?
+  iban          String?
+  swift         String?
+  isDefault     Boolean  @default(false)
+  createdAt     DateTime @default(now())
 }
 
 model SyncLog {

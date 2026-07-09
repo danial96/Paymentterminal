@@ -73,7 +73,7 @@ export default async function BrandClientsPage({
   if (isNaN(brandId)) notFound();
 
   const user = await requireUser();
-  const scope = clientScopeWhere(user);
+  const scope = clientScopeWhere(user as { id: string; role: string });
 
   const brand = await prisma.brand.findUnique({ where: { id: brandId } });
   if (!brand) notFound();

@@ -5,10 +5,11 @@ import Link from "next/link";
 
 export default async function NewInvoicePage() {
   await requirePermission("invoices");
-  const [clients, stripeAccounts, brands] = await Promise.all([
+  const [clients, stripeAccounts, brands, bankAccounts] = await Promise.all([
     prisma.client.findMany({ where: { deletedAt: null }, select: { id: true, name: true, email: true, phone: true }, orderBy: { name: "asc" } }),
     prisma.stripeAccount.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
     prisma.brand.findMany({ orderBy: { name: "asc" } }),
+    prisma.bankAccount.findMany({ orderBy: [{ isDefault: "desc" }, { createdAt: "asc" }] }),
   ]);
 
   return (
@@ -22,7 +23,7 @@ export default async function NewInvoicePage() {
           <p className="text-xs text-zinc-500">Fill in the details and generate a Stripe payment link</p>
         </div>
       </div>
-      <InvoiceForm clients={clients} stripeAccounts={stripeAccounts} brands={brands} />
+      <InvoiceForm clients={clients} stripeAccounts={stripeAccounts} brands={brands} bankAccounts={bankAccounts} />
     </div>
   );
 }
