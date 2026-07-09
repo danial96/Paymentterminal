@@ -1,0 +1,67 @@
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import Stripe from "stripe";
+
+export async function POST(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await auth();
+  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { id } = await params;
+  const invoice = await prisma.invoice.findUnique({
+    where: { id: Number(id) },
+    include: { stripeAccount: { select: { mode: true, secretKeyTest: true, secretKeyLive: true, name: true } } },
+  });
+
+  if (!invoice) return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+  if (!invoice.stripeAccount) return NextResponse.json({ error: "No Stripe account linked" }, { status: 400 });
+
+  const acc = invoice.stripeAccount;
+  const secretKey = acc.mode === "live" ? acc.secretKeyLive : acc.secretKeyTest;
+  if (!secretKey) return NextResponse.json({ error: `No ${acc.mode} secret key configured` }, { status: 400 });
+
+  const stripe = new Stripe(secretKey);
+
+  const items = invoice.items as { description: string; quantity: number; unitPrice: number }[];
+
+  // Create price objects for each line item
+  const lineItems = await Promise.all(
+    items.map(async (item) => {
+      const price = await stripe.prices.create({
+        currency: invoice.currency,
+        unit_amount: Math.round(item.unitPrice * 100),
+        product_data: { name: item.description },
+      });
+      return { price: price.id, quantity: item.quantity };
+    })
+  );
+
+  const paymentLink = await stripe.paymentLinks.create({
+    line_items: lineItems,
+    metadata: {
+      invoiceId: invoice.id.toString(),
+      invoiceNumber: invoice.invoiceNumber,
+    },
+    after_completion: {
+      type: "hosted_confirmation",
+      hosted_confirmation: {
+        custom_message: `Thank you! Your payment for ${invoice.invoiceNumber} has been received.`,
+      },
+    },
+  });
+
+  await prisma.invoice.update({
+    where: { id: invoice.id },
+    data: {
+      stripePaymentLinkId: paymentLink.id,
+      stripePaymentLinkUrl: paymentLink.url,
+      status: "sent",
+      sentAt: new Date(),
+    },
+  });
+
+  return NextResponse.json({ url: paymentLink.url });
+}

@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+/* Enable dark mode via .dark class on <html> */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --main-bg: #f9fafb;
+  --card-bg: #ffffff;
+  --border-color: #e5e7eb;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --header-bg: #ffffff;
+}
+
+/* Dark mode overrides */
+.dark {
+  --main-bg: #0f172a;
+  --card-bg: #1e293b;
+  --border-color: #334155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --header-bg: #1e293b;
+}
+
+/* Background theme presets (light) */
+[data-bg="white"]   { --main-bg: #ffffff; }
+[data-bg="indigo"]  { --main-bg: #eef2ff; }
+[data-bg="emerald"] { --main-bg: #f0fdf4; }
+[data-bg="rose"]    { --main-bg: #fff1f2; }
+[data-bg="amber"]   { --main-bg: #fffbeb; }
+[data-bg="slate"]   { --main-bg: #f1f5f9; }
+
+/* Background theme presets (dark) */
+.dark[data-bg="white"]   { --main-bg: #1e293b; }
+.dark[data-bg="indigo"]  { --main-bg: #1e1b4b; }
+.dark[data-bg="emerald"] { --main-bg: #052e16; }
+.dark[data-bg="rose"]    { --main-bg: #1c0a0f; }
+.dark[data-bg="amber"]   { --main-bg: #1c1107; }
+.dark[data-bg="slate"]   { --main-bg: #0f172a; }
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}

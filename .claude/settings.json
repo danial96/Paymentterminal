@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(C:\\xampp\\htdocs\\softcube-crm\\**)",
+      "Bash(npm run *)",
+      "Bash(npm install *)",
+      "Bash(npm ls *)",
+      "Bash(npm view *)",
+      "Bash(npm --version)",
+      "PowerShell(npm --version)",
+      "Bash(npx --yes prisma *)",
+      "Bash(npx tsc *)",
+      "Bash(node -e *)",
+      "Bash(openssl rand *)",
+      "Bash(/c/xampp/mysql/bin/mysql.exe -u root -e *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)"
+    ]
+  }
+}
