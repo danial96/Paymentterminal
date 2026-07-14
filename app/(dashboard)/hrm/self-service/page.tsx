@@ -5,22 +5,24 @@ import Link from "next/link";
 
 export default function SelfServicePage() {
   const [time, setTime] = useState(new Date());
-  const [checkedIn, setCheckedIn] = useState(false);
-  const [checkInTime, setCheckInTime] = useState<Date | null>(null);
-  const [working, setWorking] = useState(false);
+  const [checkedIn, setCheckedIn] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return !!localStorage.getItem("hrm_checkin");
+  });
+  const [checkInTime, setCheckInTime] = useState<Date | null>(() => {
+    if (typeof window === "undefined") return null;
+    const saved = localStorage.getItem("hrm_checkin");
+    return saved ? new Date(saved) : null;
+  });
+  const [working, setWorking] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return !!localStorage.getItem("hrm_checkin");
+  });
   const [status, setStatus] = useState<"idle" | "loading" | "done">("idle");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const t = setInterval(() => setTime(new Date()), 1000);
-    // Restore check-in state from localStorage
-    const saved = localStorage.getItem("hrm_checkin");
-    if (saved) {
-      const d = new Date(saved);
-      setCheckedIn(true);
-      setCheckInTime(d);
-      setWorking(true);
-    }
     return () => clearInterval(t);
   }, []);
 

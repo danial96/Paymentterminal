@@ -1,0 +1,57 @@
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Build
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+          AUTH_TRUST_HOST: true
+
+      - name: Deploy to Hostinger via rsync
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: -avz --delete --exclude='.git' --exclude='node_modules' --exclude='.env' --exclude='.env.local'
+          path: ./
+          remote_path: /home/u395517514/domains/lightgrey-cassowary-624705.hostingersite.com/nodejs/
+          remote_host: 193.203.176.109
+          remote_port: 65002
+          remote_user: u395517514
+          remote_key: ${{ secrets.HOSTINGER_SSH_KEY }}
+
+      - name: Install production dependencies on server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 193.203.176.109
+          port: 65002
+          username: u395517514
+          key: ${{ secrets.HOSTINGER_SSH_KEY }}
+          script: |
+            cd ~/domains/lightgrey-cassowary-624705.hostingersite.com/nodejs
+            npm ci --omit=dev
+            npx prisma generate
