@@ -100,10 +100,10 @@ export default function NavSidebar({
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-5 border-b border-white/10">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500 text-white font-bold text-sm shadow">
-          SC
-        </div>
+          IT
+</div>
         <div>
-          <p className="text-sm font-semibold text-white leading-tight">Softcube CRM</p>
+          <p className="text-sm font-semibold text-white leading-tight">IKIA TECH</p>
           <p className="text-xs text-white/40 leading-tight">v2.0</p>
         </div>
       </div>

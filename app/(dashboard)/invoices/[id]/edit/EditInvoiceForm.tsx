@@ -316,7 +316,7 @@ export default function EditInvoiceForm({
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-medium text-zinc-500">Account Name</label>
-                  <input name="bankAccountName" value={bankFields.accountName} onChange={e => setBankFields(f => ({ ...f, accountName: e.target.value }))} placeholder="e.g. Softcube Ltd" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                  <input name="bankAccountName" value={bankFields.accountName} onChange={e => setBankFields(f => ({ ...f, accountName: e.target.value }))} placeholder="e.g. IKIA TECH" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="flex flex-col gap-1">

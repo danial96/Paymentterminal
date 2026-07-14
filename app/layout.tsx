@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Softcube CRM",
+  title: "IKIA TECH",
   description: "Client & sales tracker",
 };
 
