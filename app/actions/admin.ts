@@ -93,9 +93,10 @@ export async function toggleUpseller(id: number, isUpseller: boolean) {
 export async function updateUser(id: number, formData: FormData) {
   await requireAdmin();
   const name = String(formData.get("name") ?? "").trim();
-  const role = String(formData.get("role") ?? "") as "admin" | "project_manager" | "front_seller";
+  const role = String(formData.get("role") ?? "") as "admin" | "project_manager" | "front_seller" | "upseller" | "production_department";
+  const hrmRole = String(formData.get("hrmRole") ?? "").trim() || null;
   if (!name) return;
-  await prisma.user.update({ where: { id }, data: { name, role } });
+  await prisma.user.update({ where: { id }, data: { name, role, hrmRole } });
   revalidatePath("/admin/users");
 }
 

@@ -12,15 +12,29 @@ const ALL_PERMISSIONS = [
 ];
 
 const ROLE_LABELS: Record<string, string> = {
-  admin: "Admin",
-  project_manager: "Project Manager",
-  front_seller: "Front Seller",
+  admin:                "Admin",
+  project_manager:      "Project Manager",
+  front_seller:         "Front Sales",
+  upseller:             "Upseller",
+  production_department:"Production Dept",
 };
 
 const ROLE_COLORS: Record<string, string> = {
-  admin: "bg-indigo-100 text-indigo-700",
-  project_manager: "bg-blue-100 text-blue-700",
-  front_seller: "bg-zinc-100 text-zinc-600",
+  admin:                "bg-indigo-100 text-indigo-700",
+  project_manager:      "bg-blue-100 text-blue-700",
+  front_seller:         "bg-zinc-100 text-zinc-600",
+  upseller:             "bg-amber-100 text-amber-700",
+  production_department:"bg-emerald-100 text-emerald-700",
+};
+
+const HRM_ROLE_LABELS: Record<string, string> = {
+  hr_manager: "HR Manager",
+  hr_staff:   "HR Staff",
+};
+
+const HRM_ROLE_COLORS: Record<string, string> = {
+  hr_manager: "bg-purple-100 text-purple-700",
+  hr_staff:   "bg-pink-100 text-pink-700",
 };
 
 interface User {
@@ -28,6 +42,7 @@ interface User {
   name: string;
   email: string;
   role: string;
+  hrmRole: string | null;
   isUpseller: boolean;
   permissions: unknown;
 }
@@ -81,6 +96,17 @@ export function UserRow({ user }: { user: User }) {
           </form>
         </td>
 
+        {/* HRM Role */}
+        <td className="px-4 py-3">
+          {user.hrmRole ? (
+            <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${HRM_ROLE_COLORS[user.hrmRole] ?? "bg-zinc-100 text-zinc-600"}`}>
+              {HRM_ROLE_LABELS[user.hrmRole] ?? user.hrmRole}
+            </span>
+          ) : (
+            <span className="text-xs text-zinc-400">—</span>
+          )}
+        </td>
+
         {/* Permissions summary */}
         <td className="px-4 py-3">
           {isAdmin ? (
@@ -103,7 +129,7 @@ export function UserRow({ user }: { user: User }) {
       {/* Expanded panel */}
       {expanded && (
         <tr className="bg-zinc-50 border-b border-zinc-100">
-          <td colSpan={5} className="px-4 py-4">
+          <td colSpan={6} className="px-4 py-4">
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
 
               {/* Edit Info */}
@@ -121,9 +147,19 @@ export function UserRow({ user }: { user: User }) {
                     <div>
                       <label className="block text-[10px] text-zinc-500 mb-0.5">Role</label>
                       <select name="role" defaultValue={user.role} className="w-full rounded border border-zinc-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <option value="front_seller">Front Seller</option>
+                        <option value="front_seller">Front Sales</option>
+                        <option value="upseller">Upseller</option>
                         <option value="project_manager">Project Manager</option>
+                        <option value="production_department">Production Department</option>
                         <option value="admin">Admin</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-zinc-500 mb-0.5">HRM Role</label>
+                      <select name="hrmRole" defaultValue={user.hrmRole ?? ""} className="w-full rounded border border-zinc-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="">No HRM Access</option>
+                        <option value="hr_manager">HR Manager</option>
+                        <option value="hr_staff">HR Staff</option>
                       </select>
                     </div>
                     <button type="submit" className="w-full rounded bg-indigo-600 py-1.5 text-xs font-medium text-white hover:bg-indigo-700">Save Changes</button>
@@ -141,6 +177,14 @@ export function UserRow({ user }: { user: User }) {
                     <div className="flex justify-between">
                       <span className="text-zinc-500 text-xs">Role</span>
                       <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${ROLE_COLORS[user.role]}`}>{ROLE_LABELS[user.role]}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-zinc-500 text-xs">HRM Role</span>
+                      {user.hrmRole ? (
+                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${HRM_ROLE_COLORS[user.hrmRole] ?? "bg-zinc-100 text-zinc-600"}`}>{HRM_ROLE_LABELS[user.hrmRole] ?? user.hrmRole}</span>
+                      ) : (
+                        <span className="text-[10px] text-zinc-400">None</span>
+                      )}
                     </div>
                   </div>
                 )}

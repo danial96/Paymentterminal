@@ -33,6 +33,7 @@ export default async function EmployeeProfilePage({ params }: { params: Promise<
       designation: true,
       manager: true,
       shift: true,
+      user: { select: { id: true, email: true, role: true } },
       attendance: { orderBy: { date: "desc" }, take: 10 },
       leaves: { orderBy: { createdAt: "desc" }, take: 5, include: { leaveType: true } },
       payrolls: { orderBy: [{ year: "desc" }, { month: "desc" }], take: 6 },
@@ -107,6 +108,22 @@ export default async function EmployeeProfilePage({ params }: { params: Promise<
           </div>
         </div>
       </div>
+
+      {/* System Login Card */}
+      {emp.user && (
+        <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-4 flex items-center gap-4">
+          <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
+            <svg className="h-5 w-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          </div>
+          <div className="flex-1">
+            <p className="text-xs font-semibold text-indigo-800 uppercase tracking-wide">System Login Account</p>
+            <p className="text-sm text-indigo-700 mt-0.5">
+              Email: <strong>{emp.user.email}</strong> &nbsp;·&nbsp; Role: <strong>{emp.user.role.replace(/_/g, " ")}</strong>
+            </p>
+            <p className="text-[11px] text-indigo-500 mt-0.5">Default password is the Employee ID: <strong>{emp.employeeId}</strong> — ask employee to change it after first login.</p>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-3 gap-6">
         {/* Left: Profile Info */}

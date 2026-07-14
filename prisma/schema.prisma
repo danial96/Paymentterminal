@@ -18,6 +18,8 @@ enum Role {
   admin
   project_manager
   front_seller
+  upseller
+  production_department
 }
 
 enum ServiceStatus {
@@ -41,6 +43,7 @@ model User {
   password    String
   role        Role
   isUpseller  Boolean  @default(false)
+  hrmRole     String?
   permissions Json     @default("[]")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

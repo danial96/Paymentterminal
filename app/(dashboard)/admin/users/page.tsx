@@ -38,8 +38,10 @@ export default async function UsersPage() {
           <div>
             <label className="mb-1 block text-xs font-medium text-zinc-700">Role</label>
             <select name="role" required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-              <option value="front_seller">Front Seller</option>
+              <option value="front_seller">Front Sales</option>
+              <option value="upseller">Upseller</option>
               <option value="project_manager">Project Manager</option>
+              <option value="production_department">Production Department</option>
               <option value="admin">Admin</option>
             </select>
           </div>
@@ -65,6 +67,7 @@ export default async function UsersPage() {
               <th className="px-4 py-3 font-medium">User</th>
               <th className="px-4 py-3 font-medium">Role</th>
               <th className="px-4 py-3 font-medium text-center">Upseller</th>
+              <th className="px-4 py-3 font-medium">HRM Role</th>
               <th className="px-4 py-3 font-medium">Permissions</th>
               <th className="px-4 py-3"></th>
             </tr>

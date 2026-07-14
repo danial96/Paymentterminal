@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/scope";
+import bcrypt from "bcryptjs";
 
 const EmployeeSchema = z.object({
   firstName: z.string().min(1),
@@ -109,9 +110,40 @@ export async function createEmployee(formData: FormData) {
   const parsed = EmployeeSchema.parse(raw);
   const empId = await generateEmployeeId();
 
+  // Derive role from department name
+  let userRole: "front_seller" | "upseller" | "project_manager" | "production_department" | "admin" = "front_seller";
+  if (parsed.departmentId) {
+    const dept = await prisma.hRMDepartment.findUnique({ where: { id: Number(parsed.departmentId) } });
+    if (dept) {
+      const n = dept.name.toLowerCase();
+      if (n.includes("production")) userRole = "production_department";
+      else if (n.includes("sales") || n.includes("front")) userRole = "front_seller";
+      else if (n.includes("upsell")) userRole = "upseller";
+      else if (n.includes("project") || n.includes("manager")) userRole = "project_manager";
+    }
+  }
+
+  // Auto-create a user account for this employee
+  const email = parsed.companyEmail || parsed.personalEmail || `${empId.toLowerCase()}@company.local`;
+  const defaultPassword = empId; // employee can reset later
+  const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+
+  // Use upsert to avoid duplicate if email already exists
+  const user = await prisma.user.upsert({
+    where: { email },
+    update: {},
+    create: {
+      name: `${parsed.firstName} ${parsed.lastName}`,
+      email,
+      password: hashedPassword,
+      role: userRole,
+    },
+  });
+
   await prisma.hRMEmployee.create({
     data: {
       employeeId: empId,
+      userId: user.id,
       firstName: parsed.firstName,
       lastName: parsed.lastName,
       fatherName: parsed.fatherName || null,
@@ -156,6 +188,7 @@ export async function createEmployee(formData: FormData) {
     },
   });
   revalidatePath("/hrm/employees");
+  revalidatePath("/admin/users");
   redirect("/hrm/employees");
 }
 
