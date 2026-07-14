@@ -48,12 +48,9 @@ export async function POST(
 
   const origin = req.headers.get("origin") ?? req.headers.get("referer")?.split("/invoice")[0] ?? "http://localhost:3000";
 
-  const session = await stripe.checkout.sessions.create({
-    ui_mode: "embedded_page",
-    line_items: lineItems,
-    mode: "payment",
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: totalAmount,
     currency: invoice.currency,
-    return_url: `${origin}/invoice/${invoice.invoiceNumber}?paid=1`,
     metadata: { invoiceId: invoice.id.toString(), invoiceNumber: invoice.invoiceNumber },
   });
 
@@ -62,5 +59,5 @@ export async function POST(
     await prisma.invoice.update({ where: { id: invoice.id }, data: { status: "sent", sentAt: new Date() } });
   }
 
-  return NextResponse.json({ clientSecret: session.client_secret, publishableKey });
+  return NextResponse.json({ clientSecret: paymentIntent.client_secret, publishableKey });
 }

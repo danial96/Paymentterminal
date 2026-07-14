@@ -12,7 +12,7 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default async function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  await requirePermission("invoices");
+  const user = await requirePermission("invoices");
   const { id } = await params;
   const invoice = await prisma.invoice.findUnique({
     where: { id: Number(id) },
@@ -68,8 +68,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
           invoiceId={invoice.id}
           invoiceNumber={invoice.invoiceNumber}
           status={invoice.status}
-          hasStripeAccount={!!invoice.stripeAccount}
-          existingPaymentUrl={invoice.stripePaymentLinkUrl ?? null}
+          isAdmin={(user as { role?: string }).role === "admin"}
         />
       </div>
     </div>

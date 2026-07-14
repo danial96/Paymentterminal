@@ -90,6 +90,23 @@ export async function toggleUpseller(id: number, isUpseller: boolean) {
   revalidatePath("/admin/users");
 }
 
+export async function updateUser(id: number, formData: FormData) {
+  await requireAdmin();
+  const name = String(formData.get("name") ?? "").trim();
+  const role = String(formData.get("role") ?? "") as "admin" | "project_manager" | "front_seller";
+  if (!name) return;
+  await prisma.user.update({ where: { id }, data: { name, role } });
+  revalidatePath("/admin/users");
+}
+
+export async function resetUserPassword(id: number, formData: FormData) {
+  await requireAdmin();
+  const password = String(formData.get("password") ?? "").trim();
+  if (password.length < 6) return;
+  await prisma.user.update({ where: { id }, data: { password: await bcrypt.hash(password, 10) } });
+  revalidatePath("/admin/users");
+}
+
 export async function toggleUserPermission(userId: number, permission: string, grant: boolean) {
   await requireAdmin();
   const user = await prisma.user.findUnique({ where: { id: userId }, select: { permissions: true } });

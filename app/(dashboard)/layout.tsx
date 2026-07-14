@@ -15,6 +15,8 @@ export default async function DashboardLayout({
   }) ?? sessionUser;
   const isAdmin = user.role === "admin";
 
+  const hasHrm = isAdmin || userHasPermission(user, "hrm");
+
   const navLinks = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/clients", label: "Clients" },
@@ -39,6 +41,7 @@ export default async function DashboardLayout({
         adminLinks={adminLinks}
         isAdmin={isAdmin}
         hasInvoicesPermission={isAdmin || userHasPermission(user, "invoices")}
+        hasHrmPermission={hasHrm}
       />
       <div className="flex flex-1 flex-col min-w-0">
         {/* Top header bar */}

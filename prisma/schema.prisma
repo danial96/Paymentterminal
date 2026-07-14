@@ -49,18 +49,20 @@ model User {
   managedClients  Client[]        @relation("ProjectManager")
   upsoldServices  ClientService[] @relation("Upseller")
   soldServices    ClientService[] @relation("SoldBy")
+  hrmEmployee     HRMEmployee?
 }
 
 model Brand {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  logoUrl     String?
-  brandColor  String?  @default("#1a1a2e")
-  address     String?  @db.Text
-  phone       String?
-  email       String?
-  website     String?
-  clients     Client[]
+  id               Int      @id @default(autoincrement())
+  name             String   @unique
+  logoUrl          String?
+  brandColor       String?  @default("#1a1a2e")
+  invoiceTemplate  String?  @default("modern")
+  address          String?  @db.Text
+  phone            String?
+  email            String?
+  website          String?
+  clients          Client[]
 }
 
 model ServiceType {
@@ -236,4 +238,484 @@ model SyncLog {
   clientsUpdated  Int
   servicesUpserted Int
   warnings        Json
+}
+
+// ===== HRM MODULE =====
+
+enum HRMGender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum HRMMaritalStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOWED
+}
+
+enum HRMEmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERN
+  FREELANCE
+}
+
+enum HRMProbationStatus {
+  ON_PROBATION
+  CONFIRMED
+  EXTENDED
+}
+
+enum HRMEmployeeStatus {
+  ACTIVE
+  INACTIVE
+  ON_LEAVE
+  SUSPENDED
+  TERMINATED
+  RESIGNED
+}
+
+enum HRMShiftType {
+  MORNING
+  AFTERNOON
+  EVENING
+  NIGHT
+  FLEXIBLE
+  ROTATIONAL
+  CUSTOM
+}
+
+enum HRMAttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  HALF_DAY
+  EARLY_LEAVE
+  ON_LEAVE
+  HOLIDAY
+  WEEKLY_OFF
+}
+
+enum HRMLeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum HRMPayrollStatus {
+  DRAFT
+  APPROVED
+  PAID
+  CANCELLED
+}
+
+enum HRMAssetCondition {
+  EXCELLENT
+  GOOD
+  FAIR
+  POOR
+}
+
+enum HRMAssetStatus {
+  AVAILABLE
+  ASSIGNED
+  MAINTENANCE
+  RETIRED
+}
+
+enum HRMNoticeType {
+  GENERAL
+  URGENT
+  POLICY
+  EVENT
+  HR
+}
+
+enum HRMNoticePriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum HRMHolidayType {
+  NATIONAL
+  COMPANY
+  BRANCH
+  OPTIONAL
+}
+
+enum HRMReviewType {
+  MONTHLY
+  QUARTERLY
+  ANNUAL
+  PROBATION
+}
+
+model HRMDepartment {
+  id           Int      @id @default(autoincrement())
+  name         String   @unique
+  code         String?  @unique
+  headId       Int?
+  description  String?  @db.Text
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  head         HRMEmployee?   @relation("DepartmentHead", fields: [headId], references: [id])
+  employees    HRMEmployee[]  @relation("EmployeeDepartment")
+  designations HRMDesignation[]
+  notices      HRMNotice[]
+}
+
+model HRMDesignation {
+  id           Int            @id @default(autoincrement())
+  name         String
+  departmentId Int?
+  salaryGrade  String?
+  description  String?
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  department   HRMDepartment? @relation(fields: [departmentId], references: [id])
+  employees    HRMEmployee[]
+}
+
+model HRMShift {
+  id           Int          @id @default(autoincrement())
+  name         String       @unique
+  startTime    String
+  endTime      String
+  breakMinutes Int          @default(60)
+  workingDays  Json
+  shiftType    HRMShiftType @default(MORNING)
+  customLabel  String?
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  employees    HRMEmployee[]
+}
+
+model HRMEmployee {
+  id                       Int                @id @default(autoincrement())
+  employeeId               String             @unique
+  userId                   Int?               @unique
+
+  firstName                String
+  lastName                 String
+  fatherName               String?
+  cnic                     String?
+  passportNumber           String?
+  dateOfBirth              DateTime?
+  gender                   HRMGender?
+  maritalStatus            HRMMaritalStatus?
+  bloodGroup               String?
+  nationality              String?
+  religion                 String?
+
+  phone                    String?
+  emergencyContact         String?
+  emergencyContactName     String?
+  emergencyContactRelation String?
+  personalEmail            String?
+  companyEmail             String?
+
+  currentAddress           String?            @db.Text
+  permanentAddress         String?            @db.Text
+  city                     String?
+  country                  String?
+  postalCode               String?
+
+  departmentId             Int?
+  designationId            Int?
+  managerId                Int?
+  employmentType           HRMEmploymentType  @default(FULL_TIME)
+  joiningDate              DateTime?
+  confirmationDate         DateTime?
+  probationStatus          HRMProbationStatus @default(ON_PROBATION)
+  workLocation             String?
+  branch                   String?
+  officeFloor              String?
+  deskNumber               String?
+  shiftId                  Int?
+  weekendPolicy            Json?
+
+  basicSalary              Decimal?           @db.Decimal(12, 2)
+  bankName                 String?
+  accountNumber            String?
+  iban                     String?
+  taxNumber                String?
+
+  profilePicture           String?
+  status                   HRMEmployeeStatus  @default(ACTIVE)
+  resignedDate             DateTime?
+  terminationDate          DateTime?
+  terminationReason        String?            @db.Text
+  notes                    String?            @db.Text
+
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+  deletedAt                DateTime?
+
+  user             User?           @relation(fields: [userId], references: [id])
+  department       HRMDepartment?  @relation("EmployeeDepartment", fields: [departmentId], references: [id])
+  designation      HRMDesignation? @relation(fields: [designationId], references: [id])
+  manager          HRMEmployee?    @relation("ManagerSubordinates", fields: [managerId], references: [id])
+  subordinates     HRMEmployee[]   @relation("ManagerSubordinates")
+  shift            HRMShift?       @relation(fields: [shiftId], references: [id])
+  departmentHeadOf HRMDepartment[] @relation("DepartmentHead")
+
+  attendance    HRMAttendance[]
+  leaves        HRMLeave[]
+  leaveBalances HRMLeaveBalance[]
+  payrolls      HRMPayroll[]
+  assets        HRMAsset[]
+  documents     HRMDocument[]
+  performances  HRMPerformance[]
+  allowances    HRMAllowance[]
+  deductions    HRMDeduction[]
+}
+
+model HRMAttendance {
+  id            Int                 @id @default(autoincrement())
+  employeeId    Int
+  date          DateTime            @db.Date
+  checkIn       DateTime?
+  checkOut      DateTime?
+  breakStart    DateTime?
+  breakEnd      DateTime?
+  status        HRMAttendanceStatus @default(PRESENT)
+  workingHours  Decimal?            @db.Decimal(5, 2)
+  overtimeHours Decimal?            @db.Decimal(5, 2)
+  lateMinutes   Int?
+  notes         String?
+  isManual      Boolean             @default(false)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  employee      HRMEmployee         @relation(fields: [employeeId], references: [id])
+
+  @@unique([employeeId, date])
+}
+
+model HRMLeaveType {
+  id           Int      @id @default(autoincrement())
+  name         String   @unique
+  code         String   @unique
+  daysAllowed  Int      @default(0)
+  isPaid       Boolean  @default(true)
+  isActive     Boolean  @default(true)
+  carryForward Boolean  @default(false)
+  description  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  leaves   HRMLeave[]
+  balances HRMLeaveBalance[]
+}
+
+model HRMLeaveBalance {
+  id          Int      @id @default(autoincrement())
+  employeeId  Int
+  leaveTypeId Int
+  year        Int
+  allocated   Int      @default(0)
+  used        Int      @default(0)
+  remaining   Int      @default(0)
+
+  employee  HRMEmployee  @relation(fields: [employeeId], references: [id])
+  leaveType HRMLeaveType @relation(fields: [leaveTypeId], references: [id])
+
+  @@unique([employeeId, leaveTypeId, year])
+}
+
+model HRMLeave {
+  id             Int            @id @default(autoincrement())
+  employeeId     Int
+  leaveTypeId    Int
+  startDate      DateTime       @db.Date
+  endDate        DateTime       @db.Date
+  days           Int
+  reason         String?        @db.Text
+  status         HRMLeaveStatus @default(PENDING)
+  approvedById   Int?
+  approvedAt     DateTime?
+  rejectedReason String?        @db.Text
+  attachment     String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  employee  HRMEmployee  @relation(fields: [employeeId], references: [id])
+  leaveType HRMLeaveType @relation(fields: [leaveTypeId], references: [id])
+}
+
+model HRMPayroll {
+  id               Int              @id @default(autoincrement())
+  employeeId       Int
+  month            Int
+  year             Int
+  basicSalary      Decimal          @db.Decimal(12, 2)
+  allowances       Decimal          @db.Decimal(12, 2) @default(0)
+  bonuses          Decimal          @db.Decimal(12, 2) @default(0)
+  overtime         Decimal          @db.Decimal(12, 2) @default(0)
+  commission       Decimal          @db.Decimal(12, 2) @default(0)
+  grossSalary      Decimal          @db.Decimal(12, 2)
+  taxDeduction     Decimal          @db.Decimal(12, 2) @default(0)
+  pfDeduction      Decimal          @db.Decimal(12, 2) @default(0)
+  eobiDeduction    Decimal          @db.Decimal(12, 2) @default(0)
+  loanDeduction    Decimal          @db.Decimal(12, 2) @default(0)
+  advanceDeduction Decimal          @db.Decimal(12, 2) @default(0)
+  lateDeduction    Decimal          @db.Decimal(12, 2) @default(0)
+  absentDeduction  Decimal          @db.Decimal(12, 2) @default(0)
+  otherDeductions  Decimal          @db.Decimal(12, 2) @default(0)
+  totalDeductions  Decimal          @db.Decimal(12, 2)
+  netSalary        Decimal          @db.Decimal(12, 2)
+  status           HRMPayrollStatus @default(DRAFT)
+  notes            String?          @db.Text
+  generatedById    Int?
+  generatedAt      DateTime?
+  paidAt           DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  employee HRMEmployee      @relation(fields: [employeeId], references: [id])
+  items    HRMPayrollItem[]
+
+  @@unique([employeeId, month, year])
+}
+
+model HRMPayrollItem {
+  id        Int        @id @default(autoincrement())
+  payrollId Int
+  type      String
+  label     String
+  amount    Decimal    @db.Decimal(12, 2)
+
+  payroll HRMPayroll @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+}
+
+model HRMAllowance {
+  id          Int      @id @default(autoincrement())
+  employeeId  Int
+  name        String
+  amount      Decimal  @db.Decimal(12, 2)
+  isRecurring Boolean  @default(true)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  employee HRMEmployee @relation(fields: [employeeId], references: [id])
+}
+
+model HRMDeduction {
+  id          Int      @id @default(autoincrement())
+  employeeId  Int
+  name        String
+  amount      Decimal  @db.Decimal(12, 2)
+  isRecurring Boolean  @default(true)
+  isActive    Boolean  @default(true)
+  reason      String?
+  createdAt   DateTime @default(now())
+
+  employee HRMEmployee @relation(fields: [employeeId], references: [id])
+}
+
+model HRMDocument {
+  id           Int       @id @default(autoincrement())
+  employeeId   Int
+  type         String
+  name         String
+  fileUrl      String    @db.Text
+  expiryDate   DateTime?
+  notes        String?
+  uploadedById Int?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  employee HRMEmployee @relation(fields: [employeeId], references: [id])
+}
+
+model HRMAsset {
+  id           Int               @id @default(autoincrement())
+  employeeId   Int?
+  name         String
+  type         String
+  assetCode    String?           @unique
+  serialNumber String?
+  brand        String?
+  condition    HRMAssetCondition @default(GOOD)
+  issueDate    DateTime?
+  returnDate   DateTime?
+  notes        String?           @db.Text
+  status       HRMAssetStatus    @default(AVAILABLE)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  employee HRMEmployee? @relation(fields: [employeeId], references: [id])
+}
+
+model HRMPerformance {
+  id              Int           @id @default(autoincrement())
+  employeeId      Int
+  reviewPeriod    String
+  reviewType      HRMReviewType @default(QUARTERLY)
+  rating          Int
+  goals           String?       @db.Text
+  achievements    String?       @db.Text
+  improvements    String?       @db.Text
+  managerComment  String?       @db.Text
+  employeeComment String?       @db.Text
+  reviewedById    Int?
+  reviewDate      DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  employee HRMEmployee @relation(fields: [employeeId], references: [id])
+}
+
+model HRMNotice {
+  id           Int               @id @default(autoincrement())
+  title        String
+  content      String            @db.Text
+  type         HRMNoticeType     @default(GENERAL)
+  priority     HRMNoticePriority @default(NORMAL)
+  targetAll    Boolean           @default(true)
+  departmentId Int?
+  publishedAt  DateTime?
+  expiresAt    DateTime?
+  isPublished  Boolean           @default(false)
+  createdById  Int?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  department HRMDepartment? @relation(fields: [departmentId], references: [id])
+}
+
+model HRMHoliday {
+  id          Int            @id @default(autoincrement())
+  name        String
+  date        DateTime       @db.Date
+  type        HRMHolidayType @default(NATIONAL)
+  isRecurring Boolean        @default(false)
+  description String?
+  createdAt   DateTime       @default(now())
+}
+
+model HRMAuditLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int?
+  employeeId Int?
+  action     String
+  module     String
+  recordId   String?
+  oldValue   Json?
+  newValue   Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
 }

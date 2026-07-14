@@ -26,9 +26,9 @@ export async function POST(req: NextRequest) {
     try { event = JSON.parse(body) as Stripe.Event; } catch { return NextResponse.json({ error: "Invalid payload" }, { status: 400 }); }
   }
 
-  if (event && event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
-    const invoiceId = session.metadata?.invoiceId;
+  if (event && (event.type === "checkout.session.completed" || event.type === "payment_intent.succeeded")) {
+    const obj = event.data.object as Stripe.Checkout.Session | Stripe.PaymentIntent;
+    const invoiceId = obj.metadata?.invoiceId;
     if (invoiceId) {
       await prisma.invoice.update({
         where: { id: Number(invoiceId) },

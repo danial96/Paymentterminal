@@ -22,6 +22,7 @@ export async function POST(
       email: (fd.get("email") as string) || null,
       website: (fd.get("website") as string) || null,
       brandColor: (fd.get("brandColor") as string) || "#1a1a2e",
+      invoiceTemplate: (fd.get("invoiceTemplate") as string) || "modern",
     },
   });
 

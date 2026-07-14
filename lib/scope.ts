@@ -13,7 +13,7 @@ export async function requireAdmin() {
   return user;
 }
 
-export type AppPermission = "invoices" | "sellers" | "monthly_sales" | "renewals";
+export type AppPermission = "invoices" | "sellers" | "monthly_sales" | "renewals" | "hrm";
 
 export function userHasPermission(user: { role: string; permissions?: unknown }, perm: AppPermission): boolean {
   if (user.role === "admin") return true;

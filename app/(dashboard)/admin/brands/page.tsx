@@ -44,6 +44,7 @@ export default async function BrandsPage() {
               initialEmail={b.email ?? ""}
               initialWebsite={b.website ?? ""}
               initialBrandColor={(b as { brandColor?: string | null }).brandColor ?? "#1a1a2e"}
+              initialInvoiceTemplate={(b as { invoiceTemplate?: string | null }).invoiceTemplate ?? "modern"}
             />
           </div>
         ))}

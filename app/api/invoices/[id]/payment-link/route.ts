@@ -39,8 +39,23 @@ export async function POST(
     })
   );
 
+  // Apply discount coupon if invoice has a discount
+  const discountAmount = Number((invoice as { discountAmount?: unknown }).discountAmount ?? 0);
+  const discounts: { coupon: string }[] = [];
+  if (discountAmount > 0) {
+    const coupon = await stripe.coupons.create({
+      amount_off: Math.round(discountAmount * 100),
+      currency: invoice.currency,
+      duration: "once",
+      name: `Discount on ${invoice.invoiceNumber}`,
+    });
+    discounts.push({ coupon: coupon.id });
+  }
+
   const paymentLink = await stripe.paymentLinks.create({
     line_items: lineItems,
+    ...(discounts.length > 0 && { discounts }),
+    payment_method_collection: "if_required",
     metadata: {
       invoiceId: invoice.id.toString(),
       invoiceNumber: invoice.invoiceNumber,

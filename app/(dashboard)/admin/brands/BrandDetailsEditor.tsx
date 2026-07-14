@@ -2,6 +2,15 @@
 
 import { useState } from "react";
 
+const TEMPLATES = [
+  { id: "modern",       name: "Modern",       desc: "Bold header, accent top border, diagonal PAID watermark" },
+  { id: "classic",      name: "Classic",       desc: "Centered logo on accent band, full green PAID banner" },
+  { id: "minimal",      name: "Minimal",       desc: "Ultra-clean hairline borders, small PAID tag in header" },
+  { id: "corporate",    name: "Corporate",     desc: "Dark navy table headers, PAID corner triangle ribbon" },
+  { id: "professional", name: "Professional",  desc: "Big INVOICE title, grey row headers, PAID rubber stamp" },
+  { id: "square",       name: "Square",        desc: "Thick accent line, 3-col info layout, PAID green amount" },
+];
+
 export default function BrandDetailsEditor({
   brandId,
   initialAddress,
@@ -9,6 +18,7 @@ export default function BrandDetailsEditor({
   initialEmail,
   initialWebsite,
   initialBrandColor,
+  initialInvoiceTemplate,
 }: {
   brandId: number;
   initialAddress: string;
@@ -16,12 +26,14 @@ export default function BrandDetailsEditor({
   initialEmail: string;
   initialWebsite: string;
   initialBrandColor: string;
+  initialInvoiceTemplate: string;
 }) {
   const [address, setAddress] = useState(initialAddress);
   const [phone, setPhone] = useState(initialPhone);
   const [email, setEmail] = useState(initialEmail);
   const [website, setWebsite] = useState(initialWebsite);
   const [brandColor, setBrandColor] = useState(initialBrandColor || "#1a1a2e");
+  const [invoiceTemplate, setInvoiceTemplate] = useState(initialInvoiceTemplate || "modern");
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   async function handleSave() {
@@ -33,6 +45,7 @@ export default function BrandDetailsEditor({
       fd.append("email", email);
       fd.append("website", website);
       fd.append("brandColor", brandColor);
+      fd.append("invoiceTemplate", invoiceTemplate);
       const res = await fetch(`/api/admin/brands/${brandId}/details`, { method: "POST", body: fd });
       if (res.ok) {
         setStatus("saved");
@@ -55,6 +68,30 @@ export default function BrandDetailsEditor({
         <span className="ml-2 font-normal normal-case tracking-normal text-zinc-400">(shown on invoices)</span>
       </p>
 
+      {/* Invoice Template Selector */}
+      <div className="mb-4">
+        <label className="text-xs font-medium text-zinc-500 block mb-2">Invoice Template</label>
+        <div className="grid grid-cols-2 gap-2">
+          {TEMPLATES.map(t => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setInvoiceTemplate(t.id)}
+              className={`rounded-lg border-2 p-3 text-left transition-all ${
+                invoiceTemplate === t.id
+                  ? "border-indigo-500 bg-indigo-50"
+                  : "border-zinc-200 bg-zinc-50 hover:border-zinc-300"
+              }`}
+            >
+              <div className={`text-xs font-bold mb-1 ${invoiceTemplate === t.id ? "text-indigo-700" : "text-zinc-700"}`}>
+                {t.name}
+              </div>
+              <div className="text-[10px] text-zinc-400 leading-snug">{t.desc}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1 col-span-2">
           <label className="text-xs font-medium text-zinc-500">Invoice Accent Colour</label>
@@ -72,7 +109,7 @@ export default function BrandDetailsEditor({
               placeholder="#1a1a2e"
               className="w-28 rounded-md border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-sm text-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:bg-white transition-colors font-mono"
             />
-            <span className="text-xs text-zinc-400">Used in invoice header, table & totals</span>
+            <span className="text-xs text-zinc-400">Used in invoice design</span>
           </div>
         </div>
         <div className="flex flex-col gap-1">
@@ -135,7 +172,6 @@ export default function BrandDetailsEditor({
         )}
       </div>
 
-      {/* Current saved preview */}
       {(initialPhone || initialEmail || initialAddress || initialWebsite) && status === "idle" && (
         <div className="mt-3 rounded-lg bg-green-50 border border-green-200 px-3 py-2 text-xs text-green-700">
           <span className="font-semibold">✓ Saved: </span>
