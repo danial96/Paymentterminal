@@ -1,0 +1,94 @@
+"use server";
+
+import { requireAdmin } from "@/lib/scope";
+import { getZKAttendanceLogs, getZKUsers } from "@/lib/zkteco";
+import { prisma } from "@/lib/prisma";
+
+export async function syncZKAttendance() {
+  await requireAdmin();
+
+  const logs = await getZKAttendanceLogs();
+  if (!logs.length) return { synced: 0, skipped: 0, errors: [] as string[] };
+
+  // Get all employees with their ZK user ID mapping (employeeId field = ZK userId)
+  const employees = await prisma.hRMEmployee.findMany({
+    where: { deletedAt: null },
+    select: { id: true, employeeId: true },
+  });
+
+  const empMap = new Map(employees.map((e) => [e.employeeId, e.id]));
+
+  let synced = 0;
+  let skipped = 0;
+  const errors: string[] = [];
+
+  for (const log of logs) {
+    const employeeDbId = empMap.get(log.userId);
+    if (!employeeDbId) {
+      skipped++;
+      continue;
+    }
+
+    const date = new Date(log.attTime);
+    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const timeStr = date.toTimeString().slice(0, 8);
+
+    try {
+      const existing = await prisma.hRMAttendance.findUnique({
+        where: { employeeId_date: { employeeId: employeeDbId, date: dateOnly } },
+      });
+
+      // inOutStatus: 0 = check-in, 1 = check-out
+      if (!existing) {
+        // First record of the day — set as check-in
+        const lateThreshold = new Date(dateOnly);
+        lateThreshold.setHours(9, 15, 0);
+        const isLate = date > lateThreshold;
+
+        await prisma.hRMAttendance.create({
+          data: {
+            employeeId: employeeDbId,
+            date: dateOnly,
+            checkIn: timeStr,
+            status: isLate ? "LATE" : "PRESENT",
+            isManual: false,
+          },
+        });
+        synced++;
+      } else if (log.inOutStatus === 1 || (!existing.checkOut && date > new Date(dateOnly.getTime() + 8 * 3600000))) {
+        // Update check-out if not set or explicitly check-out event
+        if (!existing.checkOut) {
+          const checkInDate = existing.checkIn
+            ? new Date(`${dateOnly.toISOString().slice(0, 10)}T${existing.checkIn}`)
+            : date;
+          const workMs = date.getTime() - checkInDate.getTime();
+          const workHours = Math.round((workMs / 3600000) * 100) / 100;
+          const overtime = workHours > 8 ? Math.round((workHours - 8) * 100) / 100 : 0;
+
+          await prisma.hRMAttendance.update({
+            where: { id: existing.id },
+            data: {
+              checkOut: timeStr,
+              workingHours: workHours,
+              overtimeHours: overtime,
+            },
+          });
+          synced++;
+        } else {
+          skipped++;
+        }
+      } else {
+        skipped++;
+      }
+    } catch (e) {
+      errors.push(`Employee ${log.userId}: ${e}`);
+    }
+  }
+
+  return { synced, skipped, errors };
+}
+
+export async function getZKDeviceUsers() {
+  await requireAdmin();
+  return await getZKUsers();
+}
