@@ -30,13 +30,13 @@ export async function syncZKAttendance() {
   const errors: string[] = [];
 
   for (const log of logs) {
-    const employeeDbId = empMap.get(log.userId);
+    const employeeDbId = empMap.get(log.user_id);
     if (!employeeDbId) {
       skipped++;
       continue;
     }
 
-    const date = new Date(log.attTime);
+    const date = new Date(log.record_time);
     const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     const timeStr = date.toTimeString().slice(0, 8);
 
@@ -45,7 +45,7 @@ export async function syncZKAttendance() {
         where: { employeeId_date: { employeeId: employeeDbId, date: dateOnly } },
       });
 
-      // inOutStatus: 0 = check-in, 1 = check-out
+      // state: 0 = check-in, 1 = check-out
       if (!existing) {
         // First record of the day — set as check-in
         const lateThreshold = new Date(dateOnly);
@@ -62,7 +62,7 @@ export async function syncZKAttendance() {
           },
         });
         synced++;
-      } else if (log.inOutStatus === 1 || (!existing.checkOut && date > new Date(dateOnly.getTime() + 8 * 3600000))) {
+      } else if (log.state === 1 || (!existing.checkOut && date > new Date(dateOnly.getTime() + 8 * 3600000))) {
         // Update check-out if not set or explicitly check-out event
         if (!existing.checkOut) {
           const checkInDate = existing.checkIn

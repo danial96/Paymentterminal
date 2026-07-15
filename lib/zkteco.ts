@@ -1,10 +1,12 @@
 import ZKLib from "zkteco-js";
 
 export interface ZKAttendanceLog {
-  userId: string;
-  attTime: Date;
-  verifyType: number;
-  inOutStatus: number;
+  sn: number;
+  user_id: string;
+  record_time: string;
+  type: number;
+  state: number;
+  ip: string;
 }
 
 export interface ZKUser {
