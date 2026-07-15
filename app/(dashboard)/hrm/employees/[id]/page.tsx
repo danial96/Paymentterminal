@@ -71,6 +71,15 @@ export default async function EmployeeProfilePage({ params }: { params: Promise<
           <span className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_COLORS[emp.status] ?? "bg-zinc-100 text-zinc-500"}`}>
             {emp.status.replace("_", " ")}
           </span>
+          {emp.fingerprintEnrolled ? (
+            <span className="rounded-full px-3 py-1 text-xs font-semibold bg-green-100 text-green-700">
+              ✓ Fingerprint Enrolled
+            </span>
+          ) : (
+            <span className="rounded-full px-3 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700">
+              ⏳ Fingerprint Pending
+            </span>
+          )}
           <Link href={`/hrm/employees/${emp.id}/edit`} className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50">Edit</Link>
           <form action={deleteAction}>
             <DeleteButton className="rounded-lg border border-red-200 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50" message="Delete this employee permanently?">

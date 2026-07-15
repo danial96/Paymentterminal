@@ -6,6 +6,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/scope";
 import bcrypt from "bcryptjs";
+import { pushUserToZK } from "@/lib/zkteco";
 
 const EmployeeSchema = z.object({
   firstName: z.string().min(1),
@@ -53,7 +54,7 @@ const EmployeeSchema = z.object({
 
 async function generateEmployeeId(): Promise<string> {
   const last = await prisma.hRMEmployee.findFirst({ orderBy: { id: "desc" } });
-  const num = last ? 1000 + last.id + 1 : 1001;
+  const num = last ? 1010 + last.id + 1 : 1011;
   return `EMP${num}`;
 }
 
@@ -185,8 +186,15 @@ export async function createEmployee(formData: FormData) {
       taxNumber: parsed.taxNumber || null,
       status: parsed.status,
       notes: parsed.notes || null,
+      fingerprintEnrolled: false,
     },
   });
+
+  // Auto-push to ZKTeco machine (fire and forget — don't block employee creation)
+  const fullName = `${parsed.firstName} ${parsed.lastName}`;
+  const uid = parseInt(empId.replace("EMP", ""));
+  pushUserToZK(uid, empId, fullName).catch(() => {});
+
   revalidatePath("/hrm/employees");
   revalidatePath("/admin/users");
   redirect("/hrm/employees");

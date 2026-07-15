@@ -6,5 +6,6 @@ declare module "zkteco-js" {
     getAttendances(): Promise<{ data: unknown[] }>;
     getUsers(): Promise<{ data: unknown[] }>;
     clearAttendanceLog(): Promise<void>;
+    setUser(uid: number, userId: string, name: string, password: string, role: number, cardno: number): Promise<void>;
   }
 }

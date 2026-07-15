@@ -49,6 +49,18 @@ export async function getZKUsers(): Promise<ZKUser[]> {
   }
 }
 
+export async function pushUserToZK(uid: number, userId: string, name: string): Promise<void> {
+  const zk = new ZKLib(ZKTECO_IP, ZKTECO_PORT, ZKTECO_TIMEOUT, ZKTECO_INPORT);
+  try {
+    await zk.createSocket();
+    await zk.setUser(uid, userId, name, "", 0, 0);
+    await zk.disconnect();
+  } catch (err) {
+    try { await zk.disconnect(); } catch {}
+    throw err;
+  }
+}
+
 export async function clearZKAttendanceLogs(): Promise<void> {
   const zk = new ZKLib(ZKTECO_IP, ZKTECO_PORT, ZKTECO_TIMEOUT, ZKTECO_INPORT);
   try {

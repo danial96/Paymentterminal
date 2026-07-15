@@ -60,6 +60,11 @@ export async function syncZKAttendance() {
             isManual: false,
           },
         });
+        // Mark fingerprint as enrolled on first attendance
+        await prisma.hRMEmployee.updateMany({
+          where: { id: employeeDbId, fingerprintEnrolled: false },
+          data: { fingerprintEnrolled: true },
+        });
         synced++;
       } else if (log.state === 1 || (!existing.checkOut && date > new Date(dateOnly.getTime() + 8 * 3600000))) {
         // Update check-out if not set or explicitly check-out event
@@ -95,4 +100,13 @@ export async function syncZKAttendance() {
 export async function getZKDeviceUsers() {
   await requireAdmin();
   return await getZKUsers();
+}
+
+export async function getPendingFingerprintEmployees() {
+  await requireAdmin();
+  return await prisma.hRMEmployee.findMany({
+    where: { fingerprintEnrolled: false, deletedAt: null, status: "ACTIVE" },
+    select: { id: true, firstName: true, lastName: true, employeeId: true, createdAt: true },
+    orderBy: { createdAt: "desc" },
+  });
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { syncZKAttendance, getZKDeviceUsers, debugZKLogs } from "@/app/actions/zkteco";
+import { useState, useEffect } from "react";
+import { syncZKAttendance, getZKDeviceUsers, debugZKLogs, getPendingFingerprintEmployees } from "@/app/actions/zkteco";
 
 export default function ZKTecoPage() {
   const [syncing, setSyncing] = useState(false);
@@ -11,6 +11,11 @@ export default function ZKTecoPage() {
   const [error, setError] = useState<string | null>(null);
   const [debugLogs, setDebugLogs] = useState<string[] | null>(null);
   const [debugging, setDebugging] = useState(false);
+  const [pendingEmployees, setPendingEmployees] = useState<{ id: number; firstName: string; lastName: string; employeeId: string; createdAt: Date }[]>([]);
+
+  useEffect(() => {
+    getPendingFingerprintEmployees().then(setPendingEmployees).catch(() => {});
+  }, [result]);
 
   async function handleSync() {
     setSyncing(true);
@@ -90,6 +95,34 @@ export default function ZKTecoPage() {
           </div>
         )}
       </div>
+
+      {/* Pending Fingerprint Enrollment */}
+      {pendingEmployees.length > 0 && (
+        <div className="border border-yellow-300 bg-yellow-50 rounded-lg p-5 space-y-3">
+          <h2 className="font-semibold text-lg text-yellow-800">⏳ Fingerprint Pending ({pendingEmployees.length})</h2>
+          <p className="text-sm text-yellow-700">Yeh employees machine par register hain lekin abhi tak finger enroll nahi ki. Inhe machine par jakar finger lagani hai.</p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-yellow-700 border-b border-yellow-200">
+                  <th className="pb-2">Employee ID</th>
+                  <th className="pb-2">Name</th>
+                  <th className="pb-2">Added On</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingEmployees.map((e) => (
+                  <tr key={e.id} className="border-b border-yellow-100 last:border-0">
+                    <td className="py-2 font-mono text-yellow-800">{e.employeeId}</td>
+                    <td className="py-2">{e.firstName} {e.lastName}</td>
+                    <td className="py-2 text-yellow-600">{new Date(e.createdAt).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Debug Raw Logs */}
       <div className="border rounded-lg p-5 space-y-4">
