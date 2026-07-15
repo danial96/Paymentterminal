@@ -10,31 +10,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Deploy source to Hostinger via rsync
-        uses: burnett01/rsync-deployments@7.0.1
-        with:
-          switches: -avz --delete --exclude='.git' --exclude='node_modules' --exclude='.env' --exclude='.env.local' --exclude='server.js' --exclude='stderr.log' --exclude='console.log' --exclude='.next'
-          path: ./
-          remote_path: /home/u395517514/domains/lightgrey-cassowary-624705.hostingersite.com/nodejs/
-          remote_host: 193.203.176.109
-          remote_port: 65002
-          remote_user: u395517514
-          remote_key: ${{ secrets.HOSTINGER_SSH_KEY }}
-
-      - name: Build on server
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: 193.203.176.109
           port: 65002
           username: u395517514
           key: ${{ secrets.HOSTINGER_SSH_KEY }}
-          command_timeout: 15m
+          command_timeout: 20m
           script: |
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            cd ~/domains/lightgrey-cassowary-624705.hostingersite.com/nodejs
+
+            DEPLOY_DIR=~/domains/lightgrey-cassowary-624705.hostingersite.com/nodejs
+            cd $DEPLOY_DIR
+
+            # Init git if not already
+            if [ ! -d ".git" ]; then
+              git init
+              git remote add origin https://github.com/danial96/softcube_crm.git
+            fi
+
+            # Pull latest code
+            git fetch origin main
+            git reset --hard origin/main
+
+            # Install & build
             npm ci
             NODE_OPTIONS="--max-old-space-size=4096" npm run build
