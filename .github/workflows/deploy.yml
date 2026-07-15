@@ -37,7 +37,7 @@ jobs:
       - name: Deploy to Hostinger via rsync
         uses: burnett01/rsync-deployments@7.0.1
         with:
-          switches: -avz --delete --exclude='.git' --exclude='node_modules' --exclude='.env' --exclude='.env.local'
+          switches: -avz --delete --exclude='.git' --exclude='node_modules' --exclude='.env' --exclude='.env.local' --exclude='server.js' --exclude='stderr.log' --exclude='console.log'
           path: ./
           remote_path: /home/u395517514/domains/lightgrey-cassowary-624705.hostingersite.com/nodejs/
           remote_host: 193.203.176.109
