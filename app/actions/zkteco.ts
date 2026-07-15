@@ -7,8 +7,8 @@ import { prisma } from "@/lib/prisma";
 export async function debugZKLogs() {
   await requireAdmin();
   const logs = await getZKAttendanceLogs();
-  // Return first 5 raw logs to inspect structure
-  return logs.slice(0, 5).map((l) => JSON.stringify(l));
+  // Return last 10 raw logs to see recent punches
+  return logs.slice(-10).map((l) => JSON.stringify(l));
 }
 
 export async function syncZKAttendance() {
