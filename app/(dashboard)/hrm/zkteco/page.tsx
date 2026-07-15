@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { syncZKAttendance, getZKDeviceUsers } from "@/app/actions/zkteco";
+import { syncZKAttendance, getZKDeviceUsers, debugZKLogs } from "@/app/actions/zkteco";
 
 export default function ZKTecoPage() {
   const [syncing, setSyncing] = useState(false);
@@ -9,6 +9,8 @@ export default function ZKTecoPage() {
   const [users, setUsers] = useState<{ userId: string; name: string }[] | null>(null);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [debugLogs, setDebugLogs] = useState<string[] | null>(null);
+  const [debugging, setDebugging] = useState(false);
 
   async function handleSync() {
     setSyncing(true);
@@ -21,6 +23,19 @@ export default function ZKTecoPage() {
       setError(e instanceof Error ? e.message : "Connection failed");
     } finally {
       setSyncing(false);
+    }
+  }
+
+  async function handleDebug() {
+    setDebugging(true);
+    setError(null);
+    try {
+      const res = await debugZKLogs();
+      setDebugLogs(res);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Debug failed");
+    } finally {
+      setDebugging(false);
     }
   }
 
@@ -72,6 +87,26 @@ export default function ZKTecoPage() {
                 {result.errors.map((e, i) => <li key={i}>{e}</li>)}
               </ul>
             )}
+          </div>
+        )}
+      </div>
+
+      {/* Debug Raw Logs */}
+      <div className="border rounded-lg p-5 space-y-4">
+        <h2 className="font-semibold text-lg">Debug: Raw Attendance Logs</h2>
+        <p className="text-sm text-gray-500">Machine se pehle 5 raw log records dekho — userId format check karne ke liye.</p>
+        <button
+          onClick={handleDebug}
+          disabled={debugging}
+          className="bg-yellow-600 text-white px-5 py-2 rounded-lg hover:bg-yellow-700 disabled:opacity-50 font-medium"
+        >
+          {debugging ? "Loading..." : "Show Raw Logs"}
+        </button>
+        {debugLogs && (
+          <div className="space-y-1">
+            {debugLogs.map((l, i) => (
+              <pre key={i} className="text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-x-auto">{l}</pre>
+            ))}
           </div>
         )}
       </div>

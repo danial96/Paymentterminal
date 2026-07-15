@@ -4,6 +4,13 @@ import { requireAdmin } from "@/lib/scope";
 import { getZKAttendanceLogs, getZKUsers } from "@/lib/zkteco";
 import { prisma } from "@/lib/prisma";
 
+export async function debugZKLogs() {
+  await requireAdmin();
+  const logs = await getZKAttendanceLogs();
+  // Return first 5 raw logs to inspect structure
+  return logs.slice(0, 5).map((l) => JSON.stringify(l));
+}
+
 export async function syncZKAttendance() {
   await requireAdmin();
 
