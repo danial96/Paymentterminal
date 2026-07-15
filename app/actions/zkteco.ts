@@ -82,6 +82,11 @@ export async function syncZKAttendance() {
               overtimeHours: overtime,
             },
           });
+          // Mark enrolled on checkout sync too
+          await prisma.hRMEmployee.updateMany({
+            where: { id: employeeDbId, fingerprintEnrolled: false },
+            data: { fingerprintEnrolled: true },
+          });
           synced++;
         } else {
           skipped++;
