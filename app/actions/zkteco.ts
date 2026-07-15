@@ -88,7 +88,7 @@ export async function syncZKAttendance() {
         skipped++;
       }
     } catch (e) {
-      errors.push(`Employee ${log.userId}: ${e}`);
+      errors.push(`Employee ${log.user_id}: ${e}`);
     }
   }
 
