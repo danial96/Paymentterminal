@@ -10,31 +10,56 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          host: 193.203.176.109
-          port: 65002
-          username: u395517514
-          key: ${{ secrets.HOSTINGER_SSH_KEY }}
-          command_timeout: 20m
-          script: |
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          node-version: '20'
+          cache: 'npm'
 
-            DEPLOY_DIR=~/domains/lightgrey-cassowary-624705.hostingersite.com/nodejs
-            cd $DEPLOY_DIR
+      - name: Install dependencies
+        run: npm ci
 
-            # Init git if not already
-            if [ ! -d ".git" ]; then
-              git init
-              git remote add origin https://github.com/danial96/softcube_crm.git
-            fi
+      - name: Build
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
+          AUTH_TRUST_HOST: true
+          NODE_OPTIONS: --max-old-space-size=4096
 
-            # Pull latest code
-            git fetch origin main
-            git reset --hard origin/main
+      - name: Deploy standalone to Hostinger via rsync
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: -avz --delete --exclude='.env' --exclude='.env.local' --exclude='stderr.log' --exclude='console.log'
+          path: .next/standalone/
+          remote_path: /home/u395517514/domains/lightgrey-cassowary-624705.hostingersite.com/nodejs/
+          remote_host: 193.203.176.109
+          remote_port: 65002
+          remote_user: u395517514
+          remote_key: ${{ secrets.HOSTINGER_SSH_KEY }}
 
-            # Install & build
-            npm ci
-            NODE_OPTIONS="--max-old-space-size=4096" npm run build
+      - name: Deploy static files via rsync
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: -avz --delete
+          path: .next/static/
+          remote_path: /home/u395517514/domains/lightgrey-cassowary-624705.hostingersite.com/nodejs/.next/static/
+          remote_host: 193.203.176.109
+          remote_port: 65002
+          remote_user: u395517514
+          remote_key: ${{ secrets.HOSTINGER_SSH_KEY }}
+
+      - name: Deploy public folder via rsync
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: -avz --delete
+          path: public/
+          remote_path: /home/u395517514/domains/lightgrey-cassowary-624705.hostingersite.com/nodejs/public/
+          remote_host: 193.203.176.109
+          remote_port: 65002
+          remote_user: u395517514
+          remote_key: ${{ secrets.HOSTINGER_SSH_KEY }}
