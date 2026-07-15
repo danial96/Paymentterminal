@@ -37,8 +37,7 @@ export async function syncZKAttendance() {
     }
 
     const date = new Date(log.record_time);
-    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const timeStr = date.toTimeString().slice(0, 8);
+    const dateOnly = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 
     try {
       const existing = await prisma.hRMAttendance.findUnique({
@@ -49,14 +48,14 @@ export async function syncZKAttendance() {
       if (!existing) {
         // First record of the day — set as check-in
         const lateThreshold = new Date(dateOnly);
-        lateThreshold.setHours(9, 15, 0);
+        lateThreshold.setUTCHours(9, 15, 0, 0);
         const isLate = date > lateThreshold;
 
         await prisma.hRMAttendance.create({
           data: {
             employeeId: employeeDbId,
             date: dateOnly,
-            checkIn: timeStr,
+            checkIn: date,
             status: isLate ? "LATE" : "PRESENT",
             isManual: false,
           },
@@ -65,9 +64,7 @@ export async function syncZKAttendance() {
       } else if (log.state === 1 || (!existing.checkOut && date > new Date(dateOnly.getTime() + 8 * 3600000))) {
         // Update check-out if not set or explicitly check-out event
         if (!existing.checkOut) {
-          const checkInDate = existing.checkIn
-            ? new Date(`${dateOnly.toISOString().slice(0, 10)}T${existing.checkIn}`)
-            : date;
+          const checkInDate = existing.checkIn ? new Date(existing.checkIn) : date;
           const workMs = date.getTime() - checkInDate.getTime();
           const workHours = Math.round((workMs / 3600000) * 100) / 100;
           const overtime = workHours > 8 ? Math.round((workHours - 8) * 100) / 100 : 0;
@@ -75,7 +72,7 @@ export async function syncZKAttendance() {
           await prisma.hRMAttendance.update({
             where: { id: existing.id },
             data: {
-              checkOut: timeStr,
+              checkOut: date,
               workingHours: workHours,
               overtimeHours: overtime,
             },
