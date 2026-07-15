@@ -85,6 +85,7 @@ export default async function EmployeesPage({
               <th className="px-4 py-3 text-left">Designation</th>
               <th className="px-4 py-3 text-left">Type</th>
               <th className="px-4 py-3 text-left">Status</th>
+              <th className="px-4 py-3 text-left">Fingerprint</th>
               <th className="px-4 py-3 text-left">Joined</th>
               <th className="px-4 py-3 text-left"></th>
             </tr>
@@ -92,7 +93,7 @@ export default async function EmployeesPage({
           <tbody className="divide-y divide-zinc-100">
             {employees.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-12 text-center text-zinc-400">No employees found</td>
+                <td colSpan={9} className="px-4 py-12 text-center text-zinc-400">No employees found</td>
               </tr>
             )}
             {employees.map((emp) => (
@@ -116,6 +117,13 @@ export default async function EmployeesPage({
                   <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${STATUS_COLORS[emp.status] ?? "bg-zinc-100 text-zinc-500"}`}>
                     {emp.status.replace("_", " ")}
                   </span>
+                </td>
+                <td className="px-4 py-3">
+                  {emp.fingerprintEnrolled ? (
+                    <span className="rounded-full px-2 py-0.5 text-xs font-semibold bg-green-100 text-green-700">✓ Enrolled</span>
+                  ) : (
+                    <span className="rounded-full px-2 py-0.5 text-xs font-semibold bg-yellow-100 text-yellow-700">⏳ Pending</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-zinc-500 text-xs">
                   {emp.joiningDate ? emp.joiningDate.toLocaleDateString("en-GB") : "—"}
