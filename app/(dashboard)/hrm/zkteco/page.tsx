@@ -12,10 +12,68 @@ export default function ZKTecoPage() {
   const [debugLogs, setDebugLogs] = useState<string[] | null>(null);
   const [debugging, setDebugging] = useState(false);
   const [pendingEmployees, setPendingEmployees] = useState<{ id: number; firstName: string; lastName: string; employeeId: string; createdAt: Date }[]>([]);
+  const [liveStatus, setLiveStatus] = useState<"connecting" | "live" | "fallback" | "error">("connecting");
+  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
 
   useEffect(() => {
     getPendingFingerprintEmployees().then(setPendingEmployees).catch(() => {});
   }, [result]);
+
+  // Auto-sync function
+  const autoSync = async () => {
+    try {
+      const res = await syncZKAttendance();
+      if (res.synced > 0) {
+        setResult(res);
+        setLastSyncTime(new Date().toLocaleTimeString());
+        getPendingFingerprintEmployees().then(setPendingEmployees).catch(() => {});
+      }
+    } catch {}
+  };
+
+  // Real-time SSE + 2 min fallback
+  useEffect(() => {
+    let fallbackInterval: ReturnType<typeof setInterval>;
+    let es: EventSource;
+
+    function startFallback() {
+      setLiveStatus("fallback");
+      fallbackInterval = setInterval(autoSync, 2 * 60 * 1000);
+    }
+
+    function connectSSE() {
+      setLiveStatus("connecting");
+      es = new EventSource("/api/hrm/zkteco/realtime");
+
+      es.onmessage = (e) => {
+        try {
+          const data = JSON.parse(e.data);
+          if (data.type === "connected") setLiveStatus("live");
+          if (data.type === "punch") autoSync();
+          if (data.type === "error") { es.close(); startFallback(); }
+        } catch {}
+      };
+
+      es.onerror = () => {
+        es.close();
+        // SSE auto-reconnects after 90s server close — but start fallback too
+        startFallback();
+        // Retry SSE after 30s
+        setTimeout(() => {
+          clearInterval(fallbackInterval);
+          connectSSE();
+        }, 30_000);
+      };
+    }
+
+    connectSSE();
+
+    return () => {
+      es?.close();
+      clearInterval(fallbackInterval);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleSync() {
     setSyncing(true);
@@ -59,9 +117,30 @@ export default function ZKTecoPage() {
 
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">ZKTeco Attendance Sync</h1>
-        <p className="text-sm text-gray-500 mt-1">Device: 192.168.40.13 — K50 Fingerprint Terminal</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">ZKTeco Attendance Sync</h1>
+          <p className="text-sm text-gray-500 mt-1">Device: 192.168.40.13 — K50 Fingerprint Terminal</p>
+        </div>
+        <div className="flex flex-col items-end gap-1">
+          <span className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${
+            liveStatus === "live" ? "bg-green-100 text-green-700" :
+            liveStatus === "fallback" ? "bg-yellow-100 text-yellow-700" :
+            liveStatus === "connecting" ? "bg-blue-100 text-blue-600" :
+            "bg-red-100 text-red-600"
+          }`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${
+              liveStatus === "live" ? "bg-green-500 animate-pulse" :
+              liveStatus === "fallback" ? "bg-yellow-500 animate-pulse" :
+              liveStatus === "connecting" ? "bg-blue-500 animate-pulse" :
+              "bg-red-500"
+            }`} />
+            {liveStatus === "live" ? "Live" :
+             liveStatus === "fallback" ? "Auto (2 min)" :
+             liveStatus === "connecting" ? "Connecting..." : "Offline"}
+          </span>
+          {lastSyncTime && <span className="text-xs text-gray-400">Last sync: {lastSyncTime}</span>}
+        </div>
       </div>
 
       {/* Sync Attendance */}
