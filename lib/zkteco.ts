@@ -61,6 +61,23 @@ export async function pushUserToZK(uid: number, userId: string, name: string): P
   }
 }
 
+export async function startFingerprintEnrollment(uid: number): Promise<void> {
+  const zk = new ZKLib(ZKTECO_IP, ZKTECO_PORT, ZKTECO_TIMEOUT, ZKTECO_INPORT);
+  try {
+    await zk.createSocket();
+    // CMD_STARTENROLL = 61 — triggers enrollment mode on machine for given UID
+    const buf = Buffer.alloc(4);
+    buf.writeUInt16LE(uid, 0);
+    buf.writeUInt16LE(0, 2); // finger index 0
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (zk as any).ztcp.executeCmd(61, buf);
+    await zk.disconnect();
+  } catch (err) {
+    try { await zk.disconnect(); } catch {}
+    throw err;
+  }
+}
+
 export async function clearZKAttendanceLogs(): Promise<void> {
   const zk = new ZKLib(ZKTECO_IP, ZKTECO_PORT, ZKTECO_TIMEOUT, ZKTECO_INPORT);
   try {

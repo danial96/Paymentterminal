@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { deleteEmployee } from "@/app/actions/hrm-employees";
 import { DeleteButton } from "@/app/(dashboard)/hrm/components/DeleteButton";
+import { EnrollFingerprintButton } from "./EnrollFingerprintButton";
 
 const STATUS_COLORS: Record<string, string> = {
   ACTIVE: "bg-emerald-100 text-emerald-700",
@@ -80,6 +81,7 @@ export default async function EmployeeProfilePage({ params }: { params: Promise<
               ⏳ Fingerprint Pending
             </span>
           )}
+          <EnrollFingerprintButton employeeId={emp.employeeId} enrolled={emp.fingerprintEnrolled} />
           <Link href={`/hrm/employees/${emp.id}/edit`} className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50">Edit</Link>
           <form action={deleteAction}>
             <DeleteButton className="rounded-lg border border-red-200 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50" message="Delete this employee permanently?">

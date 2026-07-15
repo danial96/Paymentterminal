@@ -1,7 +1,7 @@
 "use server";
 
 import { requireAdmin } from "@/lib/scope";
-import { getZKAttendanceLogs, getZKUsers } from "@/lib/zkteco";
+import { getZKAttendanceLogs, getZKUsers, startFingerprintEnrollment } from "@/lib/zkteco";
 import { prisma } from "@/lib/prisma";
 
 export async function debugZKLogs() {
@@ -100,6 +100,15 @@ export async function syncZKAttendance() {
 export async function getZKDeviceUsers() {
   await requireAdmin();
   return await getZKUsers();
+}
+
+export async function startEnrollment(employeeId: string) {
+  await requireAdmin();
+  // Extract numeric UID from employeeId e.g. EMP1001 -> 1001
+  const uid = parseInt(employeeId.replace("EMP", ""));
+  if (isNaN(uid)) throw new Error("Invalid employeeId format");
+  await startFingerprintEnrollment(uid);
+  return { success: true };
 }
 
 export async function getPendingFingerprintEmployees() {
