@@ -53,8 +53,8 @@ const EmployeeSchema = z.object({
 
 async function generateEmployeeId(): Promise<string> {
   const last = await prisma.hRMEmployee.findFirst({ orderBy: { id: "desc" } });
-  const num = last ? last.id + 1 : 1;
-  return `EMP-${String(num).padStart(4, "0")}`;
+  const num = last ? 1000 + last.id + 1 : 1001;
+  return `EMP${num}`;
 }
 
 function fd(formData: FormData, key: string) {
