@@ -521,7 +521,9 @@ export default async function PublicInvoicePage({
   const sym = CURRENCY_SYMBOLS[invoice.currency] ?? "£";
   const isPaid = invoice.status === "paid";
   const accent = (brand as { brandColor?: string | null })?.brandColor ?? "#1a1a2e";
-  const template = (brand as { invoiceTemplate?: string | null })?.invoiceTemplate ?? "modern";
+  const template = (invoice as { template?: string | null }).template
+    ?? (brand as { invoiceTemplate?: string | null })?.invoiceTemplate
+    ?? "modern";
 
   const inv = invoice as typeof invoice & {
     paymentMethod?: string;

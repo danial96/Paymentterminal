@@ -205,6 +205,7 @@ model Invoice {
   dueDate              DateTime?
   status               InvoiceStatus @default(draft)
   paymentMethod        String        @default("stripe")
+  template             String        @default("modern")
   showBankName         Boolean       @default(true)
   bankName             String?
   bankAccountName      String?

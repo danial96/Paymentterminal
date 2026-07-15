@@ -27,6 +27,7 @@ export default function InvoiceForm({
   const [clientSearch, setClientSearch] = useState("");
   const [showClientDropdown, setShowClientDropdown] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"stripe" | "bank_transfer">("stripe");
+  const [template, setTemplate] = useState("modern");
   const [showBankName, setShowBankName] = useState(true);
   const [bankFields, setBankFields] = useState({ bankName: "", accountName: "", accountNumber: "", sortCode: "", iban: "", swift: "" });
   const [isPending, startTransition] = useTransition();
@@ -240,6 +241,34 @@ export default function InvoiceForm({
               </div>
               <input type="hidden" name="paymentMethod" value={paymentMethod} />
               <input type="hidden" name="showBankName" value={showBankName ? "true" : "false"} />
+            </div>
+
+            {/* Template Selector */}
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-medium text-zinc-500">Invoice Template</label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { value: "modern", label: "Modern" },
+                  { value: "classic", label: "Classic" },
+                  { value: "minimal", label: "Minimal" },
+                  { value: "corporate", label: "Corporate" },
+                  { value: "professional", label: "Professional" },
+                ].map((t) => (
+                  <button
+                    key={t.value}
+                    type="button"
+                    onClick={() => setTemplate(t.value)}
+                    className={`py-2 px-2 text-xs font-medium rounded-md border transition-colors ${
+                      template === t.value
+                        ? "bg-indigo-600 text-white border-indigo-600"
+                        : "bg-white text-zinc-600 border-zinc-300 hover:bg-zinc-50"
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+              <input type="hidden" name="template" value={template} />
             </div>
 
             {paymentMethod === "stripe" && (
