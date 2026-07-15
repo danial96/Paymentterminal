@@ -9,21 +9,21 @@ export async function requireUser() {
 
 export async function requireAdmin() {
   const user = await requireUser();
-  if (user.role !== "admin") redirect("/dashboard");
+  if (user.role !== "admin" && user.role !== "super-admin") redirect("/dashboard");
   return user;
 }
 
 export type AppPermission = "invoices" | "sellers" | "monthly_sales" | "renewals" | "hrm";
 
 export function userHasPermission(user: { role: string; permissions?: unknown }, perm: AppPermission): boolean {
-  if (user.role === "admin") return true;
+  if (user.role === "admin" || user.role === "super-admin") return true;
   const perms = Array.isArray(user.permissions) ? user.permissions : [];
   return perms.includes(perm);
 }
 
 export async function requirePermission(perm: AppPermission) {
   const sessionUser = await requireUser();
-  if (sessionUser.role === "admin") return sessionUser;
+  if (sessionUser.role === "admin" || sessionUser.role === "super-admin") return sessionUser;
   const { prisma } = await import("@/lib/prisma");
   const dbUser = await prisma.user.findUnique({
     where: { id: Number(sessionUser.id) },
@@ -35,7 +35,7 @@ export async function requirePermission(perm: AppPermission) {
 
 /** Prisma `where` clause fragment scoping clients to what the current role is allowed to see. */
 export function clientScopeWhere(user: { id: string; role: string }) {
-  if (user.role === "admin") return {};
+  if (user.role === "admin" || user.role === "super-admin") return {};
   if (user.role === "project_manager") {
     return { projectManagerId: Number(user.id) };
   }
