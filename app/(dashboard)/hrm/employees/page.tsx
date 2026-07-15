@@ -1,6 +1,7 @@
 import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { FingerprintSyncButton } from "./FingerprintSyncButton";
 
 const STATUS_COLORS: Record<string, string> = {
   ACTIVE: "bg-emerald-100 text-emerald-700",
@@ -119,11 +120,7 @@ export default async function EmployeesPage({
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  {emp.fingerprintEnrolled ? (
-                    <span className="rounded-full px-2 py-0.5 text-xs font-semibold bg-green-100 text-green-700">✓ Enrolled</span>
-                  ) : (
-                    <span className="rounded-full px-2 py-0.5 text-xs font-semibold bg-yellow-100 text-yellow-700">⏳ Pending</span>
-                  )}
+                  <FingerprintSyncButton enrolled={emp.fingerprintEnrolled} />
                 </td>
                 <td className="px-4 py-3 text-zinc-500 text-xs">
                   {emp.joiningDate ? emp.joiningDate.toLocaleDateString("en-GB") : "—"}
