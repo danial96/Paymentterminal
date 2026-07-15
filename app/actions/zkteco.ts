@@ -23,7 +23,13 @@ export async function syncZKAttendance() {
     select: { id: true, employeeId: true },
   });
 
-  const empMap = new Map(employees.map((e) => [e.employeeId, e.id]));
+  const empMap = new Map<string, number>();
+  for (const e of employees) {
+    empMap.set(e.employeeId, e.id);
+    // Also map numeric part — machine stores attendance as numeric uid (e.g. 1014 for EMP1014)
+    const numericId = e.employeeId.replace(/^EMP/i, "");
+    if (numericId !== e.employeeId) empMap.set(numericId, e.id);
+  }
 
   let synced = 0;
   let skipped = 0;
