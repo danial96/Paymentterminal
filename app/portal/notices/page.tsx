@@ -51,7 +51,7 @@ export default async function PortalNoticesPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {notices.map((n) => (
+          {(notices as any[]).map((n: any) => (
             <NoticeCard
               key={n.id}
               noticeId={n.id}
