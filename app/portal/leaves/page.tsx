@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { portalApplyLeave } from "@/app/actions/hrm-portal";
+import { portalApplyLeave, portalCancelLeave } from "@/app/actions/hrm-portal";
 
 const STATUS_STYLES: Record<string, string> = {
   PENDING: "bg-yellow-100 text-yellow-800",
@@ -13,18 +13,35 @@ export default async function PortalLeavesPage() {
   const session = await auth();
   const empId = Number((session?.user as any)?.employeeId);
 
-  const [leaveTypes, leaves] = await Promise.all([
+  const [leaveTypes, leaves, balances] = await Promise.all([
     prisma.hRMLeaveType.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
     prisma.hRMLeave.findMany({
       where: { employeeId: empId },
       include: { leaveType: true },
       orderBy: { createdAt: "desc" },
     }),
+    prisma.hRMLeaveBalance.findMany({
+      where: { employeeId: empId, year: new Date().getFullYear() },
+      include: { leaveType: true },
+    }),
   ]);
 
   return (
     <div className="space-y-6">
       <h1 className="text-xl font-bold text-zinc-900">My Leaves</h1>
+
+      {/* Leave balances */}
+      {balances.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {balances.map((b) => (
+            <div key={b.id} className="rounded-xl border border-zinc-200 bg-white p-4">
+              <p className="text-xs text-zinc-500 mb-1">{b.leaveType.name}</p>
+              <p className="text-2xl font-bold text-zinc-900">{b.remaining}</p>
+              <p className="text-xs text-zinc-400">of {b.allocated} days remaining</p>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Apply for leave */}
       <div className="rounded-xl border border-zinc-200 bg-white p-5">
@@ -101,12 +118,13 @@ export default async function PortalLeavesPage() {
               <th className="px-4 py-3 text-left font-medium text-zinc-500">Days</th>
               <th className="px-4 py-3 text-left font-medium text-zinc-500">Status</th>
               <th className="px-4 py-3 text-left font-medium text-zinc-500">Reason</th>
+              <th className="px-4 py-3 text-left font-medium text-zinc-500"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-100">
             {leaves.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-zinc-400">
+                <td colSpan={7} className="px-4 py-8 text-center text-zinc-400">
                   No leave records yet.
                 </td>
               </tr>
@@ -118,15 +136,20 @@ export default async function PortalLeavesPage() {
                 <td className="px-4 py-3 text-zinc-700">{l.endDate.toLocaleDateString()}</td>
                 <td className="px-4 py-3 text-zinc-700">{l.days}</td>
                 <td className="px-4 py-3">
-                  <span
-                    className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                      STATUS_STYLES[l.status] ?? "bg-zinc-100 text-zinc-500"
-                    }`}
-                  >
+                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${STATUS_STYLES[l.status] ?? "bg-zinc-100 text-zinc-500"}`}>
                     {l.status}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-zinc-400 text-xs">{l.reason ?? "—"}</td>
+                <td className="px-4 py-3">
+                  {l.status === "PENDING" && (
+                    <form action={portalCancelLeave.bind(null, l.id)}>
+                      <button type="submit" className="text-xs text-red-500 hover:text-red-700 font-medium">
+                        Cancel
+                      </button>
+                    </form>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>

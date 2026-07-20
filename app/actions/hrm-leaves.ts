@@ -118,6 +118,7 @@ export async function approveLeave(id: number, approverId: number) {
   }
 
   revalidatePath("/hrm/leaves");
+  revalidatePath("/portal/leaves");
 }
 
 export async function rejectLeave(id: number, reason: string) {
@@ -127,6 +128,19 @@ export async function rejectLeave(id: number, reason: string) {
     data: { status: "REJECTED", rejectedReason: reason },
   });
   revalidatePath("/hrm/leaves");
+  revalidatePath("/portal/leaves");
+}
+
+export async function rejectLeaveWithReason(formData: FormData) {
+  await requireUser();
+  const id = Number(formData.get("id"));
+  const reason = String(formData.get("reason") || "Rejected by HR");
+  await prisma.hRMLeave.update({
+    where: { id },
+    data: { status: "REJECTED", rejectedReason: reason },
+  });
+  revalidatePath("/hrm/leaves");
+  revalidatePath("/portal/leaves");
 }
 
 export async function cancelLeave(id: number) {

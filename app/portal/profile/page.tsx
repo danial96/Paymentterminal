@@ -36,7 +36,7 @@ export default async function PortalProfilePage() {
         <div className="grid grid-cols-2 gap-4">
           <Field label="First Name" value={employee.firstName} />
           <Field label="Last Name" value={employee.lastName} />
-          <Field label="Employee ID" value={String(employee.id)} />
+          <Field label="Employee ID" value={employee.employeeId} />
           <Field label="Phone" value={employee.phone} />
           <Field label="Personal Email" value={employee.personalEmail} />
           <Field label="Company Email" value={employee.companyEmail} />

@@ -37,6 +37,8 @@ export async function fulfillPayslipRequest(id: number, hrNote?: string) {
     data: { status: "FULFILLED", hrNote: hrNote ?? null },
   });
   revalidatePath("/hrm/payroll/requests");
+  revalidatePath("/portal/payslip-request");
+  revalidatePath("/portal/dashboard");
 }
 
 export async function rejectPayslipRequest(id: number, hrNote?: string) {
@@ -46,4 +48,6 @@ export async function rejectPayslipRequest(id: number, hrNote?: string) {
     data: { status: "REJECTED", hrNote: hrNote ?? null },
   });
   revalidatePath("/hrm/payroll/requests");
+  revalidatePath("/portal/payslip-request");
+  revalidatePath("/portal/dashboard");
 }

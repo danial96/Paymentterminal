@@ -1,6 +1,6 @@
 ﻿import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
-import { approveLeave, rejectLeave, applyLeave } from "@/app/actions/hrm-leaves";
+import { approveLeave, rejectLeaveWithReason, applyLeave } from "@/app/actions/hrm-leaves";
 
 const STATUS_COLORS: Record<string, string> = {
   PENDING: "bg-zinc-200 text-zinc-700",
@@ -118,11 +118,17 @@ export default async function LeavesPage({
                 </td>
                 <td className="px-4 py-3">
                   {leave.status === "PENDING" && (
-                    <div className="flex gap-2">
+                    <div className="flex flex-col gap-1.5">
                       <form action={approveLeave.bind(null, leave.id, Number(user.id))}>
                         <button type="submit" className="text-xs text-zinc-700 hover:text-zinc-800 font-medium">Approve</button>
                       </form>
-                      <form action={rejectLeave.bind(null, leave.id, "Rejected by HR")}>
+                      <form action={rejectLeaveWithReason} className="flex items-center gap-1">
+                        <input type="hidden" name="id" value={leave.id} />
+                        <input
+                          name="reason"
+                          placeholder="Reason (optional)"
+                          className="w-28 rounded border border-zinc-200 px-1.5 py-0.5 text-[11px] text-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-300"
+                        />
                         <button type="submit" className="text-xs text-red-500 hover:text-red-700 font-medium">Reject</button>
                       </form>
                     </div>

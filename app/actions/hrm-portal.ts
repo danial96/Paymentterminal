@@ -1,9 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
 
 async function requireEmployee() {
   const session = await auth();
@@ -36,6 +36,7 @@ export async function portalApplyLeave(formData: FormData) {
     },
   });
   revalidatePath("/portal/leaves");
+  redirect("/portal/leaves");
 }
 
 export async function portalCancelLeave(id: number) {
@@ -46,6 +47,7 @@ export async function portalCancelLeave(id: number) {
   if (leave.status !== "PENDING") return;
   await prisma.hRMLeave.update({ where: { id }, data: { status: "CANCELLED" } });
   revalidatePath("/portal/leaves");
+  revalidatePath("/hrm/leaves");
 }
 
 export async function portalChangePassword(formData: FormData) {
