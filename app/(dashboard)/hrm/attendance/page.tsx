@@ -1,7 +1,7 @@
 import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
-import { saveManualAttendance } from "@/app/actions/hrm-attendance";
 import Link from "next/link";
+import ManualMarkForm from "./ManualMarkForm";
 
 const STATUS_COLORS: Record<string, string> = {
   PRESENT: "bg-zinc-900 text-white",
@@ -148,38 +148,11 @@ export default async function AttendancePage({
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <details className="relative">
-                        <summary className="text-xs text-zinc-500 cursor-pointer list-none hover:underline">Mark</summary>
-                        <div className="absolute right-0 top-6 z-50 bg-white rounded-xl border border-zinc-200 shadow-lg p-4 w-64">
-                          <form action={saveManualAttendance} className="space-y-2">
-                            <input type="hidden" name="employeeId" value={emp.id} />
-                            <input type="hidden" name="date" value={selectedStr} />
-                            <div>
-                              <label className="text-[10px] text-zinc-500">Status</label>
-                              <select name="status" defaultValue={att?.status ?? "PRESENT"} className="w-full rounded border border-zinc-200 px-2 py-1 text-xs mt-0.5">
-                                {["PRESENT","ABSENT","LATE","HALF_DAY","EARLY_LEAVE","ON_LEAVE","HOLIDAY","WEEKLY_OFF"].map((s) => (
-                                  <option key={s} value={s}>{s.replace("_", " ")}</option>
-                                ))}
-                              </select>
-                            </div>
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                <label className="text-[10px] text-zinc-500">Check In</label>
-                                <input type="time" name="checkIn" className="w-full rounded border border-zinc-200 px-2 py-1 text-xs mt-0.5" />
-                              </div>
-                              <div>
-                                <label className="text-[10px] text-zinc-500">Check Out</label>
-                                <input type="time" name="checkOut" className="w-full rounded border border-zinc-200 px-2 py-1 text-xs mt-0.5" />
-                              </div>
-                            </div>
-                            <div>
-                              <label className="text-[10px] text-zinc-500">Notes</label>
-                              <input type="text" name="notes" className="w-full rounded border border-zinc-200 px-2 py-1 text-xs mt-0.5" />
-                            </div>
-                            <button type="submit" className="btn-brand w-full rounded py-1.5 text-xs text-white font-medium">Save</button>
-                          </form>
-                        </div>
-                      </details>
+                      <ManualMarkForm
+                        employeeId={emp.id}
+                        date={selectedStr}
+                        currentStatus={att?.status}
+                      />
                     </td>
                   </tr>
                 );
