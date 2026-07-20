@@ -105,7 +105,7 @@ export default function RegisterForm({ token }: { token: string }) {
 
       <div>
         <label className={labelClass}>LinkedIn Profile URL</label>
-        <input name="linkedInUrl" type="url" className={inputClass} placeholder="https://linkedin.com/in/yourname" />
+        <input name="linkedInUrl" type="text" className={inputClass} placeholder="https://linkedin.com/in/yourname" />
       </div>
 
       <div className="border-t border-white/10 pt-4">
