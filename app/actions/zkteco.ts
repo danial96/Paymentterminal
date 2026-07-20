@@ -114,7 +114,7 @@ export async function getZKDeviceUsers() {
 }
 
 export async function startEnrollment(employeeId: string) {
-  await requireAdmin();
+  await requireUser();
   try {
     const uid = parseInt(employeeId.replace(/^IKIA|^EMP/i, "").replace("-", ""));
     if (isNaN(uid)) return { error: "Invalid employee ID format" };
