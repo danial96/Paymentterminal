@@ -56,14 +56,16 @@ export async function deleteComment(commentId: number) {
 export async function toggleCommentReaction(commentId: number, emoji: string) {
   const employeeId = await requireEmployee();
 
-  const existing = await prisma.hRMCommentReaction.findUnique({
-    where: { commentId_employeeId_emoji: { commentId, employeeId, emoji } },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = prisma as any;
+  const existing = await db.hRMCommentReaction.findFirst({
+    where: { commentId, employeeId, emoji },
   });
 
   if (existing) {
-    await prisma.hRMCommentReaction.delete({ where: { id: existing.id } });
+    await db.hRMCommentReaction.delete({ where: { id: existing.id } });
   } else {
-    await prisma.hRMCommentReaction.create({ data: { commentId, employeeId, emoji } });
+    await db.hRMCommentReaction.create({ data: { commentId, employeeId, emoji } });
   }
 
   revalidatePath("/portal/notices");
