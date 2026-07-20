@@ -1,5 +1,5 @@
 "use server";
-
+// exports: toggleReaction, addComment, deleteComment, toggleCommentReaction
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
@@ -28,12 +28,12 @@ export async function toggleReaction(noticeId: number, emoji: string) {
   revalidatePath("/portal/dashboard");
 }
 
-export async function addComment(noticeId: number, content: string) {
+export async function addComment(noticeId: number, content: string, parentId?: number) {
   const employeeId = await requireEmployee();
   if (!content.trim()) return { error: "Comment cannot be empty" };
 
   await prisma.hRMNoticeComment.create({
-    data: { noticeId, employeeId, content: content.trim() },
+    data: { noticeId, employeeId, content: content.trim(), parentId: parentId ?? null },
   });
 
   revalidatePath("/portal/notices");
@@ -45,5 +45,21 @@ export async function deleteComment(commentId: number) {
   if (!comment || comment.employeeId !== employeeId) return { error: "Not allowed" };
 
   await prisma.hRMNoticeComment.delete({ where: { id: commentId } });
+  revalidatePath("/portal/notices");
+}
+
+export async function toggleCommentReaction(commentId: number, emoji: string) {
+  const employeeId = await requireEmployee();
+
+  const existing = await prisma.hRMCommentReaction.findUnique({
+    where: { commentId_employeeId_emoji: { commentId, employeeId, emoji } },
+  });
+
+  if (existing) {
+    await prisma.hRMCommentReaction.delete({ where: { id: existing.id } });
+  } else {
+    await prisma.hRMCommentReaction.create({ data: { commentId, employeeId, emoji } });
+  }
+
   revalidatePath("/portal/notices");
 }
