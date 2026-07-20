@@ -22,12 +22,12 @@ export default function PortalAccessCard({
     const form = e.currentTarget;
     const email = (form.elements.namedItem("portalEmail") as HTMLInputElement).value;
     const password = (form.elements.namedItem("portalPassword") as HTMLInputElement).value;
-    try {
-      await enablePortalAccess(employeeId, email, password);
+    const result = await enablePortalAccess(employeeId, email, password);
+    if ("error" in result) {
+      setMessage(result.error);
+    } else {
       setMessage("Portal access enabled.");
       setShowForm(false);
-    } catch (err: any) {
-      setMessage(err?.message ?? "Error enabling portal access.");
     }
     setLoading(false);
   }

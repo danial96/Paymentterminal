@@ -12,7 +12,7 @@ export async function debugZKLogs() {
 }
 
 export async function syncZKAttendance() {
-  await requireAdmin();
+  await requireUser();
 
   const logs = await getZKAttendanceLogs();
   if (!logs.length) return { synced: 0, skipped: 0, errors: [] as string[] };

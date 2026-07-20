@@ -2,6 +2,7 @@ import { requireUser, userHasPermission, isHrmOnly } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import NavSidebar from "./NavSidebar";
 import TopbarUserMenu from "./TopbarUserMenu";
+import ZKSyncButton from "./ZKSyncButton";
 
 export default async function DashboardLayout({
   children,
@@ -15,6 +16,7 @@ export default async function DashboardLayout({
   }) ?? sessionUser;
   const isAdmin = user.role === "admin";
   const hrmOnly = isHrmOnly(user);
+  const showZkSync = isAdmin || ("hrmRole" in user && user.hrmRole != null);
 
   const hasHrm = isAdmin || userHasPermission(user, "hrm");
 
@@ -54,7 +56,10 @@ export default async function DashboardLayout({
             </svg>
             <span>IKIA TECH</span>
           </div>
-          <TopbarUserMenu user={{ name: user.name ?? sessionUser.name ?? "", role: (user.role ?? sessionUser.role) as string }} isAdmin={isAdmin} />
+          <div className="flex items-center gap-3">
+            {showZkSync && <ZKSyncButton />}
+            <TopbarUserMenu user={{ name: user.name ?? sessionUser.name ?? "", role: (user.role ?? sessionUser.role) as string }} isAdmin={isAdmin} />
+          </div>
         </header>
         {/* Page content */}
         <main className="flex-1 p-6 overflow-auto" style={{ backgroundColor: "var(--main-bg)" }}>{children}</main>

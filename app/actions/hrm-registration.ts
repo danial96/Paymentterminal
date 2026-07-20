@@ -7,13 +7,18 @@ import bcrypt from "bcryptjs";
 
 export async function enablePortalAccess(employeeId: number, email: string, password: string) {
   await requireUser();
-  const hashed = await bcrypt.hash(password, 10);
-  await prisma.hRMEmployee.update({
-    where: { id: employeeId },
-    data: { portalEmail: email, portalPassword: hashed, portalEnabled: true },
-  });
-  revalidatePath(`/hrm/employees/${employeeId}`);
-  return { success: true };
+  try {
+    const hashed = await bcrypt.hash(password, 10);
+    await prisma.hRMEmployee.update({
+      where: { id: employeeId },
+      data: { portalEmail: email, portalPassword: hashed, portalEnabled: true },
+    });
+    revalidatePath(`/hrm/employees/${employeeId}`);
+    return { success: true };
+  } catch (e: any) {
+    if (e?.code === "P2002") return { error: "This email is already used by another employee's portal." };
+    return { error: e?.message ?? "Failed to enable portal access." };
+  }
 }
 
 export async function disablePortalAccess(employeeId: number) {
