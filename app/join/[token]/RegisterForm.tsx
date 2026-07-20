@@ -36,19 +36,19 @@ export default function RegisterForm({ token }: { token: string }) {
     return (
       <div className="text-center space-y-3">
         <div className="text-4xl">✓</div>
-        <p className="text-white font-semibold text-lg">Registration Submitted!</p>
-        <p className="text-white/60 text-sm">Thank you, {done}. HR will review your details and activate your account soon.</p>
+        <p className="text-zinc-900 font-semibold text-lg">Registration Submitted!</p>
+        <p className="text-zinc-500 text-sm">Thank you, {done}. HR will review your details and activate your account soon.</p>
       </div>
     );
   }
 
-  const inputClass = "w-full rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-sm text-white placeholder-white/40 focus:border-white/50 focus:outline-none focus:bg-white/15 transition-colors";
-  const selectClass = "w-full rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-sm text-white focus:border-white/50 focus:outline-none focus:bg-white/15 transition-colors";
-  const labelClass = "block text-xs font-semibold text-white/80 mb-1 uppercase tracking-wide";
+  const inputClass = "w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-400 transition-colors";
+  const selectClass = "w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-400 transition-colors";
+  const labelClass = "block text-xs font-semibold text-zinc-600 mb-1 uppercase tracking-wide";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {error && <p className="rounded-lg bg-red-500/20 border border-red-500/30 px-3 py-2 text-sm text-red-300">{error}</p>}
+      {error && <p className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-600">{error}</p>}
 
       <div className="grid grid-cols-2 gap-3">
         <div>
@@ -90,7 +90,7 @@ export default function RegisterForm({ token }: { token: string }) {
 
       <div>
         <label className={labelClass}>Gender</label>
-        <select name="gender" className={selectClass} style={{ background: "rgba(80,61,152,0.6)" }}>
+        <select name="gender" className={selectClass}>
           <option value="">Select</option>
           <option value="MALE">Male</option>
           <option value="FEMALE">Female</option>
@@ -108,8 +108,8 @@ export default function RegisterForm({ token }: { token: string }) {
         <input name="linkedInUrl" type="text" className={inputClass} placeholder="https://linkedin.com/in/yourname" />
       </div>
 
-      <div className="border-t border-white/10 pt-4">
-        <p className="text-xs font-semibold text-white/50 uppercase tracking-widest mb-3">Emergency Contact</p>
+      <div className="border-t border-zinc-200 pt-4">
+        <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-3">Emergency Contact</p>
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className={labelClass}>Name</label>
