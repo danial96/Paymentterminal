@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NoticeCard } from "./NoticeCard";
@@ -6,15 +7,16 @@ export default async function PortalNoticesPage() {
   const session = await auth();
   const empId = Number((session?.user as any)?.employeeId);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // Cast to any to avoid stale Prisma generated-type cache on Vercel
+  // (HRMNoticeReaction, HRMCommentReaction, parentId added after last cache snapshot)
   const db = prisma as any;
-  const notices = await db.hRMNotice.findMany({
+
+  const notices: any[] = await db.hRMNotice.findMany({
     where: { isPublished: true },
     orderBy: { publishedAt: "desc" },
     include: {
       reactions: { include: { employee: { select: { firstName: true, lastName: true } } } },
       comments: {
-        // filter parentId: null in JS to avoid cached Prisma type mismatch
         include: {
           employee: { select: { firstName: true, lastName: true, id: true } },
           reactions: { include: { employee: { select: { firstName: true, lastName: true } } } },
@@ -51,7 +53,7 @@ export default async function PortalNoticesPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          {(notices as any[]).map((n: any) => (
+          {notices.map((n: any) => (
             <NoticeCard
               key={n.id}
               noticeId={n.id}
@@ -61,14 +63,13 @@ export default async function PortalNoticesPage() {
               type={n.type}
               priority={n.priority}
               isNew={n.publishedAt != null && n.publishedAt > sevenDaysAgo}
-              reactions={n.reactions.map((r) => ({
+              reactions={(n.reactions ?? []).map((r: any) => ({
                 id: r.id,
                 emoji: r.emoji,
                 employeeId: r.employeeId,
                 employeeName: `${r.employee.firstName} ${r.employee.lastName}`,
               }))}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              comments={(n.comments as any[]).filter((c: any) => !c.parentId).map((c: any) => ({
+              comments={(n.comments ?? []).filter((c: any) => !c.parentId).map((c: any) => ({
                 id: c.id,
                 content: c.content,
                 createdAt: c.createdAt,
