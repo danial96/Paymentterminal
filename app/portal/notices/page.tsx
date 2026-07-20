@@ -12,7 +12,18 @@ export default async function PortalNoticesPage() {
     include: {
       reactions: { include: { employee: { select: { firstName: true, lastName: true } } } },
       comments: {
-        include: { employee: { select: { firstName: true, lastName: true, id: true } } },
+        where: { parentId: null },
+        include: {
+          employee: { select: { firstName: true, lastName: true, id: true } },
+          reactions: { include: { employee: { select: { firstName: true, lastName: true } } } },
+          replies: {
+            include: {
+              employee: { select: { firstName: true, lastName: true, id: true } },
+              reactions: { include: { employee: { select: { firstName: true, lastName: true } } } },
+            },
+            orderBy: { createdAt: "asc" },
+          },
+        },
         orderBy: { createdAt: "asc" },
       },
     },
@@ -54,12 +65,28 @@ export default async function PortalNoticesPage() {
                 employeeId: r.employeeId,
                 employeeName: `${r.employee.firstName} ${r.employee.lastName}`,
               }))}
-              comments={n.comments.map((c) => ({
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              comments={(n.comments as any[]).map((c: any) => ({
                 id: c.id,
                 content: c.content,
                 createdAt: c.createdAt,
                 employeeId: c.employeeId,
                 employeeName: `${c.employee.firstName} ${c.employee.lastName}`,
+                reactions: (c.reactions ?? []).map((r: any) => ({
+                  id: r.id, emoji: r.emoji, employeeId: r.employeeId,
+                  employeeName: `${r.employee.firstName} ${r.employee.lastName}`,
+                })),
+                replies: (c.replies ?? []).map((r: any) => ({
+                  id: r.id,
+                  content: r.content,
+                  createdAt: r.createdAt,
+                  employeeId: r.employeeId,
+                  employeeName: `${r.employee.firstName} ${r.employee.lastName}`,
+                  reactions: (r.reactions ?? []).map((rx: any) => ({
+                    id: rx.id, emoji: rx.emoji, employeeId: rx.employeeId,
+                    employeeName: `${rx.employee.firstName} ${rx.employee.lastName}`,
+                  })),
+                })),
               }))}
               currentEmployeeId={empId}
             />
