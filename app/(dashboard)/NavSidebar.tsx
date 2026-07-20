@@ -71,6 +71,14 @@ const NAV_ICONS: Record<string, React.ReactNode> = {
 
 type NavLink = { href: string; label: string };
 
+function Badge({ count }: { count: number }) {
+  return (
+    <span className="ml-auto flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white">
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
+
 export default function NavSidebar({
   user,
   navLinks,
@@ -79,6 +87,7 @@ export default function NavSidebar({
   hasInvoicesPermission,
   hasHrmPermission,
   hrmOnly,
+  badges = {},
 }: {
   user: { name: string; role: string };
   navLinks: NavLink[];
@@ -87,6 +96,7 @@ export default function NavSidebar({
   hasInvoicesPermission?: boolean;
   hasHrmPermission?: boolean;
   hrmOnly?: boolean;
+  badges?: Record<string, number>;
 }) {
   const pathname = usePathname();
   const [paymentOpen, setPaymentOpen] = useState(pathname.startsWith("/admin/stripe-accounts") || pathname.startsWith("/invoices") || pathname.startsWith("/admin/bank-accounts"));
@@ -145,6 +155,7 @@ export default function NavSidebar({
                   {NAV_ICONS[link.href]}
                 </span>
                 {link.label}
+                {badges[link.href] ? <Badge count={badges[link.href]} /> : null}
               </Link>
             ))}
             <div className="mt-3 px-1">
@@ -168,6 +179,10 @@ export default function NavSidebar({
                 </svg>
               </span>
               <span className="flex-1 text-left text-sm">HRM</span>
+              {!hrmOpen && (() => {
+                const total = Object.entries(badges).filter(([k]) => k.startsWith("/hrm/")).reduce((s, [, v]) => s + v, 0);
+                return total > 0 ? <Badge count={total} /> : null;
+              })()}
               <svg
                 className={`h-3.5 w-3.5 text-white/30 transition-transform ${hrmOpen ? "rotate-180" : ""}`}
                 fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -206,6 +221,7 @@ export default function NavSidebar({
                   >
                     <svg className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">{icon}</svg>
                     {label}
+                    {badges[href] ? <Badge count={badges[href]} /> : null}
                   </Link>
                 ))}
               </div>

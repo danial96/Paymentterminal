@@ -20,6 +20,21 @@ export default async function DashboardLayout({
 
   const hasHrm = isAdmin || userHasPermission(user, "hrm");
 
+  // Badge counts
+  const badges: Record<string, number> = {};
+  if (hasHrm) {
+    const [pendingLeaves, pendingPayslips] = await Promise.all([
+      prisma.hRMLeave.count({ where: { status: "PENDING" } }),
+      prisma.hRMPayslipRequest.count({ where: { status: "PENDING" } }),
+    ]);
+    if (pendingLeaves > 0) badges["/hrm/leaves"] = pendingLeaves;
+    if (pendingPayslips > 0) badges["/hrm/payroll/requests"] = pendingPayslips;
+  }
+  if (isAdmin) {
+    const trashCount = await prisma.client.count({ where: { deletedAt: { not: null } } });
+    if (trashCount > 0) badges["/admin/trash"] = trashCount;
+  }
+
   const navLinks = hrmOnly ? [] : [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/clients", label: "Clients" },
@@ -46,6 +61,7 @@ export default async function DashboardLayout({
         hasInvoicesPermission={!hrmOnly && (isAdmin || userHasPermission(user, "invoices"))}
         hasHrmPermission={hasHrm}
         hrmOnly={hrmOnly}
+        badges={badges}
       />
       <div className="flex flex-1 flex-col min-w-0">
         {/* Top header bar */}
