@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { submitBankLetterRequest } from "@/app/actions/hrm-bank-letter";
+import { BankLetterForm } from "./BankLetterForm";
 
 const STATUS_STYLES: Record<string, { badge: string; label: string; desc: string }> = {
   PENDING:  { badge: "bg-yellow-100 text-yellow-800", label: "Pending",  desc: "Your request has been submitted. HR will process it soon." },
@@ -60,26 +60,7 @@ export default async function BankLetterPage() {
             You already have a pending request. You can submit a new one once HR processes your current request.
           </div>
         ) : (
-          <form action={submitBankLetterRequest} className="space-y-4">
-            <div>
-              <label className="block text-xs font-medium text-zinc-700 mb-1.5">
-                Additional Notes <span className="text-zinc-400">(optional)</span>
-              </label>
-              <textarea
-                name="notes"
-                rows={3}
-                className="w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-400 resize-none"
-                placeholder="e.g. preferred bank, branch, or any other info for HR..."
-              />
-            </div>
-            <button
-              type="submit"
-              className="rounded-lg px-6 py-2.5 text-sm font-semibold text-white"
-              style={{ background: "linear-gradient(135deg, #29c0d5 0%, #503d98 100%)" }}
-            >
-              Submit Request
-            </button>
-          </form>
+          <BankLetterForm />
         )}
       </div>
 
