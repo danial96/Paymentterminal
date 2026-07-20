@@ -13,7 +13,7 @@ export default async function JoinPage({ params }: { params: Promise<{ token: st
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ background: "linear-gradient(135deg, #29c0d5 0%, #503d98 100%)" }}>
-      <div className="w-full max-w-lg rounded-2xl p-8 shadow-2xl" style={{ background: "#ffffff", border: "1px solid #e5e7eb" }}>
+      <div className="w-full rounded-2xl p-8 shadow-2xl" style={{ background: "#ffffff", border: "1px solid #e5e7eb", maxWidth: "786px" }}>
         <div className="flex justify-center mb-6">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo-white.png" alt="IKIA TECH" style={{ height: "56px", objectFit: "contain" }} />
