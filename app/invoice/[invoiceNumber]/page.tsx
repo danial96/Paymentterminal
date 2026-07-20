@@ -80,7 +80,7 @@ function modernStyles(a: string, p: boolean) {
   .fn{font-size:11px;color:rgba(255,255,255,.35);font-family:monospace}
   .inv-print-btn{position:fixed;bottom:28px;right:28px;display:inline-flex;align-items:center;gap:8px;background:#1e2330;color:#fff;font-size:14px;font-weight:700;padding:13px 24px;border-radius:10px;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.18);z-index:999;transition:opacity .15s;font-family:inherit}
   .inv-print-btn:hover{opacity:.85}
-  @media print{@page{margin:0;size:A4}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{background:#fff}.w{background:#fff;padding:0}.card{box-shadow:none;border-radius:0}.inv-print-btn{display:none!important}}
+  @media print{@page{margin:0;size:A4}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{background:#fff}.w{background:#fff;padding:0}.card{box-shadow:none;border-radius:0;display:flex;flex-direction:column;min-height:297mm}.foot{margin-top:auto}.inv-print-btn{display:none!important}}
   @media(max-width:600px){.w{padding:0 0 80px}.card{border-radius:0}.hd{padding:20px;flex-direction:column}.hd-r{text-align:left}.meta{flex-wrap:wrap}.mc{flex:0 0 50%;padding:10px 20px}.addrs{grid-template-columns:1fr}.ab{padding:18px 20px}.ab:first-child{border-right:none;border-bottom:1px solid #f0f1f4}.tw{padding:20px 20px 0}.totals{padding:16px 20px 20px}.tbox{width:100%}.notes{grid-template-columns:1fr;padding:0 20px 20px}.bank{margin:0 20px 24px}.bg{grid-template-columns:1fr}.bc{border-right:none!important}.pay{padding:20px}.foot{padding:12px 20px}}
   `;
 }
@@ -155,7 +155,7 @@ function classicStyles(a: string, p: boolean) {
   .fc{font-size:11px;color:rgba(255,255,255,.7);font-family:sans-serif}
   .fb2{background:#f9f9f9;border-top:1px solid #eee;padding:8px 44px;display:flex;align-items:center;justify-content:space-between}
   .fb2 span{font-size:10px;color:#aaa;font-family:sans-serif;font-style:italic}
-  @media print{@page{margin:0;size:A4}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{background:#fff}.w{background:#fff;padding:0}.card{box-shadow:none}.inv-print-btn{display:none!important}}
+  @media print{@page{margin:0;size:A4}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{background:#fff}.w{background:#fff;padding:0}.card{box-shadow:none;display:flex;flex-direction:column;min-height:297mm}.foot{margin-top:auto}.inv-print-btn{display:none!important}}
   @media(max-width:600px){.w{padding:0 0 80px}.meta{flex-wrap:wrap}.mc{flex:0 0 50%;padding:10px 20px}.addrs{grid-template-columns:1fr}.ab{padding:18px 20px}.ab:first-child{border-right:none;border-bottom:1px solid #eee}.tw{padding:20px 20px 0}.totals{padding:16px 20px 20px}.tbox{width:100%}.notes{grid-template-columns:1fr;padding:0 20px 20px}.bank{margin:0 20px 24px}.pay{padding:20px}}
   `;
 }
@@ -231,7 +231,7 @@ function minimalStyles(a: string, p: boolean) {
   .fn{font-size:11px;color:#ccc;font-family:monospace}
   .inv-print-btn{position:fixed;bottom:28px;right:28px;display:inline-flex;align-items:center;gap:8px;background:#111;color:#fff;font-size:13px;font-weight:500;padding:12px 22px;border-radius:6px;border:none;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.15);z-index:999;transition:opacity .15s;font-family:inherit}
   .inv-print-btn:hover{opacity:.8}
-  @media print{@page{margin:0;size:A4}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{background:#fff}.w{background:#fff;padding:0}.card{box-shadow:none}.inv-print-btn{display:none!important}}
+  @media print{@page{margin:0;size:A4}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{background:#fff}.w{background:#fff;padding:0}.card{box-shadow:none;display:flex;flex-direction:column;min-height:297mm}.foot{margin-top:auto}.inv-print-btn{display:none!important}}
   @media(max-width:600px){.w{padding:0 0 80px}.hd{padding:24px}.meta{flex-wrap:wrap}.mc{flex:0 0 50%;padding:10px 24px}.addrs{grid-template-columns:1fr}.ab{padding:18px 24px}.ab:first-child{border-right:none;border-bottom:1px solid #e5e5e5}.tw{padding:24px 24px 0}.totals{padding:16px 24px 24px}.tbox{width:100%}.notes{grid-template-columns:1fr;padding:0 24px 24px}.bank{margin:0 24px 24px}.bc{display:flex}.pay{padding:20px 24px}.foot{padding:12px 24px}}
   `;
 }
@@ -324,7 +324,7 @@ function corporateStyles(a: string, p: boolean) {
   .fn{font-size:11px;color:rgba(255,255,255,.3);font-family:monospace}
   .inv-print-btn{position:fixed;bottom:28px;right:28px;display:inline-flex;align-items:center;gap:8px;background:#1a1e2e;color:#fff;font-size:14px;font-weight:700;padding:13px 24px;border-radius:6px;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:999;transition:opacity .15s;font-family:inherit}
   .inv-print-btn:hover{opacity:.85}
-  @media print{@page{margin:0;size:A4}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{background:#fff}.w{background:#fff;padding:0}.card{box-shadow:none}.inv-print-btn{display:none!important}}
+  @media print{@page{margin:0;size:A4}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{background:#fff}.w{background:#fff;padding:0}.card{box-shadow:none;display:flex;flex-direction:column;min-height:297mm}.foot{margin-top:auto}.inv-print-btn{display:none!important}}
   @media(max-width:600px){.w{padding:0 0 80px}.hd{flex-direction:column}.hd-right{min-width:auto;align-items:flex-start;padding:16px 24px}.addrs{grid-template-columns:1fr}.ab{padding:16px 24px}.ab:first-child{border-right:none;border-bottom:1px solid #e5e7eb}.tw{padding:16px 24px 0}.totals{padding:12px 24px 20px}.tbox{width:100%}.bank{margin:0 24px 20px}.bg{grid-template-columns:1fr}.bc{border-right:none!important}.pay{padding:16px 24px}.notes{grid-template-columns:1fr;padding:0 24px 20px}.bot{grid-template-columns:1fr;padding:16px 24px}.foot{padding:12px 24px}}
   `;
 }
@@ -407,7 +407,7 @@ function professionalStyles(a: string, p: boolean) {
   .fn{font-size:11px;color:#bbb;font-family:monospace}
   .inv-print-btn{position:fixed;bottom:28px;right:28px;display:inline-flex;align-items:center;gap:8px;background:#333;color:#fff;font-size:13px;font-weight:bold;padding:12px 22px;border-radius:4px;border:none;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.18);z-index:999;transition:opacity .15s;font-family:Arial,sans-serif}
   .inv-print-btn:hover{opacity:.85}
-  @media print{@page{margin:0;size:A4}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{background:#fff}.w{background:#fff;padding:0}.card{box-shadow:none}.inv-print-btn{display:none!important}}
+  @media print{@page{margin:0;size:A4}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{background:#fff}.w{background:#fff;padding:0}.card{box-shadow:none;display:flex;flex-direction:column;min-height:297mm}.foot{margin-top:auto}.inv-print-btn{display:none!important}}
   @media(max-width:600px){.w{padding:0 0 80px}.hd{flex-direction:column;padding:20px}.hd-right{text-align:left;margin-top:16px}.inv-tbl{margin-left:0}.to-section{margin:16px 20px 0}.from-inline{padding:8px 20px;flex-wrap:wrap;gap:10px}.tw{padding:16px 20px 0}.totals{flex-direction:column;padding:12px 20px 0;gap:12px}.tbox{width:100%}.paid-in-full{padding:0 20px 4px}.notes{grid-template-columns:1fr;padding:12px 20px}.bank{margin:0 20px 20px}.bg{grid-template-columns:1fr}.bc{border-right:none!important}.pay{padding:16px 20px}.foot{padding:10px 20px}}
   `;
 }
@@ -492,7 +492,7 @@ function squareStyles(a: string, p: boolean) {
   .fn{font-size:11px;color:#ccc;font-family:monospace}
   .inv-print-btn{position:fixed;bottom:28px;right:28px;display:inline-flex;align-items:center;gap:8px;background:#1a1a1a;color:#fff;font-size:13px;font-weight:500;padding:12px 22px;border-radius:6px;border:none;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.15);z-index:999;transition:opacity .15s;font-family:inherit}
   .inv-print-btn:hover{opacity:.8}
-  @media print{@page{margin:0;size:A4}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{background:#fff}.w{background:#fff;padding:0}.card{box-shadow:none}.inv-print-btn{display:none!important}}
+  @media print{@page{margin:0;size:A4}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{background:#fff}.w{background:#fff;padding:0}.card{box-shadow:none;display:flex;flex-direction:column;min-height:297mm}.foot{margin-top:auto}.inv-print-btn{display:none!important}}
   @media(max-width:600px){.w{padding:0 0 80px}.hd{padding:20px;flex-direction:column;gap:16px}.hd-right{text-align:left}.info3{grid-template-columns:1fr;padding:16px 20px;gap:16px}.tw{padding:16px 20px 0}.totals-outer{padding:12px 20px 0}.tbox{width:100%}.notes{grid-template-columns:1fr;padding:0 20px 20px}.bank{margin:0 20px 20px}.bg{grid-template-columns:1fr}.bc{border-right:none!important;padding-left:0!important;padding-right:0!important}.pay{padding:16px 20px}.foot{padding:10px 20px}}
   `;
 }
@@ -644,9 +644,9 @@ export default async function PublicInvoicePage({
           </div>
           {invoice.status !== "draft" && (
             <div className={`status-strip s-${invoice.status}`}>
-              {isPaid && `✓ PAID${paidDate ? "  ·  " + paidDate : ""}`}
-              {invoice.status === "sent" && "⏳  AWAITING PAYMENT"}
-              {invoice.status === "cancelled" && "✕  CANCELLED"}
+              {isPaid && <>✓ PAID{paidDate ? "  ·  " + paidDate : ""}</>}
+              {invoice.status === "sent" && <>⏱ AWAITING PAYMENT</>}
+              {invoice.status === "cancelled" && <>✕ CANCELLED</>}
             </div>
           )}
           <div className="meta">
@@ -720,8 +720,8 @@ export default async function PublicInvoicePage({
             <div className="paid-banner">✓ PAID{paidDate ? "  ·  " + paidDate : ""}</div>
           ) : invoice.status !== "draft" && (
             <div className={`status-strip s-${invoice.status}`}>
-              {invoice.status === "sent" && "⏳  AWAITING PAYMENT"}
-              {invoice.status === "cancelled" && "✕  CANCELLED"}
+              {invoice.status === "sent" && <>⏱ AWAITING PAYMENT</>}
+              {invoice.status === "cancelled" && <>✕ CANCELLED</>}
             </div>
           )}
           <div className="meta">

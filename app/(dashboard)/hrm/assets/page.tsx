@@ -1,12 +1,12 @@
-import { requireUser } from "@/lib/scope";
+﻿import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import { createAsset, deleteAsset } from "@/app/actions/hrm-assets";
 import { DeleteButton } from "@/app/(dashboard)/hrm/components/DeleteButton";
 
 const STATUS_COLORS: Record<string, string> = {
-  AVAILABLE: "bg-emerald-100 text-emerald-700",
-  ASSIGNED: "bg-blue-100 text-blue-600",
-  MAINTENANCE: "bg-orange-100 text-orange-600",
+  AVAILABLE: "bg-zinc-900 text-white",
+  ASSIGNED: "bg-zinc-200 text-zinc-700",
+  MAINTENANCE: "bg-zinc-200 text-zinc-600",
   RETIRED: "bg-zinc-100 text-zinc-400",
 };
 
@@ -40,7 +40,7 @@ export default async function AssetsPage({
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-zinc-900">Company Assets</h1>
         <div className="flex gap-4 text-sm">
-          <span className="text-zinc-500">{assets.length} total · <span className="text-emerald-600">{available} available</span> · <span className="text-blue-600">{assigned} assigned</span></span>
+          <span className="text-zinc-500">{assets.length} total · <span className="text-zinc-700">{available} available</span> · <span className="text-zinc-700">{assigned} assigned</span></span>
         </div>
       </div>
 
@@ -51,11 +51,11 @@ export default async function AssetsPage({
           <form action={createAsset} className="space-y-3">
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Asset Name *</label>
-              <input name="name" required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <input name="name" required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Type *</label>
-              <select name="type" required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <select name="type" required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
                 <option value="">Select Type</option>
                 {ASSET_TYPES.map((t) => <option key={t}>{t}</option>)}
               </select>
@@ -63,20 +63,20 @@ export default async function AssetsPage({
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="block text-xs font-medium text-zinc-700 mb-1">Asset Code</label>
-                <input name="assetCode" placeholder="AST-001" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                <input name="assetCode" placeholder="AST-001" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
               </div>
               <div>
                 <label className="block text-xs font-medium text-zinc-700 mb-1">Serial No.</label>
-                <input name="serialNumber" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                <input name="serialNumber" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
               </div>
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Brand</label>
-              <input name="brand" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <input name="brand" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Condition</label>
-              <select name="condition" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <select name="condition" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
                 <option value="EXCELLENT">Excellent</option>
                 <option value="GOOD">Good</option>
                 <option value="FAIR">Fair</option>
@@ -85,14 +85,14 @@ export default async function AssetsPage({
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Assign To</label>
-              <select name="employeeId" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <select name="employeeId" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
                 <option value="">Unassigned</option>
                 {employees.map((e) => <option key={e.id} value={e.id}>{e.firstName} {e.lastName}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Status</label>
-              <select name="status" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <select name="status" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
                 <option value="AVAILABLE">Available</option>
                 <option value="ASSIGNED">Assigned</option>
                 <option value="MAINTENANCE">Maintenance</option>
@@ -102,14 +102,14 @@ export default async function AssetsPage({
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <label className="block text-xs font-medium text-zinc-700 mb-1">Issue Date</label>
-                <input name="issueDate" type="date" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                <input name="issueDate" type="date" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
               </div>
               <div>
                 <label className="block text-xs font-medium text-zinc-700 mb-1">Return Date</label>
-                <input name="returnDate" type="date" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                <input name="returnDate" type="date" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
               </div>
             </div>
-            <button type="submit" className="w-full rounded-lg bg-indigo-600 py-2 text-sm font-medium text-white hover:bg-indigo-700">Add Asset</button>
+            <button type="submit" className="btn-brand w-full rounded-lg py-2 text-sm font-medium text-white">Add Asset</button>
           </form>
         </div>
 
@@ -129,7 +129,7 @@ export default async function AssetsPage({
                 <option value="">All Types</option>
                 {ASSET_TYPES.map((t) => <option key={t}>{t}</option>)}
               </select>
-              <button type="submit" className="rounded bg-zinc-900 px-3 py-1 text-xs text-white">Filter</button>
+              <button type="submit" className="btn-brand rounded px-3 py-1 text-xs text-white">Filter</button>
             </form>
           </div>
           <table className="w-full text-sm">

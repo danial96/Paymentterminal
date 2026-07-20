@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { loadStripe, StripeCardNumberElement } from "@stripe/stripe-js";
 import { Elements, CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck, faXmark, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 
 const ELEMENT_STYLE = {
   base: {
@@ -87,7 +89,7 @@ function PayForm({
   if (success) {
     return (
       <div style={{ textAlign: "center", padding: "32px 16px" }}>
-        <div style={{ fontSize: "40px", marginBottom: "12px" }}>✓</div>
+        <div style={{ fontSize: "40px", marginBottom: "12px", color: "#16a34a" }}><FontAwesomeIcon icon={faCheck} /></div>
         <div style={{ fontSize: "16px", fontWeight: 600, color: "#16a34a" }}>Payment successful!</div>
         <div style={{ fontSize: "13px", color: "#aaa", marginTop: "6px" }}>Redirecting...</div>
       </div>
@@ -171,7 +173,7 @@ function PayForm({
       </button>
 
       <button type="button" onClick={onCancel} style={{ background: "none", border: "none", color: "#aaa", fontSize: "13px", cursor: "pointer", marginTop: "-6px" }}>
-        ✕ Cancel payment
+        <FontAwesomeIcon icon={faXmark} style={{ marginRight: "4px" }} />Cancel payment
       </button>
 
       <p style={{ textAlign: "center", fontSize: "11px", color: "#ccc", margin: 0 }}>Powered by <strong>Stripe</strong> · Secure payment</p>
@@ -238,7 +240,7 @@ export default function EmbeddedCheckoutButton({
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
       {state === "error" && (
         <p style={{ color: "#ef4444", fontSize: "13px", background: "#fef2f2", padding: "8px 16px", borderRadius: "6px" }}>
-          ⚠ {errorMsg}
+          <FontAwesomeIcon icon={faTriangleExclamation} style={{ marginRight: "6px" }} />{errorMsg}
         </p>
       )}
       <p style={{ fontSize: "12px", color: "#aaa" }}>Secure payment powered by Stripe</p>

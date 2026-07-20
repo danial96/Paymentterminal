@@ -2,6 +2,8 @@
 
 import { useTransition, useState } from "react";
 import { triggerSync } from "@/app/actions/sync";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck, faRotate } from "@fortawesome/free-solid-svg-icons";
 
 export default function SyncButton() {
   const [pending, startTransition] = useTransition();
@@ -21,8 +23,8 @@ export default function SyncButton() {
       disabled={pending}
       className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold transition-all disabled:opacity-60 ${
         done
-          ? "bg-emerald-500/20 text-emerald-400"
-          : "bg-indigo-500/20 text-indigo-300 hover:bg-indigo-500/30"
+          ? "bg-zinc-200 text-zinc-700"
+          : "bg-zinc-200/60 text-zinc-500 hover:bg-zinc-200"
       }`}
     >
       {pending ? (
@@ -31,9 +33,9 @@ export default function SyncButton() {
           Syncing…
         </>
       ) : done ? (
-        <>✓ Synced</>
+        <><FontAwesomeIcon icon={faCheck} className="h-3 w-3" /> Synced</>
       ) : (
-        <>🔄 Sync Now</>
+        <><FontAwesomeIcon icon={faRotate} className="h-3 w-3" /> Sync Now</>
       )}
     </button>
   );

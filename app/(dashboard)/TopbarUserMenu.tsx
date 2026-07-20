@@ -42,7 +42,7 @@ export default function TopbarUserMenu({
         onClick={() => setOpen((o) => !o)}
         className="flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-gray-100 transition-colors"
       >
-        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-600 uppercase select-none">
+        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-100 text-xs font-semibold text-zinc-600 uppercase select-none">
           {user.name.charAt(0)}
         </div>
         <span className="text-sm font-medium text-gray-700 hidden sm:block">{user.name}</span>
@@ -109,7 +109,7 @@ export default function TopbarUserMenu({
           <div className="border-t border-gray-100 py-1">
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
-              className="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              className="flex w-full items-center gap-3 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-50 transition-colors"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

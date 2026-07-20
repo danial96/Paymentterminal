@@ -44,3 +44,6 @@ next-env.d.ts
 
 # sync task logs
 /logs
+
+# zip exports
+*.zip

@@ -18,7 +18,7 @@ export default async function BrandsPage() {
           required
           className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm"
         />
-        <button className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800">
+        <button className="btn-brand rounded-md px-4 py-2 text-sm font-medium text-white">
           Add
         </button>
       </form>

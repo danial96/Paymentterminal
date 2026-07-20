@@ -12,13 +12,13 @@ export function EnrollFingerprintButton({ employeeId, enrolled }: { employeeId: 
   async function handleEnroll() {
     setStatus("loading");
     setMessage("");
-    try {
-      await startEnrollment(employeeId);
-      setStatus("success");
-      setMessage("Machine ready hai! Employee machine par jae aur finger lagae.");
-    } catch {
+    const result = await startEnrollment(employeeId);
+    if ("error" in result) {
       setStatus("error");
-      setMessage("Machine se connect nahi hua. Network check karo.");
+      setMessage("Could not connect to the fingerprint machine. Make sure you are on the office network.");
+    } else {
+      setStatus("success");
+      setMessage("Machine is ready! Ask the employee to place their finger on the device.");
     }
   }
 

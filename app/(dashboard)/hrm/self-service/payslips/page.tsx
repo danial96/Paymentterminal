@@ -1,12 +1,12 @@
-import { auth } from "@/lib/auth";
+﻿import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
 const STATUS_COLORS: Record<string, string> = {
   DRAFT: "bg-zinc-100 text-zinc-500",
-  APPROVED: "bg-blue-100 text-blue-600",
-  PAID: "bg-emerald-100 text-emerald-700",
+  APPROVED: "bg-zinc-200 text-zinc-700",
+  PAID: "bg-zinc-900 text-white",
 };
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -47,7 +47,7 @@ export default async function ESSPayslipsPage() {
         </div>
         <div className="text-right">
           <p className="text-xs text-zinc-400">YTD Net Paid ({new Date().getFullYear()})</p>
-          <p className="text-lg font-bold text-emerald-600">{ytdPaid.toLocaleString()}</p>
+          <p className="text-lg font-bold text-zinc-700">{ytdPaid.toLocaleString()}</p>
         </div>
       </div>
 
@@ -77,14 +77,14 @@ export default async function ESSPayslipsPage() {
                       {MONTHS[p.month - 1]} {p.year}
                     </td>
                     <td className="px-4 py-3 text-right text-zinc-600">{Number(p.basicSalary).toLocaleString()}</td>
-                    <td className="px-4 py-3 text-right text-emerald-600">+{allowances.toLocaleString()}</td>
-                    <td className="px-4 py-3 text-right text-red-500">-{Number(p.totalDeductions).toLocaleString()}</td>
+                    <td className="px-4 py-3 text-right text-zinc-700">+{allowances.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-right text-zinc-600">-{Number(p.totalDeductions).toLocaleString()}</td>
                     <td className="px-4 py-3 text-right font-semibold text-zinc-900">{Number(p.netSalary).toLocaleString()}</td>
                     <td className="px-4 py-3">
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${STATUS_COLORS[p.status]}`}>{p.status}</span>
                     </td>
                     <td className="px-4 py-3">
-                      <Link href={`/hrm/payroll/${p.id}`} className="text-xs text-indigo-600 hover:underline">View →</Link>
+                      <Link href={`/hrm/payroll/${p.id}`} className="text-xs text-zinc-700 hover:underline">View →</Link>
                     </td>
                   </tr>
                 );
@@ -111,7 +111,7 @@ export default async function ESSPayslipsPage() {
                 {payrolls[0].items.filter((i) => ["allowance","bonus","overtime","commission"].includes(i.type)).map((i) => (
                   <div key={i.id} className="flex justify-between text-xs">
                     <span className="text-zinc-600">{i.label}</span>
-                    <span className="font-medium text-emerald-600">{Number(i.amount).toLocaleString()}</span>
+                    <span className="font-medium text-zinc-700">{Number(i.amount).toLocaleString()}</span>
                   </div>
                 ))}
                 <div className="border-t border-zinc-100 pt-1.5 flex justify-between text-xs font-semibold">
@@ -126,22 +126,22 @@ export default async function ESSPayslipsPage() {
                 {payrolls[0].items.filter((i) => i.type === "deduction").map((i) => (
                   <div key={i.id} className="flex justify-between text-xs">
                     <span className="text-zinc-600">{i.label}</span>
-                    <span className="font-medium text-red-500">-{Number(i.amount).toLocaleString()}</span>
+                    <span className="font-medium text-zinc-600">-{Number(i.amount).toLocaleString()}</span>
                   </div>
                 ))}
                 <div className="border-t border-zinc-100 pt-1.5 flex justify-between text-xs font-semibold">
                   <span>Total Deductions</span>
-                  <span className="text-red-500">-{Number(payrolls[0].totalDeductions).toLocaleString()}</span>
+                  <span className="text-zinc-600">-{Number(payrolls[0].totalDeductions).toLocaleString()}</span>
                 </div>
               </div>
             </div>
           </div>
-          <div className="mt-4 rounded-lg bg-indigo-50 px-4 py-3 flex justify-between items-center">
-            <span className="text-sm font-semibold text-indigo-900">Net Salary</span>
-            <span className="text-xl font-bold text-indigo-700">{Number(payrolls[0].netSalary).toLocaleString()}</span>
+          <div className="mt-4 rounded-lg bg-zinc-50 px-4 py-3 flex justify-between items-center">
+            <span className="text-sm font-semibold text-zinc-700">Net Salary</span>
+            <span className="text-xl font-bold text-zinc-700">{Number(payrolls[0].netSalary).toLocaleString()}</span>
           </div>
           <div className="mt-3 text-right">
-            <Link href={`/hrm/payroll/${payrolls[0].id}`} className="text-xs text-indigo-600 hover:underline">View full payslip / Print →</Link>
+            <Link href={`/hrm/payroll/${payrolls[0].id}`} className="text-xs text-zinc-700 hover:underline">View full payslip / Print →</Link>
           </div>
         </div>
       )}

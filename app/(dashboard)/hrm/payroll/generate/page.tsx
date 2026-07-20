@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/scope";
+﻿import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import { generatePayroll } from "@/app/actions/hrm-payroll";
 import Link from "next/link";
@@ -32,7 +32,7 @@ export default async function GeneratePayrollPage({ searchParams }: { searchPara
           <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Employee *</label>
-              <select name="employeeId" required defaultValue={preselectedEmpId ?? ""} className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <select name="employeeId" required defaultValue={preselectedEmpId ?? ""} className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
                 <option value="">Select Employee</option>
                 {employees.map((e) => (
                   <option key={e.id} value={e.id}>
@@ -43,13 +43,13 @@ export default async function GeneratePayrollPage({ searchParams }: { searchPara
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Month *</label>
-              <select name="month" defaultValue={now.getMonth() + 1} required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <select name="month" defaultValue={now.getMonth() + 1} required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
                 {MONTHS.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Year *</label>
-              <select name="year" defaultValue={now.getFullYear()} required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <select name="year" defaultValue={now.getFullYear()} required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
                 {[now.getFullYear(), now.getFullYear() - 1].map((y) => <option key={y}>{y}</option>)}
               </select>
             </div>
@@ -61,15 +61,15 @@ export default async function GeneratePayrollPage({ searchParams }: { searchPara
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Bonuses</label>
-              <input name="bonuses" type="number" step="0.01" defaultValue="0" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <input name="bonuses" type="number" step="0.01" defaultValue="0" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Overtime Pay</label>
-              <input name="overtimePay" type="number" step="0.01" defaultValue="0" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <input name="overtimePay" type="number" step="0.01" defaultValue="0" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Commission</label>
-              <input name="commission" type="number" step="0.01" defaultValue="0" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <input name="commission" type="number" step="0.01" defaultValue="0" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
           </div>
 
@@ -79,33 +79,33 @@ export default async function GeneratePayrollPage({ searchParams }: { searchPara
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Tax</label>
-              <input name="taxDeduction" type="number" step="0.01" defaultValue="0" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <input name="taxDeduction" type="number" step="0.01" defaultValue="0" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Provident Fund</label>
-              <input name="pfDeduction" type="number" step="0.01" defaultValue="0" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <input name="pfDeduction" type="number" step="0.01" defaultValue="0" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">EOBI</label>
-              <input name="eobiDeduction" type="number" step="0.01" defaultValue="0" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <input name="eobiDeduction" type="number" step="0.01" defaultValue="0" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Loan Deduction</label>
-              <input name="loanDeduction" type="number" step="0.01" defaultValue="0" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <input name="loanDeduction" type="number" step="0.01" defaultValue="0" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Advance Deduction</label>
-              <input name="advanceDeduction" type="number" step="0.01" defaultValue="0" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <input name="advanceDeduction" type="number" step="0.01" defaultValue="0" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Other Deductions</label>
-              <input name="otherDeductions" type="number" step="0.01" defaultValue="0" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <input name="otherDeductions" type="number" step="0.01" defaultValue="0" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
           </div>
 
           <div>
             <label className="block text-xs font-medium text-zinc-700 mb-1">Notes</label>
-            <textarea name="notes" rows={2} className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            <textarea name="notes" rows={2} className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
           </div>
 
           <p className="text-xs text-zinc-400 bg-zinc-50 rounded-lg p-3">
@@ -113,7 +113,7 @@ export default async function GeneratePayrollPage({ searchParams }: { searchPara
           </p>
 
           <div className="flex gap-3">
-            <button type="submit" className="rounded-lg bg-indigo-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-indigo-700">Generate Payslip</button>
+            <button type="submit" className="btn-brand rounded-lg px-6 py-2.5 text-sm font-medium text-white">Generate Payslip</button>
             <Link href="/hrm/payroll" className="rounded-lg border border-zinc-300 px-6 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50">Cancel</Link>
           </div>
         </form>

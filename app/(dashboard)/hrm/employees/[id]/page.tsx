@@ -5,6 +5,7 @@ import Link from "next/link";
 import { deleteEmployee } from "@/app/actions/hrm-employees";
 import { DeleteButton } from "@/app/(dashboard)/hrm/components/DeleteButton";
 import { EnrollFingerprintButton } from "./EnrollFingerprintButton";
+import PortalAccessCard from "./PortalAccessCard";
 
 const STATUS_COLORS: Record<string, string> = {
   ACTIVE: "bg-emerald-100 text-emerald-700",
@@ -236,6 +237,13 @@ export default async function EmployeeProfilePage({ params }: { params: Promise<
 
         {/* Right: Quick panels */}
         <div className="space-y-4">
+          {/* Portal Access */}
+          <PortalAccessCard
+            employeeId={emp.id}
+            portalEnabled={emp.portalEnabled ?? false}
+            portalEmail={emp.portalEmail}
+          />
+
           {/* Recent Attendance */}
           <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-100">

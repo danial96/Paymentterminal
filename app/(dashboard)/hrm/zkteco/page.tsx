@@ -1,7 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { syncZKAttendance, getZKDeviceUsers, debugZKLogs, getPendingFingerprintEmployees } from "@/app/actions/zkteco";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck, faClock } from "@fortawesome/free-solid-svg-icons";
 
 export default function ZKTecoPage() {
   const [syncing, setSyncing] = useState(false);
@@ -124,16 +126,16 @@ export default function ZKTecoPage() {
         </div>
         <div className="flex flex-col items-end gap-1">
           <span className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${
-            liveStatus === "live" ? "bg-green-100 text-green-700" :
-            liveStatus === "fallback" ? "bg-yellow-100 text-yellow-700" :
-            liveStatus === "connecting" ? "bg-blue-100 text-blue-600" :
-            "bg-red-100 text-red-600"
+            liveStatus === "live" ? "bg-zinc-900 text-white" :
+            liveStatus === "fallback" ? "bg-zinc-200 text-zinc-700" :
+            liveStatus === "connecting" ? "bg-zinc-200 text-zinc-700" :
+            "bg-zinc-200 text-zinc-600"
           }`}>
             <span className={`h-1.5 w-1.5 rounded-full ${
-              liveStatus === "live" ? "bg-green-500 animate-pulse" :
-              liveStatus === "fallback" ? "bg-yellow-500 animate-pulse" :
-              liveStatus === "connecting" ? "bg-blue-500 animate-pulse" :
-              "bg-red-500"
+              liveStatus === "live" ? "bg-zinc-500 animate-pulse" :
+              liveStatus === "fallback" ? "bg-zinc-400 animate-pulse" :
+              liveStatus === "connecting" ? "bg-zinc-500 animate-pulse" :
+              "bg-zinc-400"
             }`} />
             {liveStatus === "live" ? "Live" :
              liveStatus === "fallback" ? "Auto (2 min)" :
@@ -152,7 +154,7 @@ export default function ZKTecoPage() {
         <button
           onClick={handleSync}
           disabled={syncing}
-          className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium"
+          className="btn-brand text-white px-5 py-2 rounded-lg disabled:opacity-50 font-medium"
         >
           {syncing ? "Syncing..." : "Sync Now"}
         </button>
@@ -160,14 +162,14 @@ export default function ZKTecoPage() {
         {result && (
           <div className="rounded-lg border p-4 space-y-2">
             <div className="flex gap-6 text-sm">
-              <span className="text-green-600 font-medium">✓ Synced: {result.synced}</span>
+              <span className="text-zinc-700 font-medium"><FontAwesomeIcon icon={faCheck} className="mr-1 h-3 w-3" />Synced: {result.synced}</span>
               <span className="text-gray-500">Skipped: {result.skipped}</span>
               {result.errors.length > 0 && (
-                <span className="text-red-500">Errors: {result.errors.length}</span>
+                <span className="text-zinc-600">Errors: {result.errors.length}</span>
               )}
             </div>
             {result.errors.length > 0 && (
-              <ul className="text-xs text-red-500 space-y-1 mt-2">
+              <ul className="text-xs text-zinc-600 space-y-1 mt-2">
                 {result.errors.map((e, i) => <li key={i}>{e}</li>)}
               </ul>
             )}
@@ -177,13 +179,13 @@ export default function ZKTecoPage() {
 
       {/* Pending Fingerprint Enrollment */}
       {pendingEmployees.length > 0 && (
-        <div className="border border-yellow-300 bg-yellow-50 rounded-lg p-5 space-y-3">
-          <h2 className="font-semibold text-lg text-yellow-800">⏳ Fingerprint Pending ({pendingEmployees.length})</h2>
-          <p className="text-sm text-yellow-700">Yeh employees machine par register hain lekin abhi tak finger enroll nahi ki. Inhe machine par jakar finger lagani hai.</p>
+        <div className="border border-zinc-200 bg-zinc-50 rounded-lg p-5 space-y-3">
+          <h2 className="font-semibold text-lg text-zinc-800"><FontAwesomeIcon icon={faClock} className="mr-2 h-4 w-4" />Fingerprint Pending ({pendingEmployees.length})</h2>
+          <p className="text-sm text-zinc-700">Yeh employees machine par register hain lekin abhi tak finger enroll nahi ki. Inhe machine par jakar finger lagani hai.</p>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-yellow-700 border-b border-yellow-200">
+                <tr className="text-left text-zinc-700 border-b border-zinc-200">
                   <th className="pb-2">Employee ID</th>
                   <th className="pb-2">Name</th>
                   <th className="pb-2">Added On</th>
@@ -191,10 +193,10 @@ export default function ZKTecoPage() {
               </thead>
               <tbody>
                 {pendingEmployees.map((e) => (
-                  <tr key={e.id} className="border-b border-yellow-100 last:border-0">
-                    <td className="py-2 font-mono text-yellow-800">{e.employeeId}</td>
+                  <tr key={e.id} className="border-b border-zinc-100 last:border-0">
+                    <td className="py-2 font-mono text-zinc-800">{e.employeeId}</td>
                     <td className="py-2">{e.firstName} {e.lastName}</td>
-                    <td className="py-2 text-yellow-600">{new Date(e.createdAt).toLocaleDateString()}</td>
+                    <td className="py-2 text-zinc-600">{new Date(e.createdAt).toLocaleDateString()}</td>
                   </tr>
                 ))}
               </tbody>
@@ -210,7 +212,7 @@ export default function ZKTecoPage() {
         <button
           onClick={handleDebug}
           disabled={debugging}
-          className="bg-yellow-600 text-white px-5 py-2 rounded-lg hover:bg-yellow-700 disabled:opacity-50 font-medium"
+          className="bg-zinc-700 text-white px-5 py-2 rounded-lg hover:bg-zinc-600 disabled:opacity-50 font-medium"
         >
           {debugging ? "Loading..." : "Show Raw Logs"}
         </button>
@@ -263,7 +265,7 @@ export default function ZKTecoPage() {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 text-sm">
+        <div className="bg-zinc-100 border border-zinc-200 text-zinc-700 rounded-lg p-4 text-sm">
           <strong>Error:</strong> {error}
         </div>
       )}

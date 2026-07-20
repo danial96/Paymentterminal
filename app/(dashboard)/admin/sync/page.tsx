@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+﻿import { prisma } from "@/lib/prisma";
 import { triggerSync } from "@/app/actions/sync";
 import { formatDateTime } from "@/lib/format";
 
@@ -19,7 +19,7 @@ export default async function SyncPage() {
         <form action={triggerSync}>
           <button
             type="submit"
-            className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
+            className="btn-brand rounded-md px-4 py-2 text-sm font-medium text-white"
           >
             Sync Now
           </button>
@@ -27,7 +27,7 @@ export default async function SyncPage() {
       </div>
 
       {dbError && (
-        <pre className="rounded-md bg-red-50 p-4 text-xs text-red-700 overflow-auto">{dbError}</pre>
+        <pre className="rounded-md bg-zinc-100 p-4 text-xs text-zinc-700 overflow-auto">{dbError}</pre>
       )}
 
       <p className="text-sm text-zinc-500">
@@ -65,10 +65,10 @@ export default async function SyncPage() {
 
           {warnings.length > 0 && (
             <div className="mt-6">
-              <p className="mb-2 text-xs font-semibold uppercase text-amber-600">Warnings</p>
-              <ul className="flex flex-col gap-1 text-sm text-amber-700">
+              <p className="mb-2 text-xs font-semibold uppercase text-zinc-600">Warnings</p>
+              <ul className="flex flex-col gap-1 text-sm text-zinc-700">
                 {warnings.map((w, i) => (
-                  <li key={i} className="rounded-md bg-amber-50 px-3 py-2">
+                  <li key={i} className="rounded-md bg-zinc-50 px-3 py-2">
                     {w}
                   </li>
                 ))}

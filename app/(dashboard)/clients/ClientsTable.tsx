@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { loadMoreClients } from "@/app/actions/clients";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 type Service = {
   serviceType: { name: string; isRecurring: boolean };
@@ -25,53 +27,24 @@ type Client = {
   services: Service[];
 };
 
-const BRAND_COLORS: Record<string, string> = {
-  "digi design lab":      "bg-teal-100 text-teal-800 ring-1 ring-teal-300",
-  "alpha web creators":   "bg-lime-100 text-lime-800 ring-1 ring-lime-300",
-  "elite design hub":     "bg-emerald-100 text-emerald-800 ring-1 ring-emerald-300",
-  "creative web codes":   "bg-pink-100 text-pink-800 ring-1 ring-pink-300",
-  "stellar web design":   "bg-sky-100 text-sky-800 ring-1 ring-sky-300",
-  "stellar web designs":  "bg-sky-100 text-sky-800 ring-1 ring-sky-300",
-  "omni web creators":    "bg-purple-100 text-purple-800 ring-1 ring-purple-300",
-  "olenix web solutions": "bg-cyan-100 text-cyan-800 ring-1 ring-cyan-300",
-  "imagine web studio":   "bg-violet-100 text-violet-800 ring-1 ring-violet-300",
-  "craft vision digital": "bg-yellow-100 text-yellow-800 ring-1 ring-yellow-300",
-  "craft tide":           "bg-yellow-100 text-yellow-800 ring-1 ring-yellow-300",
-  "web vision studios":   "bg-orange-100 text-orange-800 ring-1 ring-orange-300",
-  "design vertex":        "bg-violet-100 text-violet-800 ring-1 ring-violet-300",
-};
-function brandColor(name: string) {
-  const key = name.toLowerCase();
-  if (BRAND_COLORS[key]) return BRAND_COLORS[key];
-  for (const [k, v] of Object.entries(BRAND_COLORS)) if (key.includes(k) || k.includes(key)) return v;
-  const f = ["bg-blue-100 text-blue-800","bg-emerald-100 text-emerald-800","bg-violet-100 text-violet-800","bg-amber-100 text-amber-800","bg-pink-100 text-pink-800","bg-orange-100 text-orange-800","bg-cyan-100 text-cyan-800","bg-teal-100 text-teal-800"];
-  return f[name.charCodeAt(0) % f.length];
+function brandColor(_name: string) {
+  return "bg-zinc-100 text-zinc-700 ring-1 ring-zinc-200";
 }
 
-const SERVICE_COLORS: Record<string, string> = {
-  website:"bg-blue-50 text-blue-700", hosting:"bg-emerald-50 text-emerald-700",
-  domain:"bg-violet-50 text-violet-700", seo:"bg-amber-50 text-amber-700",
-  graphic:"bg-pink-50 text-pink-700", cv:"bg-orange-50 text-orange-700",
-  email:"bg-cyan-50 text-cyan-700", security:"bg-red-50 text-red-700",
-  gmb:"bg-teal-50 text-teal-700", social:"bg-fuchsia-50 text-fuchsia-700",
-};
-function serviceColor(name: string) {
-  const key = name.toLowerCase();
-  for (const [k, v] of Object.entries(SERVICE_COLORS)) if (key.includes(k)) return v;
-  const f = ["bg-blue-50 text-blue-700","bg-emerald-50 text-emerald-700","bg-violet-50 text-violet-700","bg-amber-50 text-amber-700","bg-pink-50 text-pink-700","bg-orange-50 text-orange-700","bg-cyan-50 text-cyan-700","bg-teal-50 text-teal-700"];
-  return f[name.charCodeAt(0) % f.length];
+function serviceColor(_name: string) {
+  return "bg-zinc-100 text-zinc-600";
 }
 
 const UPSELL_CHAIN = [
-  { key:"hosting",  label:"Hosting",      color:"bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200" },
-  { key:"domain",   label:"Domain",       color:"bg-violet-50 text-violet-700 ring-1 ring-violet-200" },
-  { key:"seo",      label:"SEO",          color:"bg-amber-50 text-amber-700 ring-1 ring-amber-200" },
-  { key:"security", label:"Security",     color:"bg-red-50 text-red-700 ring-1 ring-red-200" },
-  { key:"email",    label:"Email",        color:"bg-cyan-50 text-cyan-700 ring-1 ring-cyan-200" },
-  { key:"gmb",      label:"GMB",          color:"bg-teal-50 text-teal-700 ring-1 ring-teal-200" },
-  { key:"social",   label:"Social Media", color:"bg-fuchsia-50 text-fuchsia-700 ring-1 ring-fuchsia-200" },
-  { key:"logo",     label:"Logo",         color:"bg-pink-50 text-pink-700 ring-1 ring-pink-200" },
-  { key:"branding", label:"Branding",     color:"bg-orange-50 text-orange-700 ring-1 ring-orange-200" },
+  { key:"hosting",  label:"Hosting",      color:"bg-zinc-100 text-zinc-600 ring-1 ring-zinc-200" },
+  { key:"domain",   label:"Domain",       color:"bg-zinc-100 text-zinc-600 ring-1 ring-zinc-200" },
+  { key:"seo",      label:"SEO",          color:"bg-zinc-100 text-zinc-600 ring-1 ring-zinc-200" },
+  { key:"security", label:"Security",     color:"bg-zinc-100 text-zinc-600 ring-1 ring-zinc-200" },
+  { key:"email",    label:"Email",        color:"bg-zinc-100 text-zinc-600 ring-1 ring-zinc-200" },
+  { key:"gmb",      label:"GMB",          color:"bg-zinc-100 text-zinc-600 ring-1 ring-zinc-200" },
+  { key:"social",   label:"Social Media", color:"bg-zinc-100 text-zinc-600 ring-1 ring-zinc-200" },
+  { key:"logo",     label:"Logo",         color:"bg-zinc-100 text-zinc-600 ring-1 ring-zinc-200" },
+  { key:"branding", label:"Branding",     color:"bg-zinc-100 text-zinc-600 ring-1 ring-zinc-200" },
 ];
 function getUpsellOpportunities(serviceNames: string[]) {
   const lower = serviceNames.map((n) => n.toLowerCase());
@@ -84,9 +57,9 @@ function daysUntil(date: Date) {
   return Math.ceil((new Date(date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 }
 function renewalBadge(days: number) {
-  if (days < 0) return "bg-red-100 text-red-700";
-  if (days <= 30) return "bg-yellow-100 text-yellow-700";
-  return "bg-green-100 text-green-700";
+  if (days < 0) return "bg-zinc-900 text-white";
+  if (days <= 30) return "bg-zinc-200 text-zinc-700";
+  return "bg-zinc-200 text-zinc-600";
 }
 function formatDate(d: Date | null | undefined) {
   if (!d) return "—";
@@ -205,7 +178,7 @@ export default function ClientsTable({
                 </td>
                 <td className="px-3 py-1 border-r border-zinc-100 text-zinc-600 whitespace-nowrap text-xs">{paid > 0 ? `£${paid.toFixed(2)}` : "—"}</td>
                 <td className="px-3 py-1 border-r border-zinc-100 whitespace-nowrap text-xs">
-                  {rem > 0 ? <span className="text-red-600 font-medium">£{rem.toFixed(2)}</span> : <span className="text-zinc-400">£0.00</span>}
+                  {rem > 0 ? <span className="text-zinc-900 font-medium">£{rem.toFixed(2)}</span> : <span className="text-zinc-400">£0.00</span>}
                 </td>
                 <td className="px-3 py-1 border-r border-zinc-100 whitespace-nowrap text-xs">
                   {dueDate ? <span className={`rounded-full px-2 py-0.5 text-xs ${renewalBadge(daysUntil(dueDate))}`}>{formatDate(dueDate)}</span> : "—"}
@@ -223,7 +196,7 @@ export default function ClientsTable({
                 {isAdmin && (
                   <td className="px-3 py-1 text-right">
                     <form action={trashAction.bind(null, c.id)}>
-                      <button type="submit" className="text-zinc-300 hover:text-red-500 transition-colors">🗑</button>
+                      <button type="submit" className="text-zinc-300 hover:text-red-500 transition-colors"><FontAwesomeIcon icon={faTrash} className="h-3.5 w-3.5" /></button>
                     </form>
                   </td>
                 )}

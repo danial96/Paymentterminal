@@ -1,13 +1,13 @@
-import { requireUser } from "@/lib/scope";
+﻿import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import { createNotice, deleteNotice, publishNotice } from "@/app/actions/hrm-notices";
 import { DeleteButton } from "@/app/(dashboard)/hrm/components/DeleteButton";
 
 const PRIORITY_COLORS: Record<string, string> = {
   LOW: "bg-zinc-100 text-zinc-500",
-  NORMAL: "bg-blue-100 text-blue-600",
-  HIGH: "bg-orange-100 text-orange-600",
-  URGENT: "bg-red-100 text-red-600",
+  NORMAL: "bg-zinc-200 text-zinc-700",
+  HIGH: "bg-zinc-200 text-zinc-600",
+  URGENT: "bg-zinc-200 text-zinc-600",
 };
 
 export default async function NoticesPage() {
@@ -28,16 +28,16 @@ export default async function NoticesPage() {
           <form action={createNotice} className="space-y-3">
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Title *</label>
-              <input name="title" required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <input name="title" required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Content *</label>
-              <textarea name="content" required rows={4} className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <textarea name="content" required rows={4} className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-zinc-700 mb-1">Type</label>
-                <select name="type" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <select name="type" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
                   <option value="GENERAL">General</option>
                   <option value="URGENT">Urgent</option>
                   <option value="POLICY">Policy</option>
@@ -47,7 +47,7 @@ export default async function NoticesPage() {
               </div>
               <div>
                 <label className="block text-xs font-medium text-zinc-700 mb-1">Priority</label>
-                <select name="priority" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <select name="priority" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
                   <option value="LOW">Low</option>
                   <option value="NORMAL">Normal</option>
                   <option value="HIGH">High</option>
@@ -57,20 +57,20 @@ export default async function NoticesPage() {
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Department (optional)</label>
-              <select name="departmentId" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <select name="departmentId" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
                 <option value="">All Employees</option>
                 {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Expiry Date (optional)</label>
-              <input name="expiresAt" type="date" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <input name="expiresAt" type="date" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <div className="flex items-center gap-2">
               <input name="isPublished" type="checkbox" value="true" id="publish" className="rounded" />
               <label htmlFor="publish" className="text-sm text-zinc-700 cursor-pointer">Publish immediately</label>
             </div>
-            <button type="submit" className="w-full rounded-lg bg-indigo-600 py-2 text-sm font-medium text-white hover:bg-indigo-700">Post Notice</button>
+            <button type="submit" className="btn-brand w-full rounded-lg py-2 text-sm font-medium text-white">Post Notice</button>
           </form>
         </div>
 
@@ -88,8 +88,8 @@ export default async function NoticesPage() {
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="text-sm font-medium text-zinc-900">{n.title}</p>
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${PRIORITY_COLORS[n.priority]}`}>{n.priority}</span>
-                      {!n.isPublished && <span className="rounded-full px-2 py-0.5 text-[10px] bg-amber-100 text-amber-600">Draft</span>}
-                      {n.department && <span className="rounded-full px-2 py-0.5 text-[10px] bg-indigo-100 text-indigo-600">{n.department.name}</span>}
+                      {!n.isPublished && <span className="rounded-full px-2 py-0.5 text-[10px] bg-zinc-200 text-zinc-600">Draft</span>}
+                      {n.department && <span className="rounded-full px-2 py-0.5 text-[10px] bg-zinc-100 text-zinc-700">{n.department.name}</span>}
                     </div>
                     <p className="text-xs text-zinc-500 mt-1 line-clamp-2">{n.content}</p>
                     <p className="text-[10px] text-zinc-400 mt-1">{n.createdAt.toLocaleDateString("en-GB")}</p>
@@ -97,7 +97,7 @@ export default async function NoticesPage() {
                   <div className="flex gap-1 shrink-0">
                     {!n.isPublished && (
                       <form action={publishNotice.bind(null, n.id)}>
-                        <button type="submit" className="text-xs text-emerald-600 hover:text-emerald-800 font-medium px-1">Publish</button>
+                        <button type="submit" className="text-xs text-zinc-700 hover:text-zinc-800 font-medium px-1">Publish</button>
                       </form>
                     )}
                     <form action={deleteNotice.bind(null, n.id)}>

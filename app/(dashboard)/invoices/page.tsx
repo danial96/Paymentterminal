@@ -5,9 +5,9 @@ import DeleteInvoiceButton from "./DeleteInvoiceButton";
 
 const STATUS_STYLES = {
   draft:     "bg-zinc-100 text-zinc-600",
-  sent:      "bg-blue-100 text-blue-700",
-  paid:      "bg-green-100 text-green-700",
-  cancelled: "bg-red-100 text-red-500",
+  sent:      "bg-zinc-200 text-zinc-700",
+  paid:      "bg-zinc-900 text-white",
+  cancelled: "bg-zinc-200 text-zinc-600",
 };
 
 export default async function InvoicesPage() {
@@ -34,7 +34,7 @@ export default async function InvoicesPage() {
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold text-zinc-900">Invoices</h1>
-        <Link href="/invoices/new" className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-colors shadow-sm">
+        <Link href="/invoices/new" className="btn-brand flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors shadow-sm">
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
           New Invoice
         </Link>
@@ -44,14 +44,14 @@ export default async function InvoicesPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { label: "Total Invoices", value: stats.total, sub: null, color: "border-zinc-200" },
-          { label: "Paid", value: stats.paid, sub: `£${stats.paidValue.toLocaleString("en-GB", { minimumFractionDigits: 2 })}`, color: "border-green-200" },
-          { label: "Pending", value: stats.pending, sub: null, color: "border-blue-200" },
-          { label: "Total Value", value: `£${stats.totalValue.toLocaleString("en-GB", { minimumFractionDigits: 2 })}`, sub: null, color: "border-indigo-200" },
+          { label: "Paid", value: stats.paid, sub: `£${stats.paidValue.toLocaleString("en-GB", { minimumFractionDigits: 2 })}`, color: "border-zinc-200" },
+          { label: "Pending", value: stats.pending, sub: null, color: "border-zinc-200" },
+          { label: "Total Value", value: `£${stats.totalValue.toLocaleString("en-GB", { minimumFractionDigits: 2 })}`, sub: null, color: "border-zinc-200" },
         ].map((s) => (
           <div key={s.label} className={`rounded-xl border ${s.color} bg-white px-4 py-3`}>
             <p className="text-xs text-zinc-500">{s.label}</p>
             <p className="text-xl font-bold text-zinc-900 mt-0.5">{s.value}</p>
-            {s.sub && <p className="text-xs text-green-600 mt-0.5">{s.sub} collected</p>}
+            {s.sub && <p className="text-xs text-zinc-500 mt-0.5">{s.sub} collected</p>}
           </div>
         ))}
       </div>
@@ -62,7 +62,7 @@ export default async function InvoicesPage() {
           <div className="py-16 text-center">
             <svg className="mx-auto h-10 w-10 text-zinc-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
             <p className="text-sm text-zinc-400">No invoices yet</p>
-            <Link href="/invoices/new" className="mt-3 inline-flex items-center gap-1.5 text-sm text-indigo-600 hover:underline font-medium">
+            <Link href="/invoices/new" className="mt-3 inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:underline font-medium">
               Create your first invoice →
             </Link>
           </div>
@@ -85,7 +85,7 @@ export default async function InvoicesPage() {
               {invoices.map((inv) => (
                 <tr key={inv.id} className="border-b border-zinc-100 last:border-0 hover:bg-zinc-50">
                   <td className="px-4 py-2.5 border-r border-zinc-100">
-                    <Link href={`/invoices/${inv.id}`} className="font-mono text-xs font-semibold text-indigo-600 hover:underline">
+                    <Link href={`/invoices/${inv.id}`} className="font-mono text-xs font-semibold text-zinc-700 hover:underline">
                       {inv.invoiceNumber}
                     </Link>
                   </td>
@@ -99,7 +99,7 @@ export default async function InvoicesPage() {
                   <td className="px-4 py-2.5 border-r border-zinc-100 text-xs">
                     {(inv as typeof inv & { paymentMethod?: string }).paymentMethod === "bank_transfer" ? (
                       <div>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-amber-700 font-medium border border-amber-200">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 text-zinc-700 font-medium border border-zinc-200">
                           <svg className="h-2.5 w-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
                           Bank
                         </span>
@@ -109,7 +109,7 @@ export default async function InvoicesPage() {
                       </div>
                     ) : inv.stripeAccount ? (
                       <div>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-0.5 text-indigo-700 font-medium border border-indigo-200">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 text-zinc-700 font-medium border border-zinc-200">
                           <svg className="h-2.5 w-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
                           Stripe
                         </span>

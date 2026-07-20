@@ -115,11 +115,14 @@ export async function getZKDeviceUsers() {
 
 export async function startEnrollment(employeeId: string) {
   await requireAdmin();
-  // Extract numeric UID from employeeId e.g. EMP1001 -> 1001
-  const uid = parseInt(employeeId.replace("EMP", ""));
-  if (isNaN(uid)) throw new Error("Invalid employeeId format");
-  await startFingerprintEnrollment(uid);
-  return { success: true };
+  try {
+    const uid = parseInt(employeeId.replace("EMP", "").replace("-", ""));
+    if (isNaN(uid)) return { error: "Invalid employee ID format" };
+    await startFingerprintEnrollment(uid);
+    return { success: true };
+  } catch {
+    return { error: "Could not connect to fingerprint machine" };
+  }
 }
 
 export async function getPendingFingerprintEmployees() {

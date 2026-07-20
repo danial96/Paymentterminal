@@ -1,14 +1,14 @@
-import { auth } from "@/lib/auth";
+﻿import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 
 const STATUS_COLORS: Record<string, string> = {
-  PRESENT: "bg-emerald-100 text-emerald-700",
-  LATE: "bg-orange-100 text-orange-600",
-  ABSENT: "bg-red-100 text-red-600",
-  HALF_DAY: "bg-amber-100 text-amber-600",
-  ON_LEAVE: "bg-blue-100 text-blue-600",
-  HOLIDAY: "bg-purple-100 text-purple-600",
+  PRESENT: "bg-zinc-900 text-white",
+  LATE: "bg-zinc-200 text-zinc-600",
+  ABSENT: "bg-zinc-200 text-zinc-600",
+  HALF_DAY: "bg-zinc-200 text-zinc-600",
+  ON_LEAVE: "bg-zinc-200 text-zinc-700",
+  HOLIDAY: "bg-zinc-200 text-zinc-700",
 };
 
 function fmt(d: Date | null) {
@@ -102,7 +102,7 @@ export default async function ESSAttendancePage() {
                 <td className="px-4 py-3 text-zinc-600">{fmt(r.checkIn)}</td>
                 <td className="px-4 py-3 text-zinc-600">{fmt(r.checkOut)}</td>
                 <td className="px-4 py-3 text-zinc-600">{r.workingHours ? `${Number(r.workingHours).toFixed(1)}h` : "—"}</td>
-                <td className="px-4 py-3 text-indigo-600">{r.overtimeHours && Number(r.overtimeHours) > 0 ? `+${Number(r.overtimeHours).toFixed(1)}h` : "—"}</td>
+                <td className="px-4 py-3 text-zinc-700">{r.overtimeHours && Number(r.overtimeHours) > 0 ? `+${Number(r.overtimeHours).toFixed(1)}h` : "—"}</td>
               </tr>
             ))}
           </tbody>

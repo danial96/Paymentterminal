@@ -20,6 +20,8 @@ enum Role {
   front_seller
   upseller
   production_department
+  hr_manager
+  hr_staff
 }
 
 enum ServiceStatus {
@@ -382,6 +384,8 @@ model HRMDesignation {
   departmentId Int?
   salaryGrade  String?
   description  String?
+  crmRole      String?
+  crmHrmRole   String?
   isActive     Boolean        @default(true)
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
@@ -464,6 +468,10 @@ model HRMEmployee {
   notes                    String?            @db.Text
   fingerprintEnrolled      Boolean            @default(false)
 
+  portalEmail              String?            @unique
+  portalPassword           String?
+  portalEnabled            Boolean            @default(false)
+
   createdAt                DateTime           @default(now())
   updatedAt                DateTime           @updatedAt
   deletedAt                DateTime?
@@ -476,15 +484,17 @@ model HRMEmployee {
   shift            HRMShift?       @relation(fields: [shiftId], references: [id])
   departmentHeadOf HRMDepartment[] @relation("DepartmentHead")
 
-  attendance    HRMAttendance[]
-  leaves        HRMLeave[]
-  leaveBalances HRMLeaveBalance[]
-  payrolls      HRMPayroll[]
-  assets        HRMAsset[]
-  documents     HRMDocument[]
-  performances  HRMPerformance[]
-  allowances    HRMAllowance[]
-  deductions    HRMDeduction[]
+  attendance         HRMAttendance[]
+  leaves             HRMLeave[]
+  leaveBalances      HRMLeaveBalance[]
+  payrolls           HRMPayroll[]
+  assets             HRMAsset[]
+  documents          HRMDocument[]
+  performances       HRMPerformance[]
+  allowances         HRMAllowance[]
+  deductions         HRMDeduction[]
+  registrationToken  HRMRegistrationToken?
+  payslipRequests    HRMPayslipRequest[]
 }
 
 model HRMAttendance {
@@ -723,4 +733,27 @@ model HRMAuditLog {
   ipAddress  String?
   userAgent  String?
   createdAt  DateTime @default(now())
+}
+
+model HRMRegistrationToken {
+  id         Int          @id @default(autoincrement())
+  token      String       @unique
+  label      String?
+  createdAt  DateTime     @default(now())
+  expiresAt  DateTime
+  usedAt     DateTime?
+  employeeId Int?         @unique
+  employee   HRMEmployee? @relation(fields: [employeeId], references: [id])
+}
+
+model HRMPayslipRequest {
+  id         Int         @id @default(autoincrement())
+  employeeId Int
+  employee   HRMEmployee @relation(fields: [employeeId], references: [id])
+  month      Int
+  year       Int
+  status     String      @default("PENDING")
+  hrNote     String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
 }

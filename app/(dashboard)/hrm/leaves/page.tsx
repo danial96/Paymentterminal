@@ -1,11 +1,11 @@
-import { requireUser } from "@/lib/scope";
+﻿import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import { approveLeave, rejectLeave, applyLeave } from "@/app/actions/hrm-leaves";
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING: "bg-amber-100 text-amber-700",
-  APPROVED: "bg-emerald-100 text-emerald-700",
-  REJECTED: "bg-red-100 text-red-600",
+  PENDING: "bg-zinc-200 text-zinc-700",
+  APPROVED: "bg-zinc-900 text-white",
+  REJECTED: "bg-zinc-200 text-zinc-600",
   CANCELLED: "bg-zinc-100 text-zinc-500",
 };
 
@@ -39,41 +39,41 @@ export default async function LeavesPage({
           <h1 className="text-xl font-bold text-zinc-900">Leave Management</h1>
           <p className="text-sm text-zinc-500">{pending.length} pending request{pending.length !== 1 ? "s" : ""}</p>
         </div>
-        <a href="/hrm/leaves/types" className="text-sm text-indigo-600 hover:underline">Manage Leave Types →</a>
+        <a href="/hrm/leaves/types" className="text-sm text-zinc-700 hover:underline">Manage Leave Types →</a>
       </div>
 
       {/* Apply Leave Form */}
       <div className="rounded-xl border border-zinc-200 bg-white p-5">
         <h2 className="text-sm font-semibold text-zinc-900 mb-4">Apply Leave (on behalf)</h2>
         <form action={applyLeave} className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-          <select name="employeeId" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <select name="employeeId" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
             <option value="">Select Employee</option>
             {employees.map((e) => <option key={e.id} value={e.id}>{e.firstName} {e.lastName}</option>)}
           </select>
-          <select name="leaveTypeId" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <select name="leaveTypeId" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
             <option value="">Leave Type</option>
             {leaveTypes.map((lt) => <option key={lt.id} value={lt.id}>{lt.name}</option>)}
           </select>
-          <input name="startDate" type="date" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-          <input name="endDate" type="date" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-          <button type="submit" className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Apply</button>
+          <input name="startDate" type="date" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
+          <input name="endDate" type="date" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
+          <button type="submit" className="btn-brand rounded-md px-4 py-2 text-sm font-medium text-white">Apply</button>
         </form>
       </div>
 
       {/* Filters */}
       <form method="GET" className="flex gap-2">
-        <select name="status" defaultValue={status} className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <select name="status" defaultValue={status} className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
           <option value="">All Status</option>
           <option value="PENDING">Pending</option>
           <option value="APPROVED">Approved</option>
           <option value="REJECTED">Rejected</option>
           <option value="CANCELLED">Cancelled</option>
         </select>
-        <select name="emp" defaultValue={emp} className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <select name="emp" defaultValue={emp} className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
           <option value="">All Employees</option>
           {employees.map((e) => <option key={e.id} value={e.id}>{e.firstName} {e.lastName}</option>)}
         </select>
-        <button type="submit" className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800">Filter</button>
+        <button type="submit" className="btn-brand rounded-md px-4 py-2 text-sm font-medium text-white">Filter</button>
         <a href="/hrm/leaves" className="rounded-md border border-zinc-200 px-4 py-2 text-sm text-zinc-600 hover:bg-zinc-50">Clear</a>
       </form>
 
@@ -103,7 +103,7 @@ export default async function LeavesPage({
                 </td>
                 <td className="px-4 py-3 text-zinc-600">
                   {leave.leaveType.name}
-                  <span className={`ml-1 text-[10px] rounded-full px-1.5 py-0.5 ${leave.leaveType.isPaid ? "bg-emerald-100 text-emerald-600" : "bg-zinc-100 text-zinc-500"}`}>
+                  <span className={`ml-1 text-[10px] rounded-full px-1.5 py-0.5 ${leave.leaveType.isPaid ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-500"}`}>
                     {leave.leaveType.isPaid ? "Paid" : "Unpaid"}
                   </span>
                 </td>
@@ -120,7 +120,7 @@ export default async function LeavesPage({
                   {leave.status === "PENDING" && (
                     <div className="flex gap-2">
                       <form action={approveLeave.bind(null, leave.id, Number(user.id))}>
-                        <button type="submit" className="text-xs text-emerald-600 hover:text-emerald-800 font-medium">Approve</button>
+                        <button type="submit" className="text-xs text-zinc-700 hover:text-zinc-800 font-medium">Approve</button>
                       </form>
                       <form action={rejectLeave.bind(null, leave.id, "Rejected by HR")}>
                         <button type="submit" className="text-xs text-red-500 hover:text-red-700 font-medium">Reject</button>

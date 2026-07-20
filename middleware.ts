@@ -10,14 +10,21 @@ export default auth((req) => {
   const isLoginPage = pathname === "/login";
   const isPublicInvoice = pathname.startsWith("/invoice/");
   const isPublicApi = pathname.match(/^\/api\/invoices\/\d+\/checkout$/);
+  const isPublicJoin = pathname.startsWith("/join/");
+  const isPortalLogin = pathname === "/portal/login";
 
-  if (!isLoggedIn && !isLoginPage && !isPublicInvoice && !isPublicApi) {
+  if (!isLoggedIn && !isLoginPage && !isPublicInvoice && !isPublicApi && !isPublicJoin && !isPortalLogin) {
     return NextResponse.redirect(new URL("/login", req.nextUrl));
   }
 
   if (isLoggedIn && isLoginPage) {
     return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
   }
+
+  // Pass pathname to server components via header
+  const res = NextResponse.next();
+  res.headers.set("x-pathname", pathname);
+  return res;
 });
 
 export const config = {

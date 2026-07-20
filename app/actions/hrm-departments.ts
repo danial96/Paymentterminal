@@ -82,6 +82,8 @@ export async function createDesignation(formData: FormData) {
     description: formData.get("description") || undefined,
     isActive: formData.get("isActive") !== "false",
   });
+  const crmRole = (formData.get("crmRole") as string) || null;
+  const crmHrmRole = (formData.get("crmHrmRole") as string) || null;
   await prisma.hRMDesignation.create({
     data: {
       name: parsed.name,
@@ -89,6 +91,8 @@ export async function createDesignation(formData: FormData) {
       salaryGrade: parsed.salaryGrade || null,
       description: parsed.description || null,
       isActive: parsed.isActive,
+      crmRole: crmRole || null,
+      crmHrmRole: crmHrmRole || null,
     },
   });
   revalidatePath("/hrm/designations");
@@ -116,6 +120,17 @@ export async function updateDesignation(id: number, formData: FormData) {
   });
   revalidatePath("/hrm/designations");
   redirect("/hrm/designations");
+}
+
+export async function updateDesignationRoles(id: number, formData: FormData) {
+  await requireUser();
+  const crmRole = (formData.get("crmRole") as string) || null;
+  const crmHrmRole = (formData.get("crmHrmRole") as string) || null;
+  await prisma.hRMDesignation.update({
+    where: { id },
+    data: { crmRole: crmRole || null, crmHrmRole: crmHrmRole || null },
+  });
+  revalidatePath("/hrm/designations");
 }
 
 export async function deleteDesignation(id: number) {

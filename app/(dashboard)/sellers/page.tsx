@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGear, faMedal } from "@fortawesome/free-solid-svg-icons";
 
 export default async function SellersPage({
   searchParams,
@@ -100,14 +102,7 @@ export default async function SellersPage({
   }
 
   const avatarColors = [
-    "bg-violet-100 text-violet-700",
-    "bg-blue-100 text-blue-700",
-    "bg-emerald-100 text-emerald-700",
-    "bg-orange-100 text-orange-700",
-    "bg-pink-100 text-pink-700",
-    "bg-teal-100 text-teal-700",
-    "bg-amber-100 text-amber-700",
-    "bg-indigo-100 text-indigo-700",
+    "bg-zinc-100 text-zinc-600",
   ];
 
   function tabClass(t: string) {
@@ -132,7 +127,7 @@ export default async function SellersPage({
           href="/sellers/manage"
           className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors"
         >
-          ⚙️ Manage Sellers
+          <FontAwesomeIcon icon={faGear} className="h-4 w-4" /> Manage Sellers
         </Link>
       </div>
 
@@ -178,7 +173,7 @@ export default async function SellersPage({
         </div>
         <div className="rounded-xl border border-zinc-200 bg-white p-5">
           <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Remaining</p>
-          <p className="mt-2 text-3xl font-bold text-amber-600">
+          <p className="mt-2 text-3xl font-bold text-zinc-900">
             £{(totalValue - totalPaid).toFixed(2)}
           </p>
         </div>
@@ -224,7 +219,9 @@ export default async function SellersPage({
                 return (
                   <tr key={s.name} className="group hover:bg-zinc-50 transition-colors">
                     <td className="border-r border-zinc-100 px-5 py-3.5 font-medium text-zinc-400">
-                      {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : (
+                      {i === 0 ? <FontAwesomeIcon icon={faMedal} className="h-4 w-4 text-zinc-900" /> :
+                       i === 1 ? <FontAwesomeIcon icon={faMedal} className="h-4 w-4 text-zinc-400" /> :
+                       i === 2 ? <FontAwesomeIcon icon={faMedal} className="h-4 w-4 text-zinc-500" /> : (
                         <span className="text-zinc-300">#{i + 1}</span>
                       )}
                     </td>
@@ -242,12 +239,12 @@ export default async function SellersPage({
                           </Link>
                           <div className="flex items-center gap-1">
                             {isFront && (
-                              <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-600">
+                              <span className="rounded-full bg-zinc-200 px-2 py-0.5 text-[10px] font-semibold text-zinc-700">
                                 Front
                               </span>
                             )}
                             {isUp && (
-                              <span className="rounded-full bg-purple-50 px-2 py-0.5 text-[10px] font-semibold text-purple-600">
+                              <span className="rounded-full bg-zinc-200 px-2 py-0.5 text-[10px] font-semibold text-zinc-600">
                                 Upsell
                               </span>
                             )}
@@ -263,10 +260,10 @@ export default async function SellersPage({
                     <td className="border-r border-zinc-100 px-5 py-3.5 font-semibold text-zinc-900">
                       £{s.totalValue.toFixed(2)}
                     </td>
-                    <td className="border-r border-zinc-100 px-5 py-3.5 font-medium text-emerald-600">
+                    <td className="border-r border-zinc-100 px-5 py-3.5 font-medium text-zinc-700">
                       £{s.amountPaid.toFixed(2)}
                     </td>
-                    <td className="border-r border-zinc-100 px-5 py-3.5 font-medium text-amber-600">
+                    <td className="border-r border-zinc-100 px-5 py-3.5 font-medium text-zinc-600">
                       £{remaining.toFixed(2)}
                     </td>
                     <td className="border-r border-zinc-100 px-5 py-3.5">
@@ -274,13 +271,13 @@ export default async function SellersPage({
                         <div className="flex flex-col gap-1">
                           <div className="flex items-center justify-between text-xs">
                             <span className="text-zinc-500">£{target.toFixed(0)}</span>
-                            <span className={`font-semibold ${targetPct >= 100 ? "text-emerald-600" : targetPct >= 70 ? "text-blue-600" : "text-amber-600"}`}>
+                            <span className={`font-semibold ${targetPct >= 100 ? "text-zinc-900" : targetPct >= 70 ? "text-zinc-700" : "text-zinc-500"}`}>
                               {targetPct}%
                             </span>
                           </div>
                           <div className="h-1.5 w-28 overflow-hidden rounded-full bg-zinc-100">
                             <div
-                              className={`h-full rounded-full transition-all ${targetPct >= 100 ? "bg-emerald-500" : targetPct >= 70 ? "bg-blue-500" : "bg-amber-400"}`}
+                              className={`h-full rounded-full transition-all ${targetPct >= 100 ? "bg-zinc-900" : targetPct >= 70 ? "bg-zinc-600" : "bg-zinc-400"}`}
                               style={{ width: `${targetPct}%` }}
                             />
                           </div>

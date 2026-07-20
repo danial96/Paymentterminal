@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/scope";
+﻿import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import { createLeaveType, deleteLeaveType } from "@/app/actions/hrm-leaves";
 import { DeleteButton } from "@/app/(dashboard)/hrm/components/DeleteButton";
@@ -22,16 +22,16 @@ export default async function LeaveTypesPage() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-zinc-700 mb-1">Name *</label>
-                <input name="name" required placeholder="e.g. Annual Leave" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                <input name="name" required placeholder="e.g. Annual Leave" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
               </div>
               <div>
                 <label className="block text-xs font-medium text-zinc-700 mb-1">Code *</label>
-                <input name="code" required placeholder="e.g. AL, CL, SL" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                <input name="code" required placeholder="e.g. AL, CL, SL" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
               </div>
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Days Allowed per Year</label>
-              <input name="daysAllowed" type="number" defaultValue="0" min="0" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <input name="daysAllowed" type="number" defaultValue="0" min="0" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <div className="flex gap-4">
               <label className="flex items-center gap-2 text-sm text-zinc-700 cursor-pointer">
@@ -45,9 +45,9 @@ export default async function LeaveTypesPage() {
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Description</label>
-              <textarea name="description" rows={2} className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <textarea name="description" rows={2} className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
-            <button type="submit" className="w-full rounded-lg bg-indigo-600 py-2 text-sm font-medium text-white hover:bg-indigo-700">Add Leave Type</button>
+            <button type="submit" className="btn-brand w-full rounded-lg py-2 text-sm font-medium text-white">Add Leave Type</button>
           </form>
         </div>
 
@@ -65,8 +65,8 @@ export default async function LeaveTypesPage() {
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-medium text-zinc-900">{lt.name}</p>
                     <span className="rounded font-mono px-1.5 py-0.5 text-[10px] bg-zinc-100 text-zinc-500">{lt.code}</span>
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${lt.isPaid ? "bg-emerald-100 text-emerald-600" : "bg-zinc-100 text-zinc-500"}`}>{lt.isPaid ? "Paid" : "Unpaid"}</span>
-                    {lt.carryForward && <span className="rounded-full px-2 py-0.5 text-[10px] bg-blue-100 text-blue-600">Carry Forward</span>}
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${lt.isPaid ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-500"}`}>{lt.isPaid ? "Paid" : "Unpaid"}</span>
+                    {lt.carryForward && <span className="rounded-full px-2 py-0.5 text-[10px] bg-zinc-200 text-zinc-700">Carry Forward</span>}
                   </div>
                   <p className="text-xs text-zinc-400">{lt.daysAllowed} days/year · {lt._count.leaves} total leaves taken</p>
                 </div>

@@ -1,8 +1,10 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { syncZKAttendance } from "@/app/actions/zkteco";
 import { useRouter } from "next/navigation";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck, faClock } from "@fortawesome/free-solid-svg-icons";
 
 export function FingerprintSyncButton({ enrolled }: { enrolled: boolean }) {
   const [loading, setLoading] = useState(false);
@@ -11,8 +13,8 @@ export function FingerprintSyncButton({ enrolled }: { enrolled: boolean }) {
 
   if (enrolled) {
     return (
-      <span className="rounded-full px-2 py-0.5 text-xs font-semibold bg-green-100 text-green-700">
-        ✓ Enrolled
+      <span className="rounded-full px-2 py-0.5 text-xs font-semibold bg-zinc-900 text-white">
+        <FontAwesomeIcon icon={faCheck} className="mr-1 h-3 w-3" />Enrolled
       </span>
     );
   }
@@ -33,15 +35,15 @@ export function FingerprintSyncButton({ enrolled }: { enrolled: boolean }) {
 
   return (
     <div className="flex items-center gap-1.5">
-      <span className="rounded-full px-2 py-0.5 text-xs font-semibold bg-yellow-100 text-yellow-700">
-        ⏳ Pending
+      <span className="rounded-full px-2 py-0.5 text-xs font-semibold bg-zinc-200 text-zinc-700">
+        <FontAwesomeIcon icon={faClock} className="mr-1 h-3 w-3" />Pending
       </span>
       <button
         onClick={handleSync}
         disabled={loading}
-        className="rounded px-2 py-0.5 text-xs font-medium bg-indigo-100 text-indigo-700 hover:bg-indigo-200 disabled:opacity-50 transition-colors"
+        className="rounded px-2 py-0.5 text-xs font-medium bg-zinc-100 text-zinc-700 hover:bg-zinc-100 disabled:opacity-50 transition-colors"
       >
-        {loading ? "..." : done ? "✓" : "Sync"}
+        {loading ? "..." : done ? <FontAwesomeIcon icon={faCheck} className="h-3 w-3" /> : "Sync"}
       </button>
     </div>
   );

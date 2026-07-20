@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useTransition } from "react";
 import { updateServiceType, deleteServiceType } from "@/app/actions/admin";
@@ -63,7 +63,7 @@ export default function ServiceTypeList({ serviceTypes }: { serviceTypes: Servic
               <button
                 onClick={() => saveEdit(st.id)}
                 disabled={pending || !editName.trim()}
-                className="rounded-md bg-zinc-900 px-3 py-1 text-xs font-semibold text-white hover:bg-zinc-700 disabled:opacity-50"
+                className="btn-brand rounded-md px-3 py-1 text-xs font-semibold text-white disabled:opacity-50"
               >
                 {pending ? "Saving…" : "Save"}
               </button>
@@ -79,7 +79,7 @@ export default function ServiceTypeList({ serviceTypes }: { serviceTypes: Servic
               <span className="flex-1">
                 {st.name}
                 {st.isRecurring && (
-                  <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700">
+                  <span className="ml-2 rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-700">
                     recurring
                   </span>
                 )}

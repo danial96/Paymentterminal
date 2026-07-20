@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 
@@ -53,18 +53,18 @@ export function PayslipSidebarActions({ payrollId }: { payrollId: number }) {
             max={100}
             value={topMargin}
             onChange={(e) => setTopMargin(Number(e.target.value))}
-            className="w-full rounded border border-zinc-300 px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            className="w-full rounded border border-zinc-300 px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-zinc-400"
           />
           <span className="text-xs text-zinc-400 shrink-0">mm</span>
         </div>
         <p className="text-[11px] text-zinc-400">Increase for letterhead paper</p>
       </div>
 
-      <button onClick={printWithLogo}    className={`${btn} bg-indigo-600 text-white hover:bg-indigo-700`}>{PRINT_ICON} Print with Logo</button>
+      <button onClick={printWithLogo}    className={`${btn} btn-brand`}>{PRINT_ICON} Print with Logo</button>
       <button onClick={printWithoutLogo} className={`${btn} border border-zinc-300 text-zinc-700 hover:bg-zinc-50`}>{PRINT_ICON} Print without Logo</button>
       <hr className="border-zinc-200" />
-      <button onClick={() => downloadPDF(true)}  className={`${btn} bg-emerald-600 text-white hover:bg-emerald-700`}>{DL_ICON} PDF with Logo</button>
-      <button onClick={() => downloadPDF(false)} className={`${btn} border border-emerald-300 text-emerald-700 hover:bg-emerald-50`}>{DL_ICON} PDF without Logo</button>
+      <button onClick={() => downloadPDF(true)}  className={`${btn} bg-zinc-900 text-white hover:bg-zinc-700`}>{DL_ICON} PDF with Logo</button>
+      <button onClick={() => downloadPDF(false)} className={`${btn} border border-zinc-300 text-zinc-700 hover:bg-zinc-50`}>{DL_ICON} PDF without Logo</button>
     </>
   );
 }

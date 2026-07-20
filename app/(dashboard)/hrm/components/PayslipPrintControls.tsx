@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 const PRINT_ICON = (
   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -36,7 +36,7 @@ export function PayslipPrintControls({ payrollId }: { payrollId: number }) {
       {/* Print */}
       <button
         onClick={printWithLogo}
-        className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 flex items-center gap-2"
+        className="btn-brand rounded-lg px-4 py-2 text-sm font-medium text-white flex items-center gap-2"
       >
         {PRINT_ICON} Print with Logo
       </button>
@@ -53,13 +53,13 @@ export function PayslipPrintControls({ payrollId }: { payrollId: number }) {
       {/* Download PDF */}
       <button
         onClick={() => downloadPDF(true)}
-        className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 flex items-center gap-2"
+        className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 flex items-center gap-2"
       >
         {DOWNLOAD_ICON} PDF with Logo
       </button>
       <button
         onClick={() => downloadPDF(false)}
-        className="rounded-lg border border-emerald-300 px-4 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-50 flex items-center gap-2"
+        className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 flex items-center gap-2"
       >
         {DOWNLOAD_ICON} PDF without Logo
       </button>

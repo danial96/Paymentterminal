@@ -1,4 +1,4 @@
-import { requireUser, userHasPermission } from "@/lib/scope";
+import { requireUser, userHasPermission, isHrmOnly } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import NavSidebar from "./NavSidebar";
 import TopbarUserMenu from "./TopbarUserMenu";
@@ -11,13 +11,14 @@ export default async function DashboardLayout({
   const sessionUser = await requireUser();
   const user = await prisma.user.findUnique({
     where: { id: Number(sessionUser.id) },
-    select: { name: true, role: true, permissions: true },
+    select: { name: true, role: true, permissions: true, hrmRole: true },
   }) ?? sessionUser;
   const isAdmin = user.role === "admin";
+  const hrmOnly = isHrmOnly(user);
 
   const hasHrm = isAdmin || userHasPermission(user, "hrm");
 
-  const navLinks = [
+  const navLinks = hrmOnly ? [] : [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/clients", label: "Clients" },
     ...(userHasPermission(user, "sellers")       ? [{ href: "/sellers",       label: "Sellers" }]       : []),
@@ -40,8 +41,9 @@ export default async function DashboardLayout({
         navLinks={navLinks}
         adminLinks={adminLinks}
         isAdmin={isAdmin}
-        hasInvoicesPermission={isAdmin || userHasPermission(user, "invoices")}
+        hasInvoicesPermission={!hrmOnly && (isAdmin || userHasPermission(user, "invoices"))}
         hasHrmPermission={hasHrm}
+        hrmOnly={hrmOnly}
       />
       <div className="flex flex-1 flex-col min-w-0">
         {/* Top header bar */}

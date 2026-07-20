@@ -1,6 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck } from "@fortawesome/free-solid-svg-icons";
 
 const TEMPLATES = [
   { id: "modern",       name: "Modern",       desc: "Bold header, accent top border, diagonal PAID watermark" },
@@ -79,11 +81,11 @@ export default function BrandDetailsEditor({
               onClick={() => setInvoiceTemplate(t.id)}
               className={`rounded-lg border-2 p-3 text-left transition-all ${
                 invoiceTemplate === t.id
-                  ? "border-indigo-500 bg-indigo-50"
+                  ? "border-zinc-900 bg-zinc-50"
                   : "border-zinc-200 bg-zinc-50 hover:border-zinc-300"
               }`}
             >
-              <div className={`text-xs font-bold mb-1 ${invoiceTemplate === t.id ? "text-indigo-700" : "text-zinc-700"}`}>
+              <div className={`text-xs font-bold mb-1 ${invoiceTemplate === t.id ? "text-zinc-700" : "text-zinc-700"}`}>
                 {t.name}
               </div>
               <div className="text-[10px] text-zinc-400 leading-snug">{t.desc}</div>
@@ -107,7 +109,7 @@ export default function BrandDetailsEditor({
               value={brandColor}
               onChange={e => setBrandColor(e.target.value)}
               placeholder="#1a1a2e"
-              className="w-28 rounded-md border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-sm text-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:bg-white transition-colors font-mono"
+              className="w-28 rounded-md border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-sm text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:bg-white transition-colors font-mono"
             />
             <span className="text-xs text-zinc-400">Used in invoice design</span>
           </div>
@@ -118,7 +120,7 @@ export default function BrandDetailsEditor({
             value={phone}
             onChange={e => setPhone(e.target.value)}
             placeholder="+44 7700 900000"
-            className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-sm text-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:bg-white transition-colors"
+            className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-sm text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:bg-white transition-colors"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -127,7 +129,7 @@ export default function BrandDetailsEditor({
             value={email}
             onChange={e => setEmail(e.target.value)}
             placeholder="info@brand.com"
-            className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-sm text-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:bg-white transition-colors"
+            className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-sm text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:bg-white transition-colors"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -136,7 +138,7 @@ export default function BrandDetailsEditor({
             value={website}
             onChange={e => setWebsite(e.target.value)}
             placeholder="https://brand.com"
-            className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-sm text-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:bg-white transition-colors"
+            className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-sm text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:bg-white transition-colors"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -146,7 +148,7 @@ export default function BrandDetailsEditor({
             onChange={e => setAddress(e.target.value)}
             rows={2}
             placeholder="21 High Street, London, UK"
-            className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-sm text-zinc-800 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:bg-white transition-colors resize-none"
+            className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-sm text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:bg-white transition-colors resize-none"
           />
         </div>
       </div>
@@ -155,12 +157,12 @@ export default function BrandDetailsEditor({
         <button
           onClick={handleSave}
           disabled={status === "saving"}
-          className="rounded-md bg-indigo-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-60 transition-colors"
+          className="btn-brand rounded-md px-4 py-1.5 text-sm font-medium text-white disabled:opacity-60 transition-colors"
         >
           {status === "saving" ? "Saving..." : "Save Details"}
         </button>
         {status === "saved" && (
-          <span className="flex items-center gap-1.5 text-sm text-green-600 font-medium">
+          <span className="flex items-center gap-1.5 text-sm text-zinc-700 font-medium">
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
             </svg>
@@ -168,13 +170,13 @@ export default function BrandDetailsEditor({
           </span>
         )}
         {status === "error" && (
-          <span className="text-sm text-red-500">Failed to save — try again</span>
+          <span className="text-sm text-zinc-700">Failed to save — try again</span>
         )}
       </div>
 
       {(initialPhone || initialEmail || initialAddress || initialWebsite) && status === "idle" && (
-        <div className="mt-3 rounded-lg bg-green-50 border border-green-200 px-3 py-2 text-xs text-green-700">
-          <span className="font-semibold">✓ Saved: </span>
+        <div className="mt-3 rounded-lg bg-zinc-50 border border-zinc-200 px-3 py-2 text-xs text-zinc-700">
+          <span className="font-semibold"><FontAwesomeIcon icon={faCheck} className="mr-1 h-3 w-3" />Saved: </span>
           {[initialPhone, initialEmail, initialAddress].filter(Boolean).join(" · ")}
         </div>
       )}

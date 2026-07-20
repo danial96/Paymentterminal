@@ -9,6 +9,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   providers: [
     Credentials({
+      id: "credentials",
       credentials: {
         email: {},
         password: {},
@@ -30,6 +31,32 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           email: user.email,
           role: user.role,
         };
+      },
+    }),
+    Credentials({
+      id: "employee-portal",
+      credentials: {
+        email: {},
+        password: {},
+      },
+      authorize: async (credentials) => {
+        const email = credentials?.email as string | undefined;
+        const password = credentials?.password as string | undefined;
+        if (!email || !password) return null;
+
+        const emp = await prisma.hRMEmployee.findUnique({ where: { portalEmail: email } });
+        if (!emp || !emp.portalEnabled || !emp.portalPassword) return null;
+
+        const isValid = await bcrypt.compare(password, emp.portalPassword);
+        if (!isValid) return null;
+
+        return {
+          id: String(emp.id),
+          name: `${emp.firstName} ${emp.lastName}`,
+          email: emp.portalEmail,
+          role: "employee",
+          employeeId: String(emp.id),
+        } as any;
       },
     }),
   ],

@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+﻿import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { formatDate } from "@/lib/format";
 import { auth } from "@/lib/auth";
@@ -8,6 +8,8 @@ import AddServiceModal from "./AddServiceModal";
 import LogPaymentModal from "./LogPaymentModal";
 import RenewModal from "./RenewModal";
 import TrashClientButton from "./TrashClientButton";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 export default async function ClientDetailPage({
   params,
@@ -109,9 +111,9 @@ export default async function ClientDetailPage({
                       <button
                         type="submit"
                         title="Move to trash"
-                        className="rounded p-1 text-zinc-400 hover:bg-red-50 hover:text-red-500"
+                        className="rounded p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
                       >
-                        🗑
+                        <FontAwesomeIcon icon={faTrash} className="h-3.5 w-3.5" />
                       </button>
                     </form>
                   )}
@@ -150,7 +152,7 @@ export default async function ClientDetailPage({
                                 title="Move payment to trash"
                                 className="text-zinc-300 hover:text-red-500 transition-colors"
                               >
-                                🗑
+                                <FontAwesomeIcon icon={faTrash} className="h-3.5 w-3.5" />
                               </button>
                             </form>
                           )}

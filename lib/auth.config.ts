@@ -9,6 +9,9 @@ export const authConfig: NextAuthConfig = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        if ((user as any).employeeId) {
+          token.employeeId = (user as any).employeeId;
+        }
       }
       return token;
     },
@@ -16,6 +19,9 @@ export const authConfig: NextAuthConfig = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
+        if (token.employeeId) {
+          (session.user as any).employeeId = token.employeeId;
+        }
       }
       return session;
     },

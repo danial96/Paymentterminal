@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useRef, useState, useTransition } from "react";
 
@@ -55,7 +55,7 @@ export default function BrandLogoUpload({
       ) : (
         <div
           onClick={() => inputRef.current?.click()}
-          className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded border border-dashed border-zinc-300 bg-zinc-50 hover:border-indigo-400 hover:bg-indigo-50 transition-colors"
+          className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded border border-dashed border-zinc-300 bg-zinc-50 hover:border-zinc-400 hover:bg-zinc-50 transition-colors"
           title="Upload logo"
         >
           {isPending ? (

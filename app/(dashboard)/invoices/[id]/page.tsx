@@ -6,9 +6,9 @@ import InvoiceActions from "./InvoiceActions";
 
 const STATUS_STYLES: Record<string, string> = {
   draft:     "bg-zinc-100 text-zinc-600",
-  sent:      "bg-blue-100 text-blue-700",
-  paid:      "bg-green-100 text-green-700",
-  cancelled: "bg-red-100 text-red-500",
+  sent:      "bg-zinc-200 text-zinc-700",
+  paid:      "bg-zinc-900 text-white",
+  cancelled: "bg-zinc-200 text-zinc-600",
 };
 
 export default async function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {

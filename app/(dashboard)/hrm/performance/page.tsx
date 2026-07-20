@@ -1,11 +1,14 @@
-import { requireUser } from "@/lib/scope";
+﻿import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import { createPerformanceReview, deletePerformanceReview } from "@/app/actions/hrm-performance";
 import { DeleteButton } from "@/app/(dashboard)/hrm/components/DeleteButton";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faStar } from "@fortawesome/free-solid-svg-icons";
+import { faStar as faStarEmpty } from "@fortawesome/free-regular-svg-icons";
 
 const RATING_LABELS: Record<number, string> = { 1: "Poor", 2: "Below Average", 3: "Average", 4: "Good", 5: "Excellent" };
 const RATING_COLORS: Record<number, string> = {
-  1: "text-red-500", 2: "text-orange-500", 3: "text-amber-500", 4: "text-blue-600", 5: "text-emerald-600"
+  1: "text-zinc-600", 2: "text-zinc-500", 3: "text-zinc-500", 4: "text-zinc-700", 5: "text-zinc-700"
 };
 
 export default async function PerformancePage() {
@@ -36,19 +39,19 @@ export default async function PerformancePage() {
           <form action={createPerformanceReview} className="space-y-3">
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Employee *</label>
-              <select name="employeeId" required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <select name="employeeId" required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
                 <option value="">Select</option>
                 {employees.map((e) => <option key={e.id} value={e.id}>{e.firstName} {e.lastName}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Review Period *</label>
-              <input name="reviewPeriod" required list="periods" placeholder="e.g. 2025-Q2" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <input name="reviewPeriod" required list="periods" placeholder="e.g. 2025-Q2" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
               <datalist id="periods">{currentPeriods.map((p) => <option key={p} value={p} />)}</datalist>
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Type</label>
-              <select name="reviewType" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <select name="reviewType" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
                 <option value="MONTHLY">Monthly</option>
                 <option value="QUARTERLY">Quarterly</option>
                 <option value="ANNUAL">Annual</option>
@@ -57,27 +60,27 @@ export default async function PerformancePage() {
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Rating (1–5) *</label>
-              <select name="rating" required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <select name="rating" required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
                 {[1, 2, 3, 4, 5].map((r) => <option key={r} value={r}>{r} — {RATING_LABELS[r]}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Goals</label>
-              <textarea name="goals" rows={2} className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <textarea name="goals" rows={2} className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Achievements</label>
-              <textarea name="achievements" rows={2} className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <textarea name="achievements" rows={2} className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Areas for Improvement</label>
-              <textarea name="improvements" rows={2} className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <textarea name="improvements" rows={2} className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Manager Comment</label>
-              <textarea name="managerComment" rows={2} className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <textarea name="managerComment" rows={2} className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
-            <button type="submit" className="w-full rounded-lg bg-indigo-600 py-2 text-sm font-medium text-white hover:bg-indigo-700">Add Review</button>
+            <button type="submit" className="btn-brand w-full rounded-lg py-2 text-sm font-medium text-white">Add Review</button>
           </form>
         </div>
 
@@ -89,7 +92,7 @@ export default async function PerformancePage() {
           {reviews.map((r) => (
             <div key={r.id} className="rounded-xl border border-zinc-200 bg-white p-5">
               <div className="flex items-start gap-4">
-                <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-700 shrink-0">
+                <div className="h-10 w-10 rounded-full bg-zinc-100 flex items-center justify-center text-xs font-bold text-zinc-700 shrink-0">
                   {r.employee.firstName[0]}{r.employee.lastName[0]}
                 </div>
                 <div className="flex-1">
@@ -100,7 +103,10 @@ export default async function PerformancePage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="text-right">
-                        <p className={`text-xl font-bold ${RATING_COLORS[r.rating]}`}>{"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}</p>
+                        <p className={`text-xl font-bold ${RATING_COLORS[r.rating]}`}>
+                          {Array.from({ length: r.rating }).map((_, i) => <FontAwesomeIcon key={`f${i}`} icon={faStar} className="h-4 w-4" />)}
+                          {Array.from({ length: 5 - r.rating }).map((_, i) => <FontAwesomeIcon key={`e${i}`} icon={faStarEmpty} className="h-4 w-4" />)}
+                        </p>
                         <p className={`text-xs font-medium ${RATING_COLORS[r.rating]}`}>{RATING_LABELS[r.rating]}</p>
                       </div>
                       <form action={deletePerformanceReview.bind(null, r.id)}>
@@ -109,7 +115,7 @@ export default async function PerformancePage() {
                     </div>
                   </div>
                   <div className="mt-2 flex items-center gap-2">
-                    <span className="rounded px-2 py-0.5 text-[10px] bg-indigo-50 text-indigo-600 font-medium">{r.reviewPeriod}</span>
+                    <span className="rounded px-2 py-0.5 text-[10px] bg-zinc-50 text-zinc-700 font-medium">{r.reviewPeriod}</span>
                     <span className="rounded px-2 py-0.5 text-[10px] bg-zinc-100 text-zinc-500">{r.reviewType}</span>
                     <span className="text-[10px] text-zinc-400">{r.reviewDate?.toLocaleDateString("en-GB")}</span>
                   </div>

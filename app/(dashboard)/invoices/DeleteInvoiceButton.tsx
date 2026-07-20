@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useTransition } from "react";
 import { deleteInvoice } from "@/app/actions/invoices";
@@ -15,7 +15,7 @@ export default function DeleteInvoiceButton({ id }: { id: number }) {
     <button
       onClick={handleDelete}
       disabled={isPending}
-      className="inline-flex items-center gap-1 rounded-md border border-red-200 px-2.5 py-1 text-xs font-medium text-red-500 hover:bg-red-50 hover:border-red-300 transition-colors disabled:opacity-50"
+      className="inline-flex items-center gap-1 rounded-md border border-red-200 px-2.5 py-1 text-xs font-medium text-zinc-600 hover:bg-red-50 hover:border-red-300 transition-colors disabled:opacity-50"
     >
       {isPending ? (
         <span className="h-3 w-3 rounded-full border-2 border-red-400 border-t-transparent animate-spin" />

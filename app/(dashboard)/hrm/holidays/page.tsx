@@ -1,12 +1,12 @@
-import { requireUser } from "@/lib/scope";
+﻿import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import { createHoliday, deleteHoliday } from "@/app/actions/hrm-holidays";
 import { DeleteButton } from "@/app/(dashboard)/hrm/components/DeleteButton";
 
 const TYPE_COLORS: Record<string, string> = {
-  NATIONAL: "bg-red-100 text-red-600",
-  COMPANY: "bg-blue-100 text-blue-600",
-  BRANCH: "bg-purple-100 text-purple-600",
+  NATIONAL: "bg-zinc-200 text-zinc-600",
+  COMPANY: "bg-zinc-200 text-zinc-700",
+  BRANCH: "bg-zinc-200 text-zinc-700",
   OPTIONAL: "bg-zinc-100 text-zinc-500",
 };
 
@@ -34,16 +34,16 @@ export default async function HolidaysPage() {
           <form action={createHoliday} className="space-y-3">
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Holiday Name *</label>
-              <input name="name" required placeholder="e.g. Independence Day" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <input name="name" required placeholder="e.g. Independence Day" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-zinc-700 mb-1">Date *</label>
-                <input name="date" type="date" required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                <input name="date" type="date" required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
               </div>
               <div>
                 <label className="block text-xs font-medium text-zinc-700 mb-1">Type</label>
-                <select name="type" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <select name="type" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
                   <option value="NATIONAL">National</option>
                   <option value="COMPANY">Company</option>
                   <option value="BRANCH">Branch</option>
@@ -57,9 +57,9 @@ export default async function HolidaysPage() {
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Description</label>
-              <input name="description" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <input name="description" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
-            <button type="submit" className="w-full rounded-lg bg-indigo-600 py-2 text-sm font-medium text-white hover:bg-indigo-700">Add Holiday</button>
+            <button type="submit" className="btn-brand w-full rounded-lg py-2 text-sm font-medium text-white">Add Holiday</button>
           </form>
         </div>
 

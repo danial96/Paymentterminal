@@ -24,7 +24,7 @@ export default async function ServiceTypesPage() {
         <label className="flex items-center gap-1 whitespace-nowrap text-sm text-zinc-600">
           <input type="checkbox" name="isRecurring" /> Recurring
         </label>
-        <button className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800">
+        <button className="btn-brand rounded-md px-4 py-2 text-sm font-medium text-white">
           Add
         </button>
       </form>

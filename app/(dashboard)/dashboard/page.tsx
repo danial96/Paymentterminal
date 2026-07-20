@@ -1,4 +1,4 @@
-import { requireUser, clientScopeWhere } from "@/lib/scope";
+import { requireUser, clientScopeWhere, requireCrmAccess } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import { getMonthlyBreakdown } from "@/lib/monthlyBreakdown";
 import { getRenewals } from "@/lib/renewals";
@@ -6,6 +6,8 @@ import { formatDate } from "@/lib/format";
 import { trashService } from "@/app/actions/trash";
 import { auth } from "@/lib/auth";
 import Link from "next/link";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 function daysUntil(date: Date) {
   const ms = date.getTime() - Date.now();
@@ -13,13 +15,13 @@ function daysUntil(date: Date) {
 }
 
 function renewalBadge(days: number) {
-  if (days < 0) return "bg-red-100 text-red-700";
-  if (days <= 30) return "bg-yellow-100 text-yellow-700";
-  return "bg-green-100 text-green-700";
+  if (days < 0) return "bg-zinc-900 text-white";
+  if (days <= 30) return "bg-zinc-200 text-zinc-700";
+  return "bg-zinc-200 text-zinc-600";
 }
 
 export default async function DashboardPage() {
-  const user = await requireUser();
+  const user = await requireCrmAccess();
   const scope = clientScopeWhere(user);
   const session = await auth();
   const isAdmin = session?.user?.role === "admin";
@@ -223,7 +225,7 @@ export default async function DashboardPage() {
                   {isAdmin && (
                     <td className="border-r border-zinc-100 px-4 py-2">
                       <form action={trashService.bind(null, r.id, r.clientId)}>
-                        <button type="submit" className="text-zinc-300 hover:text-red-500 transition-colors" title="Move to trash">🗑</button>
+                        <button type="submit" className="text-zinc-300 hover:text-red-500 transition-colors" title="Move to trash"><FontAwesomeIcon icon={faTrash} className="h-3.5 w-3.5" /></button>
                       </form>
                     </td>
                   )}

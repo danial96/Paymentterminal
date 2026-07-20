@@ -4,13 +4,13 @@ import { saveManualAttendance } from "@/app/actions/hrm-attendance";
 import Link from "next/link";
 
 const STATUS_COLORS: Record<string, string> = {
-  PRESENT: "bg-emerald-100 text-emerald-700",
-  ABSENT: "bg-red-100 text-red-600",
-  LATE: "bg-orange-100 text-orange-600",
-  HALF_DAY: "bg-amber-100 text-amber-600",
-  EARLY_LEAVE: "bg-yellow-100 text-yellow-600",
-  ON_LEAVE: "bg-blue-100 text-blue-600",
-  HOLIDAY: "bg-purple-100 text-purple-600",
+  PRESENT: "bg-zinc-900 text-white",
+  ABSENT: "bg-zinc-200 text-zinc-600",
+  LATE: "bg-zinc-200 text-zinc-700",
+  HALF_DAY: "bg-zinc-200 text-zinc-600",
+  EARLY_LEAVE: "bg-zinc-200 text-zinc-600",
+  ON_LEAVE: "bg-zinc-100 text-zinc-500",
+  HOLIDAY: "bg-zinc-100 text-zinc-500",
   WEEKLY_OFF: "bg-zinc-100 text-zinc-500",
 };
 
@@ -68,26 +68,26 @@ export default async function AttendancePage({
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4">
         {[
-          { label: "Present", value: presentCount, color: "text-emerald-600 bg-emerald-50" },
-          { label: "Absent", value: absentCount, color: "text-red-600 bg-red-50" },
-          { label: "Late", value: lateCount, color: "text-orange-600 bg-orange-50" },
-          { label: "On Leave", value: leaveCount, color: "text-blue-600 bg-blue-50" },
-        ].map(({ label, value, color }) => (
-          <div key={label} className={`rounded-xl border border-zinc-200 p-4 ${color.split(" ")[1]}`}>
-            <p className={`text-2xl font-bold ${color.split(" ")[0]}`}>{value}</p>
-            <p className="text-xs font-medium text-zinc-600 mt-0.5">{label}</p>
+          { label: "Present", value: presentCount },
+          { label: "Absent", value: absentCount },
+          { label: "Late", value: lateCount },
+          { label: "On Leave", value: leaveCount },
+        ].map(({ label, value }) => (
+          <div key={label} className="rounded-xl border border-zinc-200 bg-white p-4">
+            <p className="text-2xl font-bold text-zinc-900">{value}</p>
+            <p className="text-xs font-medium text-zinc-500 mt-0.5">{label}</p>
           </div>
         ))}
       </div>
 
       {/* Filters */}
       <form method="GET" className="flex gap-2 items-center flex-wrap">
-        <input name="date" type="date" defaultValue={selectedStr} className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-        <select name="dept" defaultValue={dept} className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <input name="date" type="date" defaultValue={selectedStr} className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
+        <select name="dept" defaultValue={dept} className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
           <option value="">All Departments</option>
           {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
         </select>
-        <button type="submit" className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800">Filter</button>
+        <button type="submit" className="btn-brand rounded-md px-4 py-2 text-sm font-medium text-white">Filter</button>
         <Link href="/hrm/attendance" className="rounded-md border border-zinc-200 px-4 py-2 text-sm text-zinc-600 hover:bg-zinc-50">Today</Link>
       </form>
 
@@ -120,7 +120,7 @@ export default async function AttendancePage({
                   <tr key={emp.id} className="hover:bg-zinc-50">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <div className="h-7 w-7 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-700 shrink-0">
+                        <div className="h-7 w-7 rounded-full bg-zinc-100 flex items-center justify-center text-xs font-bold text-zinc-600 shrink-0">
                           {emp.firstName[0]}{emp.lastName[0]}
                         </div>
                         <div>
@@ -137,7 +137,7 @@ export default async function AttendancePage({
                       {att?.checkOut ? att.checkOut.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : "—"}
                     </td>
                     <td className="px-4 py-3 text-xs">{att?.workingHours ? `${Number(att.workingHours).toFixed(1)}h` : "—"}</td>
-                    <td className="px-4 py-3 text-xs text-orange-600">{att?.lateMinutes ? `${att.lateMinutes}min` : "—"}</td>
+                    <td className="px-4 py-3 text-xs text-zinc-500">{att?.lateMinutes ? `${att.lateMinutes}min` : "—"}</td>
                     <td className="px-4 py-3">
                       {att ? (
                         <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${STATUS_COLORS[att.status] ?? "bg-zinc-100 text-zinc-500"}`}>
@@ -149,7 +149,7 @@ export default async function AttendancePage({
                     </td>
                     <td className="px-4 py-3">
                       <details className="relative">
-                        <summary className="text-xs text-indigo-600 cursor-pointer list-none hover:underline">Mark</summary>
+                        <summary className="text-xs text-zinc-500 cursor-pointer list-none hover:underline">Mark</summary>
                         <div className="absolute right-0 top-6 z-10 bg-white rounded-xl border border-zinc-200 shadow-lg p-4 w-64">
                           <form action={saveManualAttendance} className="space-y-2">
                             <input type="hidden" name="employeeId" value={emp.id} />
@@ -176,7 +176,7 @@ export default async function AttendancePage({
                               <label className="text-[10px] text-zinc-500">Notes</label>
                               <input type="text" name="notes" className="w-full rounded border border-zinc-200 px-2 py-1 text-xs mt-0.5" />
                             </div>
-                            <button type="submit" className="w-full rounded bg-indigo-600 py-1.5 text-xs text-white font-medium hover:bg-indigo-700">Save</button>
+                            <button type="submit" className="btn-brand w-full rounded py-1.5 text-xs text-white font-medium">Save</button>
                           </form>
                         </div>
                       </details>

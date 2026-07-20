@@ -1,6 +1,8 @@
 import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCakeCandles } from "@fortawesome/free-solid-svg-icons";
 
 function StatCard({ label, value, sub, href, color }: { label: string; value: string | number; sub?: string; href: string; color: string }) {
   return (
@@ -86,30 +88,30 @@ export default async function HRMDashboard() {
           <h1 className="text-xl font-bold text-zinc-900">HRM Dashboard</h1>
           <p className="text-sm text-zinc-500 mt-0.5">{todayFormatted}</p>
         </div>
-        <Link href="/hrm/employees/new" className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-colors">
+        <Link href="/hrm/employees/new" className="btn-brand rounded-lg px-4 py-2 text-sm font-medium text-white transition-opacity">
           + Add Employee
         </Link>
       </div>
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Total Employees" value={totalEmployees} sub={`${activeEmployees} active`} href="/hrm/employees" color="text-indigo-600" />
-        <StatCard label="Present Today" value={presentToday} sub="checked in" href="/hrm/attendance" color="text-emerald-600" />
-        <StatCard label="Absent Today" value={absentToday} href="/hrm/attendance" color="text-red-500" />
-        <StatCard label="Pending Leaves" value={pendingLeaves} sub="awaiting approval" href="/hrm/leaves" color="text-amber-600" />
+        <StatCard label="Total Employees" value={totalEmployees} sub={`${activeEmployees} active`} href="/hrm/employees" color="text-zinc-500" />
+        <StatCard label="Present Today" value={presentToday} sub="checked in" href="/hrm/attendance" color="text-zinc-500" />
+        <StatCard label="Absent Today" value={absentToday} href="/hrm/attendance" color="text-zinc-500" />
+        <StatCard label="Pending Leaves" value={pendingLeaves} sub="awaiting approval" href="/hrm/leaves" color="text-zinc-500" />
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Late Today" value={lateToday} href="/hrm/attendance" color="text-orange-500" />
-        <StatCard label="Departments" value={totalDepartments} href="/hrm/departments" color="text-purple-600" />
+        <StatCard label="Late Today" value={lateToday} href="/hrm/attendance" color="text-zinc-500" />
+        <StatCard label="Departments" value={totalDepartments} href="/hrm/departments" color="text-zinc-500" />
         <div className="rounded-xl border border-zinc-200 bg-white p-5 col-span-2">
-          <div className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-1">Quick Actions</div>
+          <div className="text-xs font-semibold uppercase tracking-widest text-zinc-500 mb-1">Quick Actions</div>
           <div className="flex gap-3 flex-wrap mt-2">
-            <Link href="/hrm/payroll/generate" className="rounded-md bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100">Generate Payroll</Link>
-            <Link href="/hrm/notices" className="rounded-md bg-purple-50 px-3 py-1.5 text-xs font-medium text-purple-700 hover:bg-purple-100">Post Notice</Link>
-            <Link href="/hrm/employees/new" className="rounded-md bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-700 hover:bg-indigo-100">Add Employee</Link>
-            <Link href="/hrm/holidays" className="rounded-md bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-100">Add Holiday</Link>
-            <Link href="/hrm/leaves" className="rounded-md bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-100">Manage Leaves</Link>
+            <Link href="/hrm/payroll/generate" className="rounded-md bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-200">Generate Payroll</Link>
+            <Link href="/hrm/notices" className="rounded-md bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-200">Post Notice</Link>
+            <Link href="/hrm/employees/new" className="rounded-md bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-200">Add Employee</Link>
+            <Link href="/hrm/holidays" className="rounded-md bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-200">Add Holiday</Link>
+            <Link href="/hrm/leaves" className="rounded-md bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-200">Manage Leaves</Link>
             <Link href="/hrm/reports" className="rounded-md bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-200">View Reports</Link>
           </div>
         </div>
@@ -120,7 +122,7 @@ export default async function HRMDashboard() {
         <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-100">
             <h2 className="text-sm font-semibold text-zinc-900">Recent Employees</h2>
-            <Link href="/hrm/employees" className="text-xs text-indigo-600 hover:underline">View all</Link>
+            <Link href="/hrm/employees" className="text-xs text-zinc-500 hover:underline">View all</Link>
           </div>
           <div className="divide-y divide-zinc-50">
             {recentEmployees.length === 0 && (
@@ -128,7 +130,7 @@ export default async function HRMDashboard() {
             )}
             {recentEmployees.map((emp) => (
               <Link key={emp.id} href={`/hrm/employees/${emp.id}`} className="flex items-center gap-3 px-4 py-3 hover:bg-zinc-50 transition-colors">
-                <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-700 shrink-0">
+                <div className="h-8 w-8 rounded-full bg-zinc-100 flex items-center justify-center text-xs font-bold text-zinc-600 shrink-0">
                   {emp.firstName[0]}{emp.lastName[0]}
                 </div>
                 <div className="min-w-0">
@@ -136,8 +138,8 @@ export default async function HRMDashboard() {
                   <p className="text-xs text-zinc-400 truncate">{emp.designation?.name ?? "—"} · {emp.department?.name ?? "—"}</p>
                 </div>
                 <span className={`ml-auto shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                  emp.status === "ACTIVE" ? "bg-emerald-100 text-emerald-700" :
-                  emp.status === "RESIGNED" ? "bg-red-100 text-red-600" : "bg-zinc-100 text-zinc-500"
+                  emp.status === "ACTIVE" ? "bg-zinc-900 text-white" :
+                  emp.status === "RESIGNED" ? "bg-zinc-200 text-zinc-600" : "bg-zinc-100 text-zinc-500"
                 }`}>{emp.status}</span>
               </Link>
             ))}
@@ -148,7 +150,7 @@ export default async function HRMDashboard() {
         <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-100">
             <h2 className="text-sm font-semibold text-zinc-900">Pending Leave Requests</h2>
-            <Link href="/hrm/leaves" className="text-xs text-indigo-600 hover:underline">View all</Link>
+            <Link href="/hrm/leaves" className="text-xs text-zinc-500 hover:underline">View all</Link>
           </div>
           <div className="divide-y divide-zinc-50">
             {pendingLeaveList.length === 0 && (
@@ -170,7 +172,7 @@ export default async function HRMDashboard() {
         <div className="space-y-4">
           <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
             <div className="px-4 py-3 border-b border-zinc-100">
-              <h2 className="text-sm font-semibold text-zinc-900">Upcoming Birthdays 🎂</h2>
+              <h2 className="text-sm font-semibold text-zinc-900">Upcoming Birthdays <FontAwesomeIcon icon={faCakeCandles} className="ml-1 h-4 w-4 text-zinc-400" /></h2>
             </div>
             <div className="divide-y divide-zinc-50">
               {upcoming.length === 0 && (
@@ -178,14 +180,14 @@ export default async function HRMDashboard() {
               )}
               {upcoming.map((e) => e && (
                 <div key={e.id} className="flex items-center gap-3 px-4 py-2.5">
-                  <div className="h-7 w-7 rounded-full bg-pink-100 flex items-center justify-center text-xs font-bold text-pink-600 shrink-0">
+                  <div className="h-7 w-7 rounded-full bg-zinc-100 flex items-center justify-center text-xs font-bold text-zinc-600 shrink-0">
                     {e.firstName[0]}{e.lastName[0]}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-medium text-zinc-900">{e.firstName} {e.lastName}</p>
                     <p className="text-[10px] text-zinc-400">{e.nextBday?.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</p>
                   </div>
-                  <span className="text-[10px] font-medium text-pink-600">{e.daysLeft === 0 ? "Today!" : `${e.daysLeft}d`}</span>
+                  <span className="text-[10px] font-medium text-zinc-500">{e.daysLeft === 0 ? "Today!" : `${e.daysLeft}d`}</span>
                 </div>
               ))}
             </div>
@@ -195,15 +197,15 @@ export default async function HRMDashboard() {
             <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
               <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-100">
                 <h2 className="text-sm font-semibold text-zinc-900">Latest Notices</h2>
-                <Link href="/hrm/notices" className="text-xs text-indigo-600 hover:underline">View all</Link>
+                <Link href="/hrm/notices" className="text-xs text-zinc-500 hover:underline">View all</Link>
               </div>
               <div className="divide-y divide-zinc-50">
                 {recentNotices.map((n) => (
                   <div key={n.id} className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                        n.priority === "URGENT" ? "bg-red-100 text-red-600" :
-                        n.priority === "HIGH" ? "bg-orange-100 text-orange-600" : "bg-zinc-100 text-zinc-500"
+                        n.priority === "URGENT" ? "bg-zinc-900 text-white" :
+                        n.priority === "HIGH" ? "bg-zinc-200 text-zinc-700" : "bg-zinc-100 text-zinc-500"
                       }`}>{n.priority}</span>
                       <p className="text-xs font-medium text-zinc-900 truncate">{n.title}</p>
                     </div>

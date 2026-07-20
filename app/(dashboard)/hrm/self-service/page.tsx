@@ -1,7 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck, faXmark, faClipboardList, faCalendar, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
 
 export default function SelfServicePage() {
   const [time, setTime] = useState(new Date());
@@ -84,7 +86,7 @@ export default function SelfServicePage() {
           {working && checkInTime && (
             <div className="mt-4">
               <p className="text-xs text-zinc-400">Working time</p>
-              <p className="text-3xl font-bold text-indigo-600 font-mono tabular-nums mt-1">
+              <p className="text-3xl font-bold text-zinc-700 font-mono tabular-nums mt-1">
                 {String(hours).padStart(2, "0")}:{String(mins).padStart(2, "0")}:{String(secs).padStart(2, "0")}
               </p>
               <p className="text-xs text-zinc-400 mt-1">Checked in at {checkInTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}</p>
@@ -92,7 +94,7 @@ export default function SelfServicePage() {
           )}
 
           {error && (
-            <p className="mt-3 text-sm text-red-600 bg-red-50 rounded-lg px-4 py-2">{error}</p>
+            <p className="mt-3 text-sm text-zinc-700 bg-zinc-100 rounded-lg px-4 py-2">{error}</p>
           )}
 
           <div className="mt-8 flex justify-center gap-4">
@@ -100,17 +102,17 @@ export default function SelfServicePage() {
               <button
                 onClick={handleCheckIn}
                 disabled={status === "loading"}
-                className="rounded-xl bg-emerald-600 px-10 py-4 text-base font-semibold text-white hover:bg-emerald-700 disabled:opacity-60 transition-colors shadow-lg shadow-emerald-100"
+                className="rounded-xl bg-zinc-900 px-10 py-4 text-base font-semibold text-white hover:bg-zinc-700 disabled:opacity-60 transition-colors shadow-lg shadow-zinc-100"
               >
-                {status === "loading" ? "Processing…" : "✓ Check In"}
+                {status === "loading" ? "Processing…" : <><FontAwesomeIcon icon={faCheck} className="mr-1.5 h-4 w-4" />Check In</>}
               </button>
             ) : (
               <button
                 onClick={handleCheckOut}
                 disabled={status === "loading"}
-                className="rounded-xl bg-red-500 px-10 py-4 text-base font-semibold text-white hover:bg-red-600 disabled:opacity-60 transition-colors shadow-lg shadow-red-100"
+                className="rounded-xl bg-zinc-700 px-10 py-4 text-base font-semibold text-white hover:bg-zinc-600 disabled:opacity-60 transition-colors shadow-lg"
               >
-                {status === "loading" ? "Processing…" : "✗ Check Out"}
+                {status === "loading" ? "Processing…" : <><FontAwesomeIcon icon={faXmark} className="mr-1.5 h-4 w-4" />Check Out</>}
               </button>
             )}
           </div>
@@ -123,12 +125,12 @@ export default function SelfServicePage() {
         {/* Quick Links */}
         <div className="space-y-3">
           {[
-            { href: "/hrm/self-service/attendance", label: "My Attendance", icon: "📋", desc: "View your attendance history" },
-            { href: "/hrm/self-service/leaves", label: "Leave Requests", icon: "📅", desc: "Apply & track leaves" },
-            { href: "/hrm/self-service/payslips", label: "My Payslips", icon: "💰", desc: "Download salary slips" },
+            { href: "/hrm/self-service/attendance", label: "My Attendance", icon: faClipboardList, desc: "View your attendance history" },
+            { href: "/hrm/self-service/leaves", label: "Leave Requests", icon: faCalendar, desc: "Apply & track leaves" },
+            { href: "/hrm/self-service/payslips", label: "My Payslips", icon: faMoneyBill, desc: "Download salary slips" },
           ].map(({ href, label, icon, desc }) => (
             <Link key={href} href={href} className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-4 hover:shadow-md transition-shadow">
-              <span className="text-2xl">{icon}</span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-50 text-zinc-700"><FontAwesomeIcon icon={icon} className="h-5 w-5" /></span>
               <div>
                 <p className="text-sm font-semibold text-zinc-900">{label}</p>
                 <p className="text-xs text-zinc-400">{desc}</p>

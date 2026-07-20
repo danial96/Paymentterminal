@@ -5,6 +5,8 @@ import {
   permanentDeleteClient, permanentDeleteService, permanentDeletePayment,
 } from "@/app/actions/trash";
 import TrashRow from "./TrashRow";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 export default async function TrashPage() {
   const [clients, services, payments] = await Promise.all([
@@ -29,7 +31,7 @@ export default async function TrashPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-bold text-zinc-900">🗑 Trash</h1>
+        <h1 className="text-xl font-bold text-zinc-900"><FontAwesomeIcon icon={faTrash} className="mr-2 h-5 w-5" />Trash</h1>
         <p className="mt-0.5 text-sm text-zinc-500">
           {total} item{total !== 1 ? "s" : ""} in trash — restore or permanently delete
         </p>

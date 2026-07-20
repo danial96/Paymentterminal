@@ -46,3 +46,25 @@
 body {
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ── IKIA TECH Brand Colors ── */
+:root {
+  --brand-cyan:     #29c0d5;
+  --brand-purple:   #503d98;
+  --brand-gradient: linear-gradient(135deg, #29c0d5 0%, #503d98 100%);
+}
+
+/* Active sidebar nav item */
+.brand-active {
+  background: linear-gradient(135deg, #29c0d5 0%, #503d98 100%);
+  border-radius: 0.5rem;
+}
+
+/* Brand primary buttons */
+.btn-brand {
+  background: linear-gradient(135deg, #29c0d5 0%, #503d98 100%);
+  color: #fff;
+  border: none;
+  transition: opacity 0.15s;
+}
+.btn-brand:hover { opacity: 0.88; }

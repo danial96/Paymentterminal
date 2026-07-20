@@ -16,6 +16,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "IKIA TECH",
   description: "Client & sales tracker",
+  icons: {
+    icon: "/ikia-logo.png",
+    apple: "/ikia-logo.png",
+  },
 };
 
 export default function RootLayout({

@@ -81,7 +81,7 @@ export default function LogPaymentModal({
             </button>
             <button
               type="submit"
-              className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
+              className="btn-brand rounded-md px-4 py-2 text-sm font-medium text-white"
             >
               Add Payment
             </button>

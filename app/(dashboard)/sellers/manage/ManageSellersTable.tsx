@@ -2,6 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { toggleSellerActive, toggleSellerRole, upsertSellerProfile, deleteSellerProfile } from "@/app/actions/sellers";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck, faTrash, faFloppyDisk } from "@fortawesome/free-solid-svg-icons";
 
 type SellerRow = {
   name: string;
@@ -34,8 +36,8 @@ function ToggleBtn({
 }) {
   const track = {
     zinc: on ? "bg-zinc-900" : "bg-zinc-200",
-    blue: on ? "bg-blue-600" : "bg-zinc-200",
-    purple: on ? "bg-purple-600" : "bg-zinc-200",
+    blue: on ? "bg-zinc-900" : "bg-zinc-200",
+    purple: on ? "bg-zinc-700" : "bg-zinc-200",
   }[color];
 
   return (
@@ -158,9 +160,9 @@ export default function ManageSellersTable({ initialRows }: { initialRows: Selle
         <button
           onClick={saveAll}
           disabled={savingAll || !!savingRow}
-          className="flex items-center gap-2 rounded-lg bg-zinc-900 px-5 py-2 text-sm font-semibold text-white hover:bg-zinc-700 disabled:opacity-60 transition-colors"
+          className="btn-brand flex items-center gap-2 rounded-lg px-5 py-2 text-sm font-semibold text-white disabled:opacity-60 transition-colors"
         >
-          {savingAll ? <><Spinner /> Saving all...</> : "💾 Save All"}
+          {savingAll ? <><Spinner /> Saving all...</> : <><FontAwesomeIcon icon={faFloppyDisk} className="h-3.5 w-3.5" /> Save All</>}
         </button>
       </div>
 
@@ -170,10 +172,10 @@ export default function ManageSellersTable({ initialRows }: { initialRows: Selle
             <tr className="border-b border-zinc-100 bg-zinc-50 text-left text-xs font-semibold uppercase tracking-wide text-zinc-400">
               <th className="border-r border-zinc-200 px-5 py-3">Seller</th>
               <th className="border-r border-zinc-200 px-5 py-3 text-center">Show</th>
-              <th className="border-r border-zinc-200 px-5 py-3 text-center text-blue-500">Front Seller</th>
-              <th className="border-r border-zinc-200 px-5 py-3 text-center text-purple-500">Upseller</th>
-              <th className="border-r border-zinc-200 px-5 py-3 text-center text-blue-500">Front Target</th>
-              <th className="border-r border-zinc-200 px-5 py-3 text-center text-purple-500">Upsell Target</th>
+              <th className="border-r border-zinc-200 px-5 py-3 text-center">Front Seller</th>
+              <th className="border-r border-zinc-200 px-5 py-3 text-center">Upseller</th>
+              <th className="border-r border-zinc-200 px-5 py-3 text-center">Front Target</th>
+              <th className="border-r border-zinc-200 px-5 py-3 text-center">Upsell Target</th>
               <th className="border-r border-zinc-200 px-5 py-3 text-center">Save</th>
               <th className="border-r border-zinc-200 px-5 py-3"></th>
             </tr>
@@ -186,18 +188,18 @@ export default function ManageSellersTable({ initialRows }: { initialRows: Selle
               const isSaved = savedRows.has(name);
 
               return (
-                <tr key={name} className={`transition-colors ${isSaved ? "bg-emerald-50" : "hover:bg-zinc-50"}`}>
+                <tr key={name} className={`transition-colors ${isSaved ? "bg-zinc-50" : "hover:bg-zinc-50"}`}>
                   {/* Seller name */}
                   <td className="border-r border-zinc-100 px-5 py-3.5">
                     <div className="flex items-center gap-3">
-                      <span className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${isActive ? "bg-violet-100 text-violet-700" : "bg-zinc-100 text-zinc-400"}`}>
+                      <span className={`inline-flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${isActive ? "bg-zinc-100 text-zinc-600" : "bg-zinc-100 text-zinc-400"}`}>
                         {name.slice(0, 2).toUpperCase()}
                       </span>
                       <div>
                         <p className={`font-medium ${isActive ? "text-zinc-900" : "text-zinc-400"}`}>{name}</p>
                         <div className="mt-0.5 flex gap-1">
-                          {isFrontSeller && <span className="rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-semibold text-blue-600">Front</span>}
-                          {isUpseller && <span className="rounded-full bg-purple-50 px-1.5 py-0.5 text-[10px] font-semibold text-purple-600">Upsell</span>}
+                          {isFrontSeller && <span className="rounded-full bg-zinc-200 px-1.5 py-0.5 text-[10px] font-semibold text-zinc-700">Front</span>}
+                          {isUpseller && <span className="rounded-full bg-zinc-200 px-1.5 py-0.5 text-[10px] font-semibold text-zinc-600">Upsell</span>}
                         </div>
                       </div>
                     </div>
@@ -243,7 +245,7 @@ export default function ManageSellersTable({ initialRows }: { initialRows: Selle
                       onChange={(e) => setTargets((prev) => ({ ...prev, [name]: { ...prev[name], front: e.target.value } }))}
                       disabled={!isFrontSeller}
                       placeholder="£"
-                      className="w-24 rounded-lg border border-zinc-200 px-2.5 py-1.5 text-center text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-zinc-50 disabled:text-zinc-300"
+                      className="w-24 rounded-lg border border-zinc-200 px-2.5 py-1.5 text-center text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:bg-zinc-50 disabled:text-zinc-300"
                     />
                   </td>
 
@@ -257,14 +259,14 @@ export default function ManageSellersTable({ initialRows }: { initialRows: Selle
                       onChange={(e) => setTargets((prev) => ({ ...prev, [name]: { ...prev[name], upsell: e.target.value } }))}
                       disabled={!isUpseller}
                       placeholder="£"
-                      className="w-24 rounded-lg border border-zinc-200 px-2.5 py-1.5 text-center text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 disabled:bg-zinc-50 disabled:text-zinc-300"
+                      className="w-24 rounded-lg border border-zinc-200 px-2.5 py-1.5 text-center text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400 disabled:bg-zinc-50 disabled:text-zinc-300"
                     />
                   </td>
 
                   {/* Individual save */}
                   <td className="border-r border-zinc-100 px-5 py-3.5 text-center">
                     {isSaved ? (
-                      <span className="text-xs font-semibold text-emerald-600">✓ Saved</span>
+                      <span className="text-xs font-semibold text-zinc-700"><FontAwesomeIcon icon={faCheck} className="mr-0.5 h-3 w-3" />Saved</span>
                     ) : (
                       <button
                         onClick={() => saveRow(name)}
@@ -284,7 +286,7 @@ export default function ManageSellersTable({ initialRows }: { initialRows: Selle
                       className="text-zinc-300 hover:text-red-500 disabled:opacity-50 transition-colors"
                       title="Remove seller profile"
                     >
-                      {deletingRow === name ? <Spinner /> : "🗑"}
+                      {deletingRow === name ? <Spinner /> : <FontAwesomeIcon icon={faTrash} className="h-3.5 w-3.5" />}
                     </button>
                   </td>
                 </tr>

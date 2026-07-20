@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useTransition } from "react";
 import { switchStripeMode } from "@/app/actions/invoices";
@@ -28,7 +28,7 @@ export default function StripeModeSwitcher({
         title={!hasTest ? "Add test keys first" : undefined}
         className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-all disabled:opacity-40 ${
           currentMode === "test"
-            ? "bg-amber-500 text-white shadow-sm"
+            ? "bg-zinc-500 text-white shadow-sm"
             : "text-zinc-500 hover:text-zinc-700"
         }`}
       >
@@ -41,7 +41,7 @@ export default function StripeModeSwitcher({
         title={!hasLive ? "Add live keys first" : undefined}
         className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-all disabled:opacity-40 ${
           currentMode === "live"
-            ? "bg-green-600 text-white shadow-sm"
+            ? "bg-zinc-900 text-white shadow-sm"
             : "text-zinc-500 hover:text-zinc-700"
         }`}
       >

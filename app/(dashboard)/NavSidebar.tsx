@@ -78,6 +78,7 @@ export default function NavSidebar({
   isAdmin,
   hasInvoicesPermission,
   hasHrmPermission,
+  hrmOnly,
 }: {
   user: { name: string; role: string };
   navLinks: NavLink[];
@@ -85,10 +86,11 @@ export default function NavSidebar({
   isAdmin: boolean;
   hasInvoicesPermission?: boolean;
   hasHrmPermission?: boolean;
+  hrmOnly?: boolean;
 }) {
   const pathname = usePathname();
   const [paymentOpen, setPaymentOpen] = useState(pathname.startsWith("/admin/stripe-accounts") || pathname.startsWith("/invoices") || pathname.startsWith("/admin/bank-accounts"));
-  const [hrmOpen, setHrmOpen] = useState(pathname.startsWith("/hrm"));
+  const [hrmOpen, setHrmOpen] = useState(hrmOnly || pathname.startsWith("/hrm"));
 
   function isActive(href: string) {
     if (href === "/dashboard") return pathname === "/dashboard";
@@ -96,16 +98,11 @@ export default function NavSidebar({
   }
 
   return (
-    <aside className="flex w-56 flex-col bg-gray-900 text-white min-h-screen">
+    <aside className="flex w-56 flex-col min-h-screen" style={{ background: "#141516", color: "#ffffff" }}>
       {/* Logo */}
-      <div className="flex items-center gap-3 px-4 py-5 border-b border-white/10">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500 text-white font-bold text-sm shadow">
-          IT
-</div>
-        <div>
-          <p className="text-sm font-semibold text-white leading-tight">IKIA TECH</p>
-          <p className="text-xs text-white/40 leading-tight">v2.0</p>
-        </div>
+      <div className="flex items-center justify-center px-4 py-4 border-b border-white/10">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo-white.png" alt="IKIA TECH" style={{ height: "48px", objectFit: "contain" }} />
       </div>
 
       {/* Nav */}
@@ -116,7 +113,7 @@ export default function NavSidebar({
             href={link.href}
             className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
               isActive(link.href)
-                ? "bg-indigo-600 text-white font-medium shadow-sm"
+                ? "text-white font-medium shadow-sm brand-active"
                 : "text-white/60 hover:bg-white/10 hover:text-white"
             }`}
           >
@@ -140,7 +137,7 @@ export default function NavSidebar({
                 href={link.href}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
                   isActive(link.href)
-                    ? "bg-indigo-600 text-white font-medium shadow-sm"
+                    ? "brand-active text-white font-medium shadow-sm"
                     : "text-white/60 hover:bg-white/10 hover:text-white"
                 }`}
               >
@@ -187,6 +184,7 @@ export default function NavSidebar({
                   { href: "/hrm/attendance", label: "Attendance", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /> },
                   { href: "/hrm/leaves", label: "Leaves", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /> },
                   { href: "/hrm/payroll", label: "Payroll", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /> },
+                  { href: "/hrm/payroll/requests", label: "Payslip Requests", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /> },
                   { href: "/hrm/departments", label: "Departments", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /> },
                   { href: "/hrm/designations", label: "Designations", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /> },
                   { href: "/hrm/shifts", label: "Shifts", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /> },
@@ -202,7 +200,7 @@ export default function NavSidebar({
                     href={href}
                     className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-all ${
                       (href === "/hrm" ? pathname === "/hrm" : pathname.startsWith(href))
-                        ? "bg-indigo-600 text-white font-medium"
+                        ? "text-white font-medium brand-active"
                         : "text-white/50 hover:bg-white/10 hover:text-white"
                     }`}
                   >
@@ -244,7 +242,7 @@ export default function NavSidebar({
                   href="/invoices"
                   className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-all ${
                     isActive("/invoices")
-                      ? "bg-indigo-600 text-white font-medium"
+                      ? "brand-active text-white font-medium"
                       : "text-white/50 hover:bg-white/10 hover:text-white"
                   }`}
                 >
@@ -259,7 +257,7 @@ export default function NavSidebar({
                       href="/admin/stripe-accounts"
                       className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-all ${
                         isActive("/admin/stripe-accounts")
-                          ? "bg-indigo-600 text-white font-medium"
+                          ? "brand-active text-white font-medium"
                           : "text-white/50 hover:bg-white/10 hover:text-white"
                       }`}
                     >
@@ -272,7 +270,7 @@ export default function NavSidebar({
                       href="/admin/bank-accounts"
                       className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-all ${
                         isActive("/admin/bank-accounts")
-                          ? "bg-indigo-600 text-white font-medium"
+                          ? "brand-active text-white font-medium"
                           : "text-white/50 hover:bg-white/10 hover:text-white"
                       }`}
                     >
@@ -292,7 +290,7 @@ export default function NavSidebar({
       {/* User + Sign out */}
       <div className="border-t border-white/10 px-3 py-3">
         <div className="mb-2 flex items-center gap-2.5 px-1">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-500 text-xs font-bold text-white uppercase">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white uppercase" style={{ background: "linear-gradient(135deg, #29c0d5, #503d98)" }}>
             {user.name.charAt(0)}
           </div>
           <div className="min-w-0">

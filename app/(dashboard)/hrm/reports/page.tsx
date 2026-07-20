@@ -53,13 +53,13 @@ export default async function ReportsPage({
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-zinc-900">Reports & Analytics</h1>
         <form method="GET" className="flex gap-2">
-          <select name="month" defaultValue={filterMonth} className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <select name="month" defaultValue={filterMonth} className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
             {MONTHS.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
           </select>
-          <select name="year" defaultValue={filterYear} className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <select name="year" defaultValue={filterYear} className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
             {[now.getFullYear(), now.getFullYear() - 1, now.getFullYear() - 2].map((y) => <option key={y}>{y}</option>)}
           </select>
-          <button type="submit" className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white">Apply</button>
+          <button type="submit" className="btn-brand rounded-md px-4 py-2 text-sm font-medium text-white">Apply</button>
         </form>
       </div>
 
@@ -68,13 +68,13 @@ export default async function ReportsPage({
       {/* Overview Cards */}
       <div className="grid grid-cols-4 gap-4">
         {[
-          { label: "Total Employees", value: totalEmployees, sub: `${activeEmployees} active`, color: "indigo" },
-          { label: "New Hires", value: newHires, sub: "this month", color: "emerald" },
-          { label: "Resignations", value: resignations, sub: "this month", color: "red" },
-          { label: "Departments", value: departments.length, sub: "active", color: "purple" },
-        ].map(({ label, value, sub, color }) => (
+          { label: "Total Employees", value: totalEmployees, sub: `${activeEmployees} active` },
+          { label: "New Hires", value: newHires, sub: "this month" },
+          { label: "Resignations", value: resignations, sub: "this month" },
+          { label: "Departments", value: departments.length, sub: "active" },
+        ].map(({ label, value, sub }) => (
           <div key={label} className="rounded-xl border border-zinc-200 bg-white p-4">
-            <p className={`text-2xl font-bold text-${color}-600`}>{value}</p>
+            <p className="text-2xl font-bold text-zinc-900">{value}</p>
             <p className="text-xs font-medium text-zinc-700 mt-0.5">{label}</p>
             <p className="text-[10px] text-zinc-400">{sub}</p>
           </div>
@@ -87,16 +87,16 @@ export default async function ReportsPage({
           <h2 className="text-sm font-semibold text-zinc-900 mb-4">Attendance Summary</h2>
           <div className="space-y-2">
             {[
-              { label: "Present", key: "PRESENT", color: "emerald" },
-              { label: "Late", key: "LATE", color: "orange" },
-              { label: "Absent", key: "ABSENT", color: "red" },
-              { label: "Half Day", key: "HALF_DAY", color: "amber" },
-              { label: "On Leave", key: "ON_LEAVE", color: "blue" },
-              { label: "Holiday", key: "HOLIDAY", color: "purple" },
-            ].map(({ label, key, color }) => (
+              { label: "Present", key: "PRESENT" },
+              { label: "Late", key: "LATE" },
+              { label: "Absent", key: "ABSENT" },
+              { label: "Half Day", key: "HALF_DAY" },
+              { label: "On Leave", key: "ON_LEAVE" },
+              { label: "Holiday", key: "HOLIDAY" },
+            ].map(({ label, key }) => (
               <div key={key} className="flex items-center justify-between">
                 <span className="text-xs text-zinc-600">{label}</span>
-                <span className={`text-sm font-semibold text-${color}-600`}>{attMap[key] ?? 0}</span>
+                <span className="text-sm font-semibold text-zinc-900">{attMap[key] ?? 0}</span>
               </div>
             ))}
             <div className="border-t border-zinc-100 pt-2 flex justify-between">
@@ -104,7 +104,7 @@ export default async function ReportsPage({
               <span className="text-sm font-bold text-zinc-900">{Object.values(attMap).reduce((a, b) => a + b, 0)}</span>
             </div>
           </div>
-          <Link href={`/hrm/attendance?date=${new Date(filterYear, filterMonth - 1, 1).toISOString().split("T")[0]}`} className="block mt-4 text-xs text-indigo-600 hover:underline">View Attendance →</Link>
+          <Link href={`/hrm/attendance?date=${new Date(filterYear, filterMonth - 1, 1).toISOString().split("T")[0]}`} className="block mt-4 text-xs text-zinc-500 hover:underline">View Attendance →</Link>
         </div>
 
         {/* Leave Report */}
@@ -112,14 +112,14 @@ export default async function ReportsPage({
           <h2 className="text-sm font-semibold text-zinc-900 mb-4">Leave Summary</h2>
           <div className="space-y-2">
             {[
-              { label: "Pending", key: "PENDING", color: "amber" },
-              { label: "Approved", key: "APPROVED", color: "emerald" },
-              { label: "Rejected", key: "REJECTED", color: "red" },
-              { label: "Cancelled", key: "CANCELLED", color: "zinc" },
-            ].map(({ label, key, color }) => (
+              { label: "Pending", key: "PENDING" },
+              { label: "Approved", key: "APPROVED" },
+              { label: "Rejected", key: "REJECTED" },
+              { label: "Cancelled", key: "CANCELLED" },
+            ].map(({ label, key }) => (
               <div key={key} className="flex items-center justify-between">
                 <span className="text-xs text-zinc-600">{label}</span>
-                <span className={`text-sm font-semibold text-${color}-600`}>{leaveMap[key] ?? 0}</span>
+                <span className="text-sm font-semibold text-zinc-900">{leaveMap[key] ?? 0}</span>
               </div>
             ))}
             <div className="border-t border-zinc-100 pt-2 flex justify-between">
@@ -127,7 +127,7 @@ export default async function ReportsPage({
               <span className="text-sm font-bold text-zinc-900">{Object.values(leaveMap).reduce((a, b) => a + b, 0)}</span>
             </div>
           </div>
-          <Link href="/hrm/leaves" className="block mt-4 text-xs text-indigo-600 hover:underline">View Leaves →</Link>
+          <Link href="/hrm/leaves" className="block mt-4 text-xs text-zinc-500 hover:underline">View Leaves →</Link>
         </div>
 
         {/* Payroll Report */}
@@ -144,14 +144,14 @@ export default async function ReportsPage({
             </div>
             <div className="flex justify-between">
               <span className="text-xs text-zinc-600">Total Deductions</span>
-              <span className="text-sm font-semibold text-red-500">-{Number(payrollSummary._sum.totalDeductions ?? 0).toLocaleString()}</span>
+              <span className="text-sm font-semibold text-zinc-900">-{Number(payrollSummary._sum.totalDeductions ?? 0).toLocaleString()}</span>
             </div>
             <div className="border-t border-zinc-100 pt-2 flex justify-between">
               <span className="text-xs font-medium text-zinc-700">Net Payable</span>
-              <span className="text-sm font-bold text-emerald-600">{Number(payrollSummary._sum.netSalary ?? 0).toLocaleString()}</span>
+              <span className="text-sm font-bold text-zinc-900">{Number(payrollSummary._sum.netSalary ?? 0).toLocaleString()}</span>
             </div>
           </div>
-          <Link href="/hrm/payroll" className="block mt-4 text-xs text-indigo-600 hover:underline">View Payroll →</Link>
+          <Link href="/hrm/payroll" className="block mt-4 text-xs text-zinc-500 hover:underline">View Payroll →</Link>
         </div>
       </div>
 
@@ -161,7 +161,7 @@ export default async function ReportsPage({
         <div className="grid grid-cols-3 gap-3 lg:grid-cols-5">
           {departments.map((d) => (
             <Link key={d.id} href={`/hrm/employees?dept=${d.id}`} className="rounded-lg border border-zinc-100 p-3 hover:bg-zinc-50 transition-colors text-center">
-              <p className="text-2xl font-bold text-indigo-600">{d._count.employees}</p>
+              <p className="text-2xl font-bold text-zinc-900">{d._count.employees}</p>
               <p className="text-xs text-zinc-600 mt-1 truncate">{d.name}</p>
               {d.code && <p className="text-[10px] text-zinc-400 font-mono">{d.code}</p>}
             </Link>

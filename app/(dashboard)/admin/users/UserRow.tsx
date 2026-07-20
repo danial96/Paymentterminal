@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { updateUser, resetUserPassword, deleteUser, toggleUpseller, toggleUserPermission } from "@/app/actions/admin";
@@ -12,19 +12,25 @@ const ALL_PERMISSIONS = [
 ];
 
 const ROLE_LABELS: Record<string, string> = {
+  "super-admin":        "Super Admin",
   admin:                "Admin",
   project_manager:      "Project Manager",
   front_seller:         "Front Sales",
   upseller:             "Upseller",
   production_department:"Production Dept",
+  hr_manager:           "HR Manager",
+  hr_staff:             "HR Staff",
 };
 
 const ROLE_COLORS: Record<string, string> = {
-  admin:                "bg-indigo-100 text-indigo-700",
-  project_manager:      "bg-blue-100 text-blue-700",
+  "super-admin":        "bg-zinc-900 text-white",
+  admin:                "bg-zinc-100 text-zinc-700",
+  project_manager:      "bg-zinc-200 text-zinc-700",
   front_seller:         "bg-zinc-100 text-zinc-600",
-  upseller:             "bg-amber-100 text-amber-700",
-  production_department:"bg-emerald-100 text-emerald-700",
+  upseller:             "bg-zinc-200 text-zinc-700",
+  production_department:"bg-zinc-900 text-white",
+  hr_manager:           "bg-zinc-900 text-white",
+  hr_staff:             "bg-zinc-200 text-zinc-700",
 };
 
 const HRM_ROLE_LABELS: Record<string, string> = {
@@ -33,8 +39,8 @@ const HRM_ROLE_LABELS: Record<string, string> = {
 };
 
 const HRM_ROLE_COLORS: Record<string, string> = {
-  hr_manager: "bg-purple-100 text-purple-700",
-  hr_staff:   "bg-pink-100 text-pink-700",
+  hr_manager: "bg-zinc-100 text-zinc-700",
+  hr_staff:   "bg-zinc-100 text-zinc-700",
 };
 
 interface User {
@@ -90,7 +96,7 @@ export function UserRow({ user }: { user: User }) {
         {/* Upseller */}
         <td className="px-4 py-3 text-center" onClick={(e) => e.stopPropagation()}>
           <form action={toggleUpseller.bind(null, user.id, !user.isUpseller)}>
-            <button type="submit" className={`inline-flex h-6 w-11 items-center rounded-full transition-colors ${user.isUpseller ? "bg-indigo-600" : "bg-zinc-200"}`}>
+            <button type="submit" className={`inline-flex h-6 w-11 items-center rounded-full transition-colors ${user.isUpseller ? "bg-zinc-900" : "bg-zinc-200"}`}>
               <span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${user.isUpseller ? "translate-x-6" : "translate-x-1"}`} />
             </button>
           </form>
@@ -110,7 +116,7 @@ export function UserRow({ user }: { user: User }) {
         {/* Permissions summary */}
         <td className="px-4 py-3">
           {isAdmin ? (
-            <span className="text-xs text-indigo-500 font-medium">All access</span>
+            <span className="text-xs text-zinc-500 font-medium">All access</span>
           ) : (
             <span className="text-xs text-zinc-500">
               {perms.length === 0 ? "No permissions" : `${perms.length} permission${perms.length !== 1 ? "s" : ""}`}
@@ -136,33 +142,35 @@ export function UserRow({ user }: { user: User }) {
               <div className="bg-white rounded-lg border border-zinc-200 p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-semibold text-zinc-700 uppercase tracking-wide">Profile</p>
-                  <button onClick={() => setEditMode((p) => !p)} className="text-xs text-indigo-600 hover:underline">{editMode ? "Cancel" : "Edit"}</button>
+                  <button onClick={() => setEditMode((p) => !p)} className="text-xs text-zinc-700 hover:underline">{editMode ? "Cancel" : "Edit"}</button>
                 </div>
                 {editMode ? (
                   <form action={async (fd) => { await updateUser(user.id, fd); setEditMode(false); }} className="space-y-2">
                     <div>
                       <label className="block text-[10px] text-zinc-500 mb-0.5">Name</label>
-                      <input name="name" defaultValue={user.name} required className="w-full rounded border border-zinc-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                      <input name="name" defaultValue={user.name} required className="w-full rounded border border-zinc-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
                     </div>
                     <div>
                       <label className="block text-[10px] text-zinc-500 mb-0.5">Role</label>
-                      <select name="role" defaultValue={user.role} className="w-full rounded border border-zinc-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                      <select name="role" defaultValue={user.role} className="w-full rounded border border-zinc-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
                         <option value="front_seller">Front Sales</option>
                         <option value="upseller">Upseller</option>
                         <option value="project_manager">Project Manager</option>
                         <option value="production_department">Production Department</option>
+                        <option value="hr_manager">HR Manager</option>
+                        <option value="hr_staff">HR Staff</option>
                         <option value="admin">Admin</option>
                       </select>
                     </div>
                     <div>
                       <label className="block text-[10px] text-zinc-500 mb-0.5">HRM Role</label>
-                      <select name="hrmRole" defaultValue={user.hrmRole ?? ""} className="w-full rounded border border-zinc-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                      <select name="hrmRole" defaultValue={user.hrmRole ?? ""} className="w-full rounded border border-zinc-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
                         <option value="">No HRM Access</option>
                         <option value="hr_manager">HR Manager</option>
                         <option value="hr_staff">HR Staff</option>
                       </select>
                     </div>
-                    <button type="submit" className="w-full rounded bg-indigo-600 py-1.5 text-xs font-medium text-white hover:bg-indigo-700">Save Changes</button>
+                    <button type="submit" className="btn-brand w-full rounded py-1.5 text-xs font-medium text-white">Save Changes</button>
                   </form>
                 ) : (
                   <div className="space-y-1.5 text-sm">
@@ -193,12 +201,12 @@ export function UserRow({ user }: { user: User }) {
                 <div className="border-t border-zinc-100 pt-3">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wide">Password</p>
-                    <button onClick={() => setPwMode((p) => !p)} className="text-xs text-indigo-600 hover:underline">{pwMode ? "Cancel" : "Reset"}</button>
+                    <button onClick={() => setPwMode((p) => !p)} className="text-xs text-zinc-700 hover:underline">{pwMode ? "Cancel" : "Reset"}</button>
                   </div>
                   {pwMode && (
                     <form action={async (fd) => { await resetUserPassword(user.id, fd); setPwMode(false); }} className="space-y-2">
-                      <input name="password" type="password" minLength={6} required placeholder="New password (min 6)" className="w-full rounded border border-zinc-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-                      <button type="submit" className="w-full rounded bg-zinc-800 py-1.5 text-xs font-medium text-white hover:bg-zinc-900">Update Password</button>
+                      <input name="password" type="password" minLength={6} required placeholder="New password (min 6)" className="w-full rounded border border-zinc-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
+                      <button type="submit" className="btn-brand w-full rounded py-1.5 text-xs font-medium text-white">Update Password</button>
                     </form>
                   )}
                 </div>
@@ -215,20 +223,20 @@ export function UserRow({ user }: { user: User }) {
               <div className="bg-white rounded-lg border border-zinc-200 p-4 lg:col-span-2">
                 <p className="text-xs font-semibold text-zinc-700 uppercase tracking-wide mb-3">Module Permissions</p>
                 {isAdmin ? (
-                  <p className="text-sm text-indigo-500">Admin has access to everything — no restrictions.</p>
+                  <p className="text-sm text-zinc-500">Admin has access to everything — no restrictions.</p>
                 ) : (
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {ALL_PERMISSIONS.map((p) => {
                       const active = perms.includes(p.key);
                       return (
                         <form key={p.key} action={toggleUserPermission.bind(null, user.id, p.key, !active)}>
-                          <button type="submit" className={`flex items-center gap-3 w-full rounded-lg border px-3 py-2.5 text-left transition-colors ${active ? "border-emerald-200 bg-emerald-50 hover:bg-emerald-100" : "border-zinc-200 bg-zinc-50 hover:bg-zinc-100"}`}>
-                            <div className={`h-7 w-7 rounded-full flex items-center justify-center shrink-0 ${active ? "bg-emerald-100" : "bg-zinc-200"}`}>
-                              <div className={`h-2.5 w-2.5 rounded-full ${active ? "bg-emerald-500" : "bg-zinc-400"}`} />
+                          <button type="submit" className={`flex items-center gap-3 w-full rounded-lg border px-3 py-2.5 text-left transition-colors ${active ? "border-zinc-200 bg-zinc-50 hover:bg-zinc-100" : "border-zinc-200 bg-zinc-50 hover:bg-zinc-100"}`}>
+                            <div className={`h-7 w-7 rounded-full flex items-center justify-center shrink-0 ${active ? "bg-zinc-100" : "bg-zinc-200"}`}>
+                              <div className={`h-2.5 w-2.5 rounded-full ${active ? "bg-zinc-500" : "bg-zinc-400"}`} />
                             </div>
                             <div>
-                              <p className={`text-xs font-medium ${active ? "text-emerald-800" : "text-zinc-600"}`}>{p.label}</p>
-                              <p className={`text-[10px] ${active ? "text-emerald-600" : "text-zinc-400"}`}>{active ? "Enabled — click to revoke" : "Disabled — click to grant"}</p>
+                              <p className={`text-xs font-medium ${active ? "text-zinc-800" : "text-zinc-600"}`}>{p.label}</p>
+                              <p className={`text-[10px] ${active ? "text-zinc-700" : "text-zinc-400"}`}>{active ? "Enabled — click to revoke" : "Disabled — click to grant"}</p>
                             </div>
                           </button>
                         </form>

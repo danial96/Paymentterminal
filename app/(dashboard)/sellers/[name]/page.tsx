@@ -103,8 +103,8 @@ export default async function SellerDetailPage({
                   <td className="border-r border-zinc-100 px-4 py-3 font-medium text-zinc-900">{m.label}</td>
                   <td className="border-r border-zinc-100 px-4 py-3 text-zinc-600">{m.deals}</td>
                   <td className="border-r border-zinc-100 px-4 py-3 text-zinc-900">£{m.totalValue.toFixed(2)}</td>
-                  <td className="border-r border-zinc-100 px-4 py-3 text-green-700">£{m.amountPaid.toFixed(2)}</td>
-                  <td className="border-r border-zinc-100 px-4 py-3 text-amber-600">
+                  <td className="border-r border-zinc-100 px-4 py-3 text-zinc-700">£{m.amountPaid.toFixed(2)}</td>
+                  <td className="border-r border-zinc-100 px-4 py-3 text-zinc-600">
                     £{(m.totalValue - m.amountPaid).toFixed(2)}
                   </td>
                 </tr>

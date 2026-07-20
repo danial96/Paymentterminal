@@ -4,6 +4,8 @@ import { formatDate } from "@/lib/format";
 import { trashService } from "@/app/actions/trash";
 import { auth } from "@/lib/auth";
 import Link from "next/link";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 function daysUntil(date: Date) {
   const ms = date.getTime() - Date.now();
@@ -11,9 +13,9 @@ function daysUntil(date: Date) {
 }
 
 function renewalBadge(days: number) {
-  if (days < 0) return "bg-red-100 text-red-700";
-  if (days <= 30) return "bg-yellow-100 text-yellow-700";
-  return "bg-green-100 text-green-700";
+  if (days < 0) return "bg-zinc-900 text-white";
+  if (days <= 30) return "bg-zinc-200 text-zinc-700";
+  return "bg-zinc-200 text-zinc-600";
 }
 
 export default async function RenewalsPage() {
@@ -84,7 +86,7 @@ export default async function RenewalsPage() {
                           className="text-zinc-300 hover:text-red-500 transition-colors"
                           title="Move to trash"
                         >
-                          🗑
+                          <FontAwesomeIcon icon={faTrash} className="h-3.5 w-3.5" />
                         </button>
                       </form>
                     </td>

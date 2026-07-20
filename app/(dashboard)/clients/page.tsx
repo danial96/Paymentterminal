@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getRenewals } from "@/lib/renewals";
 import { formatDate } from "@/lib/format";
-import { requireUser, clientScopeWhere } from "@/lib/scope";
+import { requireCrmAccess, clientScopeWhere } from "@/lib/scope";
 import MonthFilter from "./MonthFilter";
 import ClientsTable from "./ClientsTable";
 import Link from "next/link";
@@ -14,9 +14,9 @@ function daysUntil(date: Date) {
 }
 
 function renewalBadge(days: number) {
-  if (days < 0) return "bg-red-100 text-red-700";
-  if (days <= 30) return "bg-yellow-100 text-yellow-700";
-  return "bg-green-100 text-green-700";
+  if (days < 0) return "bg-zinc-900 text-white";
+  if (days <= 30) return "bg-zinc-200 text-zinc-700";
+  return "bg-zinc-200 text-zinc-600";
 }
 
 export default async function ClientsPage({
@@ -45,7 +45,7 @@ export default async function ClientsPage({
     months: rawMonths,
     sortBy: sp.sortBy as "newest" | "oldest" | "name_asc" | "name_desc" | "due_asc" | "due_desc" | undefined,
   };
-  const user = await requireUser();
+  const user = await requireCrmAccess();
   const scope = clientScopeWhere(user);
   const [clients, totalCount, session, profiles, renewals, brands, serviceTypes] = await Promise.all([
     searchClients(filters, page),
@@ -82,7 +82,7 @@ export default async function ClientsPage({
           </a>
           <Link
             href="/clients/new"
-            className="rounded-md bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800"
+            className="btn-brand rounded-md px-3 py-2 text-sm font-medium text-white"
           >
             Add Client
           </Link>
@@ -175,7 +175,7 @@ export default async function ClientsPage({
         </div>
         {/* Buttons */}
         <div className="flex gap-2 items-end">
-          <button type="submit" className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-700">
+          <button type="submit" className="btn-brand rounded-md px-3 py-1.5 text-sm font-medium text-white">
             Filter
           </button>
           <Link href="/clients" className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm text-zinc-600 hover:bg-zinc-100">

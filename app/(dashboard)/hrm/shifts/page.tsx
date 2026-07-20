@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/scope";
+﻿import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import { deleteShift } from "@/app/actions/hrm-shifts";
 import { DeleteButton } from "@/app/(dashboard)/hrm/components/DeleteButton";
@@ -32,8 +32,8 @@ export default async function ShiftsPage() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-sm font-medium text-zinc-900">{s.name}</p>
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${s.isActive ? "bg-emerald-100 text-emerald-700" : "bg-zinc-100 text-zinc-500"}`}>{s.isActive ? "Active" : "Inactive"}</span>
-                    <span className="rounded-full px-2 py-0.5 text-[10px] font-medium bg-indigo-50 text-indigo-600">
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${s.isActive ? "bg-zinc-900 text-white" : "bg-zinc-100 text-zinc-500"}`}>{s.isActive ? "Active" : "Inactive"}</span>
+                    <span className="rounded-full px-2 py-0.5 text-[10px] font-medium bg-zinc-50 text-zinc-700">
                       {s.shiftType === "CUSTOM" && s.customLabel ? `Custom — ${s.customLabel}` : s.shiftType}
                     </span>
                   </div>

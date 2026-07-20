@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/scope";
+﻿import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import { createDepartment, updateDepartment, deleteDepartment } from "@/app/actions/hrm-departments";
 import { DeleteButton } from "@/app/(dashboard)/hrm/components/DeleteButton";
@@ -23,24 +23,24 @@ export default async function DepartmentsPage() {
           <form action={createDepartment} className="space-y-3">
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Department Name *</label>
-              <input name="name" required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <input name="name" required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Code</label>
-              <input name="code" placeholder="e.g. ENG, HR, FIN" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <input name="code" placeholder="e.g. ENG, HR, FIN" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Department Head</label>
-              <select name="headId" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <select name="headId" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
                 <option value="">Select Head</option>
                 {employees.map((e) => <option key={e.id} value={e.id}>{e.firstName} {e.lastName}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Description</label>
-              <textarea name="description" rows={2} className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <textarea name="description" rows={2} className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
-            <button type="submit" className="w-full rounded-lg bg-indigo-600 py-2 text-sm font-medium text-white hover:bg-indigo-700">Add Department</button>
+            <button type="submit" className="btn-brand w-full rounded-lg py-2 text-sm font-medium text-white">Add Department</button>
           </form>
         </div>
 
@@ -57,7 +57,7 @@ export default async function DepartmentsPage() {
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-medium text-zinc-900">{dept.name}</p>
                     {dept.code && <span className="rounded px-1.5 py-0.5 text-[10px] font-mono bg-zinc-100 text-zinc-500">{dept.code}</span>}
-                    {!dept.isActive && <span className="rounded-full px-2 py-0.5 text-[10px] bg-red-100 text-red-500">Inactive</span>}
+                    {!dept.isActive && <span className="rounded-full px-2 py-0.5 text-[10px] bg-zinc-200 text-zinc-600">Inactive</span>}
                   </div>
                   <p className="text-xs text-zinc-400">
                     {dept._count.employees} employee{dept._count.employees !== 1 ? "s" : ""}
