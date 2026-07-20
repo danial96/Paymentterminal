@@ -33,7 +33,12 @@ export async function addComment(noticeId: number, content: string, parentId?: n
   if (!content.trim()) return { error: "Comment cannot be empty" };
 
   await prisma.hRMNoticeComment.create({
-    data: { noticeId, employeeId, content: content.trim(), parentId: parentId ?? null },
+    data: {
+      notice: { connect: { id: noticeId } },
+      employee: { connect: { id: employeeId } },
+      content: content.trim(),
+      ...(parentId ? { parent: { connect: { id: parentId } } } : {}),
+    },
   });
 
   revalidatePath("/portal/notices");
