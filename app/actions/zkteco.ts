@@ -166,6 +166,43 @@ export async function reEnrollFingerprint(employeeId: string) {
   }
 }
 
+export async function confirmEnrollment(employeeId: string, dbId: number) {
+  await requireUser();
+  try {
+    const ADMIN_UID = 343;
+    const users = await getZKUsers();
+
+    // Find corrupt user (non-IKIA, non-numeric, non-admin)
+    const corruptUser = users.find(
+      (u) => u.uid !== ADMIN_UID && !u.userId?.startsWith("IKIA") && !u.userId?.match(/^\d+$/)
+    );
+    if (!corruptUser) {
+      // Maybe machine used correct UID — check if employeeId already on machine
+      const alreadyCorrect = users.find((u) => u.userId === employeeId);
+      if (alreadyCorrect) {
+        await prisma.hRMEmployee.update({ where: { id: dbId }, data: { fingerprintEnrolled: true } });
+        const { revalidatePath } = await import("next/cache");
+        revalidatePath(`/hrm/employees/${dbId}`);
+        return { success: true };
+      }
+      return { error: "Fingerprint not detected on machine yet. Place finger 3 times and try again." };
+    }
+
+    // Fix corrupt userId → correct IKIA ID
+    const emp = await prisma.hRMEmployee.findUnique({ where: { id: dbId }, select: { firstName: true, lastName: true, employeeId: true } });
+    const name = emp ? `${emp.firstName} ${emp.lastName}`.slice(0, 24) : employeeId;
+    await pushUserToZK(corruptUser.uid, employeeId, name);
+
+    // Mark enrolled in DB
+    await prisma.hRMEmployee.update({ where: { id: dbId }, data: { fingerprintEnrolled: true } });
+    const { revalidatePath } = await import("next/cache");
+    revalidatePath(`/hrm/employees/${dbId}`);
+    return { success: true };
+  } catch (e: any) {
+    return { error: e?.message ?? "Could not confirm enrollment" };
+  }
+}
+
 export async function getPendingFingerprintEmployees() {
   await requireAdmin();
   return await prisma.hRMEmployee.findMany({
