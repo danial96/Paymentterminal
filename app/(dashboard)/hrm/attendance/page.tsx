@@ -107,12 +107,13 @@ export default async function AttendancePage({
                 <th className="px-4 py-3 text-left">Hours</th>
                 <th className="px-4 py-3 text-left">Late</th>
                 <th className="px-4 py-3 text-left">Status</th>
-                <th className="px-4 py-3 text-left">Manual</th>
+                <th className="px-4 py-3 text-left">Source</th>
+                <th className="px-4 py-3 text-left">Mark</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
               {employees.length === 0 && (
-                <tr><td colSpan={8} className="px-4 py-10 text-center text-zinc-400">No employees found</td></tr>
+                <tr><td colSpan={9} className="px-4 py-10 text-center text-zinc-400">No employees found</td></tr>
               )}
               {employees.map((emp) => {
                 const att = attendanceMap.get(emp.id);
@@ -145,6 +146,28 @@ export default async function AttendancePage({
                         </span>
                       ) : (
                         <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold bg-zinc-100 text-zinc-400">Not Recorded</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      {att?.isManual ? (
+                        <div className="flex flex-col gap-1">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                            <svg className="h-2.5 w-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                            Portal / Manual
+                          </span>
+                          {att.notes && <span className="text-[10px] text-zinc-400 max-w-[140px] truncate" title={att.notes}>{att.notes}</span>}
+                        </div>
+                      ) : att ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] text-zinc-500">
+                          <svg className="h-2.5 w-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                          </svg>
+                          Biometric
+                        </span>
+                      ) : (
+                        <span className="text-zinc-300 text-xs">—</span>
                       )}
                     </td>
                     <td className="px-4 py-3">

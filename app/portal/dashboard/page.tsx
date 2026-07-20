@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { AttendanceCheckIn } from "./AttendanceCheckIn";
 
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -115,41 +116,14 @@ export default async function PortalDashboard() {
           <h2 className="text-sm font-semibold text-zinc-900">Today&apos;s Attendance</h2>
           <span className="text-xs text-zinc-400">{DAYS[now.getDay()]}, {now.getDate()} {MONTHS[now.getMonth()]} {now.getFullYear()}</span>
         </div>
-        {todayRecord ? (
-          <div className="flex items-center gap-6">
-            <div>
-              <p className="text-[10px] text-zinc-400 uppercase tracking-wide mb-0.5">Check In</p>
-              <p className="text-lg font-bold text-zinc-900">
-                {todayRecord.checkIn ? new Date(todayRecord.checkIn).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : "—"}
-              </p>
-            </div>
-            <div className="h-8 w-px bg-zinc-100" />
-            <div>
-              <p className="text-[10px] text-zinc-400 uppercase tracking-wide mb-0.5">Check Out</p>
-              <p className="text-lg font-bold text-zinc-900">
-                {todayRecord.checkOut ? new Date(todayRecord.checkOut).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : "—"}
-              </p>
-            </div>
-            <div className="h-8 w-px bg-zinc-100" />
-            <div>
-              <p className="text-[10px] text-zinc-400 uppercase tracking-wide mb-0.5">Hours</p>
-              <p className="text-lg font-bold text-zinc-900">{todayRecord.workingHours ? `${todayRecord.workingHours}h` : "—"}</p>
-            </div>
-            <div className="h-8 w-px bg-zinc-100" />
-            <div>
-              <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                todayRecord.status === "PRESENT" ? "bg-green-100 text-green-700" :
-                todayRecord.status === "LATE" ? "bg-yellow-100 text-yellow-700" :
-                todayRecord.status === "ON_LEAVE" ? "bg-blue-100 text-blue-700" :
-                "bg-zinc-100 text-zinc-600"
-              }`}>
-                {todayRecord.status.replace("_", " ")}
-              </span>
-            </div>
-          </div>
-        ) : (
-          <p className="text-sm text-zinc-400">No attendance recorded for today yet.</p>
-        )}
+        <AttendanceCheckIn
+          hasCheckedIn={!!todayRecord?.checkIn}
+          hasCheckedOut={!!todayRecord?.checkOut}
+          checkInTime={todayRecord?.checkIn ? new Date(todayRecord.checkIn).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null}
+          checkOutTime={todayRecord?.checkOut ? new Date(todayRecord.checkOut).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null}
+          status={todayRecord?.status ?? null}
+          workingHours={todayRecord?.workingHours ? String(todayRecord.workingHours) : null}
+        />
       </div>
 
       {/* This month stats */}

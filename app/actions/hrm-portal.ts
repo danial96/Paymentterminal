@@ -50,6 +50,82 @@ export async function portalCancelLeave(id: number) {
   revalidatePath("/hrm/leaves");
 }
 
+export async function portalCheckIn() {
+  const { employeeId } = await requireEmployee();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const existing = await prisma.hRMAttendance.findUnique({
+    where: { employeeId_date: { employeeId, date: today } },
+  });
+
+  if (existing) {
+    if (!existing.checkIn) {
+      await prisma.hRMAttendance.update({
+        where: { id: existing.id },
+        data: { checkIn: new Date(), isManual: true, notes: "Manual check-in via employee portal" },
+      });
+    }
+    revalidatePath("/portal/dashboard");
+    revalidatePath("/hrm/attendance");
+    return;
+  }
+
+  const now = new Date();
+  const lateThreshold = new Date(today);
+  lateThreshold.setHours(9, 15, 0, 0);
+  const isLate = now > lateThreshold;
+  const lateMinutes = isLate ? Math.floor((now.getTime() - lateThreshold.getTime()) / 60000) : 0;
+
+  await prisma.hRMAttendance.create({
+    data: {
+      employeeId,
+      date: today,
+      checkIn: now,
+      status: isLate ? "LATE" : "PRESENT",
+      lateMinutes: lateMinutes > 0 ? lateMinutes : null,
+      isManual: true,
+      notes: "Manual check-in via employee portal",
+    },
+  });
+  revalidatePath("/portal/dashboard");
+  revalidatePath("/hrm/attendance");
+}
+
+export async function portalCheckOut() {
+  const { employeeId } = await requireEmployee();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const record = await prisma.hRMAttendance.findUnique({
+    where: { employeeId_date: { employeeId, date: today } },
+  });
+  if (!record || !record.checkIn) return;
+
+  const now = new Date();
+  const breakMins = record.breakStart && record.breakEnd
+    ? (record.breakEnd.getTime() - record.breakStart.getTime()) / 60000
+    : 0;
+  const totalMins = (now.getTime() - record.checkIn.getTime()) / 60000 - breakMins;
+  const workingHours = Math.max(0, totalMins / 60);
+  const overtimeHours = Math.max(0, workingHours - 8);
+
+  await prisma.hRMAttendance.update({
+    where: { id: record.id },
+    data: {
+      checkOut: now,
+      workingHours: Number(workingHours.toFixed(2)),
+      overtimeHours: overtimeHours > 0 ? Number(overtimeHours.toFixed(2)) : null,
+      isManual: true,
+      notes: record.notes
+        ? record.notes.replace("check-in", "check-in & check-out")
+        : "Manual check-out via employee portal",
+    },
+  });
+  revalidatePath("/portal/dashboard");
+  revalidatePath("/hrm/attendance");
+}
+
 export async function portalChangePassword(formData: FormData) {
   const { employeeId } = await requireEmployee();
   const newPassword = String(formData.get("newPassword") ?? "");
