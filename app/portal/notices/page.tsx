@@ -6,13 +6,15 @@ export default async function PortalNoticesPage() {
   const session = await auth();
   const empId = Number((session?.user as any)?.employeeId);
 
-  const notices = await prisma.hRMNotice.findMany({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = prisma as any;
+  const notices = await db.hRMNotice.findMany({
     where: { isPublished: true },
     orderBy: { publishedAt: "desc" },
     include: {
       reactions: { include: { employee: { select: { firstName: true, lastName: true } } } },
       comments: {
-        where: { parentId: null },
+        // filter parentId: null in JS to avoid cached Prisma type mismatch
         include: {
           employee: { select: { firstName: true, lastName: true, id: true } },
           reactions: { include: { employee: { select: { firstName: true, lastName: true } } } },
@@ -66,7 +68,7 @@ export default async function PortalNoticesPage() {
                 employeeName: `${r.employee.firstName} ${r.employee.lastName}`,
               }))}
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              comments={(n.comments as any[]).map((c: any) => ({
+              comments={(n.comments as any[]).filter((c: any) => !c.parentId).map((c: any) => ({
                 id: c.id,
                 content: c.content,
                 createdAt: c.createdAt,
