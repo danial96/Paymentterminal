@@ -92,7 +92,7 @@ export default async function AttendancePage({
       </form>
 
       {/* Attendance Table */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
+      <div className="rounded-xl border border-zinc-200 bg-white">
         <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-100">
           <h2 className="text-sm font-semibold text-zinc-900">Daily Attendance — {employees.length} employees</h2>
         </div>
@@ -150,7 +150,7 @@ export default async function AttendancePage({
                     <td className="px-4 py-3">
                       <details className="relative">
                         <summary className="text-xs text-zinc-500 cursor-pointer list-none hover:underline">Mark</summary>
-                        <div className="absolute right-0 top-6 z-10 bg-white rounded-xl border border-zinc-200 shadow-lg p-4 w-64">
+                        <div className="absolute right-0 top-6 z-50 bg-white rounded-xl border border-zinc-200 shadow-lg p-4 w-64">
                           <form action={saveManualAttendance} className="space-y-2">
                             <input type="hidden" name="employeeId" value={emp.id} />
                             <input type="hidden" name="date" value={selectedStr} />
