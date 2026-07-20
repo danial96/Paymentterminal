@@ -499,6 +499,7 @@ model HRMEmployee {
   payslipRequests    HRMPayslipRequest[]
   noticeReactions    HRMNoticeReaction[]
   noticeComments     HRMNoticeComment[]
+  bankLetterRequests HRMBankLetterRequest[]
 }
 
 model HRMAttendance {
@@ -738,6 +739,18 @@ model HRMNoticeComment {
   createdAt  DateTime @default(now())
 
   notice   HRMNotice   @relation(fields: [noticeId], references: [id], onDelete: Cascade)
+  employee HRMEmployee @relation(fields: [employeeId], references: [id])
+}
+
+model HRMBankLetterRequest {
+  id         Int      @id @default(autoincrement())
+  employeeId Int
+  notes      String?  @db.Text
+  status     String   @default("PENDING")
+  hrNote     String?  @db.Text
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
   employee HRMEmployee @relation(fields: [employeeId], references: [id])
 }
 

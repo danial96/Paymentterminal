@@ -71,11 +71,11 @@ export function NoticeCard({
     if (!commentText.trim()) return;
     const text = commentText;
     setCommentText("");
-    startTransition(() => addComment(noticeId, text));
+    startTransition(async () => { await addComment(noticeId, text); });
   }
 
   function handleDeleteComment(commentId: number) {
-    startTransition(() => deleteComment(commentId));
+    startTransition(async () => { await deleteComment(commentId); });
   }
 
   return (
