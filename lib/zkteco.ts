@@ -61,14 +61,18 @@ export async function pushUserToZK(uid: number, userId: string, name: string): P
   }
 }
 
-export async function startFingerprintEnrollment(uid: number): Promise<void> {
+export async function startFingerprintEnrollment(uid: number, name: string, userId: string): Promise<void> {
   const zk = new ZKLib(ZKTECO_IP, ZKTECO_PORT, ZKTECO_TIMEOUT, ZKTECO_INPORT);
   try {
     await zk.createSocket();
-    // CMD_STARTENROLL = 61 — triggers enrollment mode on machine for given UID
+    // Delete existing user so machine assigns the fingerprint to this exact UID
+    try { await (zk as any).deleteUser(uid); } catch {}
+    // Small delay for machine to process deletion
+    await new Promise(r => setTimeout(r, 500));
+    // CMD_STARTENROLL = 61 — triggers enrollment mode for given UID
     const buf = Buffer.alloc(4);
     buf.writeUInt16LE(uid, 0);
-    buf.writeUInt16LE(0, 2); // finger index 0
+    buf.writeUInt16LE(0, 2);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (zk as any).ztcp.executeCmd(61, buf);
     await zk.disconnect();

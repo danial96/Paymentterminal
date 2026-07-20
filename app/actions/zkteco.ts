@@ -125,7 +125,9 @@ export async function startEnrollment(employeeId: string) {
   try {
     const uid = parseInt(employeeId.replace(/^IKIA|^EMP/i, "").replace("-", ""));
     if (isNaN(uid)) return { error: "Invalid employee ID format" };
-    await startFingerprintEnrollment(uid);
+    const emp = await prisma.hRMEmployee.findFirst({ where: { employeeId }, select: { firstName: true, lastName: true } });
+    const name = emp ? `${emp.firstName} ${emp.lastName}` : employeeId;
+    await startFingerprintEnrollment(uid, name, employeeId);
     return { success: true };
   } catch {
     return { error: "Could not connect to fingerprint machine" };
@@ -155,7 +157,9 @@ export async function reEnrollFingerprint(employeeId: string) {
   try {
     const uid = parseInt(employeeId.replace(/^IKIA|^EMP/i, "").replace("-", ""));
     if (isNaN(uid)) return { error: "Invalid employee ID format" };
-    await startFingerprintEnrollment(uid);
+    const emp = await prisma.hRMEmployee.findFirst({ where: { employeeId }, select: { firstName: true, lastName: true } });
+    const name = emp ? `${emp.firstName} ${emp.lastName}` : employeeId;
+    await startFingerprintEnrollment(uid, name, employeeId);
     return { success: true };
   } catch {
     return { error: "Could not connect to fingerprint machine" };
