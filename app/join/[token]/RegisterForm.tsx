@@ -42,9 +42,9 @@ export default function RegisterForm({ token }: { token: string }) {
     );
   }
 
-  const inputClass = "w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white placeholder-white/30 focus:border-white/40 focus:outline-none";
-  const selectClass = "w-full rounded-lg border border-white/20 px-3 py-2 text-sm text-white focus:border-white/40 focus:outline-none";
-  const labelClass = "block text-xs font-medium text-white/70 mb-1";
+  const inputClass = "w-full rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-sm text-white placeholder-white/40 focus:border-white/50 focus:outline-none focus:bg-white/15 transition-colors";
+  const selectClass = "w-full rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-sm text-white focus:border-white/50 focus:outline-none focus:bg-white/15 transition-colors";
+  const labelClass = "block text-xs font-semibold text-white/80 mb-1 uppercase tracking-wide";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -90,7 +90,7 @@ export default function RegisterForm({ token }: { token: string }) {
 
       <div>
         <label className={labelClass}>Gender</label>
-        <select name="gender" className={selectClass} style={{ background: "#2d2f3a" }}>
+        <select name="gender" className={selectClass} style={{ background: "rgba(80,61,152,0.6)" }}>
           <option value="">Select</option>
           <option value="MALE">Male</option>
           <option value="FEMALE">Female</option>
