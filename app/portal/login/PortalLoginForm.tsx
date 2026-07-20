@@ -27,7 +27,7 @@ export default function PortalLoginForm() {
     if (res?.error) {
       setError("Invalid email or password.");
     } else {
-      router.push("/portal/dashboard");
+      window.location.href = "/portal/dashboard";
     }
   }
 
