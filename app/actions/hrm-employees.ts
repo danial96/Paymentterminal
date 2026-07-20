@@ -56,7 +56,7 @@ const EmployeeSchema = z.object({
 async function generateEmployeeId(): Promise<string> {
   const last = await prisma.hRMEmployee.findFirst({ orderBy: { id: "desc" } });
   const num = last ? 1010 + last.id + 1 : 1011;
-  return `EMP${num}`;
+  return `IKIA${num}`;
 }
 
 function fd(formData: FormData, key: string) {
@@ -195,7 +195,7 @@ export async function createEmployee(formData: FormData) {
 
   // Auto-push to ZKTeco machine (fire and forget — don't block employee creation)
   const fullName = `${parsed.firstName} ${parsed.lastName}`;
-  const uid = parseInt(empId.replace("EMP", ""));
+  const uid = parseInt(empId.replace(/^IKIA|^EMP/i, "").replace("-", ""));
   pushUserToZK(uid, empId, fullName).catch(() => {});
 
   revalidatePath("/hrm/employees");

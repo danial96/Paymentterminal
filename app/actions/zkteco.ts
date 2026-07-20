@@ -27,7 +27,7 @@ export async function syncZKAttendance() {
   for (const e of employees) {
     empMap.set(e.employeeId, e.id);
     // Also map numeric part — machine stores attendance as numeric uid (e.g. 1014 for EMP1014)
-    const numericId = e.employeeId.replace(/^EMP/i, "");
+    const numericId = e.employeeId.replace(/^IKIA|^EMP/i, "").replace("-", "");
     if (numericId !== e.employeeId) empMap.set(numericId, e.id);
   }
 
@@ -116,7 +116,7 @@ export async function getZKDeviceUsers() {
 export async function startEnrollment(employeeId: string) {
   await requireAdmin();
   try {
-    const uid = parseInt(employeeId.replace("EMP", "").replace("-", ""));
+    const uid = parseInt(employeeId.replace(/^IKIA|^EMP/i, "").replace("-", ""));
     if (isNaN(uid)) return { error: "Invalid employee ID format" };
     await startFingerprintEnrollment(uid);
     return { success: true };

@@ -41,15 +41,17 @@ export async function submitRegistration(token: string, data: {
   dateOfBirth?: string; gender?: string; currentAddress?: string;
   emergencyContactName?: string; emergencyContact?: string; emergencyContactRelation?: string;
   linkedInUrl?: string;
+  bankName?: string; bankAccountName?: string; accountNumber?: string; iban?: string;
 }) {
   const reg = await prisma.hRMRegistrationToken.findUnique({ where: { token } });
   if (!reg) return { error: "Invalid link" };
   if (reg.usedAt) return { error: "This link has already been used" };
   if (reg.expiresAt < new Date()) return { error: "This link has expired" };
 
-  // Generate employee ID
-  const count = await prisma.hRMEmployee.count();
-  const employeeId = `EMP-${String(count + 1001).padStart(4, "0")}`;
+  // Generate employee ID — same sequence as createEmployee
+  const last = await prisma.hRMEmployee.findFirst({ orderBy: { id: "desc" } });
+  const num = last ? 1010 + last.id + 1 : 1011;
+  const employeeId = `IKIA${num}`;
 
   const employee = await prisma.hRMEmployee.create({
     data: {
@@ -67,6 +69,10 @@ export async function submitRegistration(token: string, data: {
       emergencyContact: data.emergencyContact || null,
       emergencyContactRelation: data.emergencyContactRelation || null,
       linkedInUrl: data.linkedInUrl || null,
+      bankName: data.bankName || null,
+      bankAccountName: data.bankAccountName || null,
+      accountNumber: data.accountNumber || null,
+      iban: data.iban || null,
       status: "INACTIVE", // pending HR approval
     },
   });

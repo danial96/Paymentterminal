@@ -26,6 +26,10 @@ export default function RegisterForm({ token }: { token: string }) {
       emergencyContact: fd.get("emergencyContact") as string,
       emergencyContactRelation: fd.get("emergencyContactRelation") as string,
       linkedInUrl: fd.get("linkedInUrl") as string,
+      bankName: fd.get("bankName") as string,
+      bankAccountName: fd.get("bankAccountName") as string,
+      accountNumber: fd.get("accountNumber") as string,
+      iban: fd.get("iban") as string,
     });
     setLoading(false);
     if (result.error) setError(result.error);
@@ -106,6 +110,30 @@ export default function RegisterForm({ token }: { token: string }) {
       <div>
         <label className={labelClass}>LinkedIn Profile URL</label>
         <input name="linkedInUrl" type="text" className={inputClass} placeholder="https://linkedin.com/in/yourname" />
+      </div>
+
+      <div className="border-t border-zinc-200 pt-4">
+        <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-3">Bank Details</p>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className={labelClass}>Bank Name</label>
+            <input name="bankName" className={inputClass} placeholder="e.g. HBL, Meezan" />
+          </div>
+          <div>
+            <label className={labelClass}>Account Title</label>
+            <input name="bankAccountName" className={inputClass} placeholder="Full name on account" />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3 mt-3">
+          <div>
+            <label className={labelClass}>Account Number</label>
+            <input name="accountNumber" className={inputClass} placeholder="XXXX-XXXXXXXX-X" />
+          </div>
+          <div>
+            <label className={labelClass}>IBAN</label>
+            <input name="iban" className={inputClass} placeholder="PK00XXXX0000000000000000" />
+          </div>
+        </div>
       </div>
 
       <div className="border-t border-zinc-200 pt-4">
