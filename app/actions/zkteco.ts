@@ -1,6 +1,6 @@
 "use server";
 
-import { requireAdmin } from "@/lib/scope";
+import { requireAdmin, requireUser } from "@/lib/scope";
 import { getZKAttendanceLogs, getZKUsers, startFingerprintEnrollment } from "@/lib/zkteco";
 import { prisma } from "@/lib/prisma";
 
