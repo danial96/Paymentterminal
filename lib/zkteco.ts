@@ -78,6 +78,18 @@ export async function startFingerprintEnrollment(uid: number): Promise<void> {
   }
 }
 
+export async function deleteZKUser(uid: number): Promise<void> {
+  const zk = new ZKLib(ZKTECO_IP, ZKTECO_PORT, ZKTECO_TIMEOUT, ZKTECO_INPORT);
+  try {
+    await zk.createSocket();
+    await (zk as any).deleteUser(uid);
+    await zk.disconnect();
+  } catch (err) {
+    try { await zk.disconnect(); } catch {}
+    throw err;
+  }
+}
+
 export async function clearZKAttendanceLogs(): Promise<void> {
   const zk = new ZKLib(ZKTECO_IP, ZKTECO_PORT, ZKTECO_TIMEOUT, ZKTECO_INPORT);
   try {

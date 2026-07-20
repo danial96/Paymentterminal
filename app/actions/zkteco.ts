@@ -1,7 +1,7 @@
 "use server";
 
 import { requireAdmin, requireUser } from "@/lib/scope";
-import { getZKAttendanceLogs, getZKUsers, startFingerprintEnrollment } from "@/lib/zkteco";
+import { getZKAttendanceLogs, getZKUsers, startFingerprintEnrollment, pushUserToZK, deleteZKUser } from "@/lib/zkteco";
 import { prisma } from "@/lib/prisma";
 
 export async function debugZKLogs() {
@@ -121,6 +121,36 @@ export async function getZKDeviceUsers() {
 }
 
 export async function startEnrollment(employeeId: string) {
+  await requireUser();
+  try {
+    const uid = parseInt(employeeId.replace(/^IKIA|^EMP/i, "").replace("-", ""));
+    if (isNaN(uid)) return { error: "Invalid employee ID format" };
+    await startFingerprintEnrollment(uid);
+    return { success: true };
+  } catch {
+    return { error: "Could not connect to fingerprint machine" };
+  }
+}
+
+export async function deleteFingerprint(employeeId: string, dbId: number) {
+  await requireUser();
+  const uid = parseInt(employeeId.replace(/^IKIA|^EMP/i, "").replace("-", ""));
+  if (isNaN(uid)) return { error: "Invalid employee ID" };
+  try {
+    // Delete from ZKTeco then re-push user without fingerprint
+    await deleteZKUser(uid);
+    const emp = await prisma.hRMEmployee.findUnique({ where: { id: dbId }, select: { firstName: true, lastName: true, employeeId: true } });
+    if (emp) await pushUserToZK(uid, emp.employeeId, `${emp.firstName} ${emp.lastName}`);
+    await prisma.hRMEmployee.update({ where: { id: dbId }, data: { fingerprintEnrolled: false } });
+    const { revalidatePath } = await import("next/cache");
+    revalidatePath(`/hrm/employees/${dbId}`);
+    return { success: true };
+  } catch (e: any) {
+    return { error: e?.message ?? "Failed to delete fingerprint" };
+  }
+}
+
+export async function reEnrollFingerprint(employeeId: string) {
   await requireUser();
   try {
     const uid = parseInt(employeeId.replace(/^IKIA|^EMP/i, "").replace("-", ""));
