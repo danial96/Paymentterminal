@@ -497,6 +497,8 @@ model HRMEmployee {
   deductions         HRMDeduction[]
   registrationToken  HRMRegistrationToken?
   payslipRequests    HRMPayslipRequest[]
+  noticeReactions    HRMNoticeReaction[]
+  noticeComments     HRMNoticeComment[]
 }
 
 model HRMAttendance {
@@ -710,7 +712,33 @@ model HRMNotice {
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
 
-  department HRMDepartment? @relation(fields: [departmentId], references: [id])
+  department HRMDepartment?      @relation(fields: [departmentId], references: [id])
+  reactions  HRMNoticeReaction[]
+  comments   HRMNoticeComment[]
+}
+
+model HRMNoticeReaction {
+  id         Int      @id @default(autoincrement())
+  noticeId   Int
+  employeeId Int
+  emoji      String
+  createdAt  DateTime @default(now())
+
+  notice   HRMNotice   @relation(fields: [noticeId], references: [id], onDelete: Cascade)
+  employee HRMEmployee @relation(fields: [employeeId], references: [id])
+
+  @@unique([noticeId, employeeId, emoji])
+}
+
+model HRMNoticeComment {
+  id         Int      @id @default(autoincrement())
+  noticeId   Int
+  employeeId Int
+  content    String   @db.Text
+  createdAt  DateTime @default(now())
+
+  notice   HRMNotice   @relation(fields: [noticeId], references: [id], onDelete: Cascade)
+  employee HRMEmployee @relation(fields: [employeeId], references: [id])
 }
 
 model HRMHoliday {

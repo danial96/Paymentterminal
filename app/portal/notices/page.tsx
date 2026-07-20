@@ -1,10 +1,21 @@
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { NoticeCard } from "./NoticeCard";
 
 export default async function PortalNoticesPage() {
+  const session = await auth();
+  const empId = Number((session?.user as any)?.employeeId);
+
   const notices = await prisma.hRMNotice.findMany({
     where: { isPublished: true },
     orderBy: { publishedAt: "desc" },
+    include: {
+      reactions: { include: { employee: { select: { firstName: true, lastName: true } } } },
+      comments: {
+        include: { employee: { select: { firstName: true, lastName: true, id: true } } },
+        orderBy: { createdAt: "asc" },
+      },
+    },
   });
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
@@ -26,14 +37,31 @@ export default async function PortalNoticesPage() {
           <p className="text-sm text-zinc-500">No notices published yet.</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {notices.map((n) => (
             <NoticeCard
               key={n.id}
+              noticeId={n.id}
               title={n.title}
               content={n.content}
               publishedAt={n.publishedAt}
+              type={n.type}
+              priority={n.priority}
               isNew={n.publishedAt != null && n.publishedAt > sevenDaysAgo}
+              reactions={n.reactions.map((r) => ({
+                id: r.id,
+                emoji: r.emoji,
+                employeeId: r.employeeId,
+                employeeName: `${r.employee.firstName} ${r.employee.lastName}`,
+              }))}
+              comments={n.comments.map((c) => ({
+                id: c.id,
+                content: c.content,
+                createdAt: c.createdAt,
+                employeeId: c.employeeId,
+                employeeName: `${c.employee.firstName} ${c.employee.lastName}`,
+              }))}
+              currentEmployeeId={empId}
             />
           ))}
         </div>
