@@ -25,6 +25,7 @@ export function EnrollFingerprintButton({ employeeId, enrolled }: { employeeId: 
   return (
     <div className="flex flex-col gap-2">
       <button
+        type="button"
         onClick={handleEnroll}
         disabled={status === "loading"}
         className="rounded-lg bg-yellow-500 hover:bg-yellow-600 disabled:opacity-50 text-white px-4 py-2 text-sm font-medium transition-colors"
