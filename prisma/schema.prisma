@@ -457,6 +457,7 @@ model HRMEmployee {
 
   basicSalary              Decimal?           @db.Decimal(12, 2)
   bankName                 String?
+  bankAccountName          String?
   accountNumber            String?
   iban                     String?
   taxNumber                String?
