@@ -40,6 +40,7 @@ export async function submitRegistration(token: string, data: {
   phone?: string; personalEmail?: string; cnic?: string;
   dateOfBirth?: string; gender?: string; currentAddress?: string;
   emergencyContactName?: string; emergencyContact?: string; emergencyContactRelation?: string;
+  linkedInUrl?: string;
 }) {
   const reg = await prisma.hRMRegistrationToken.findUnique({ where: { token } });
   if (!reg) return { error: "Invalid link" };
@@ -65,6 +66,7 @@ export async function submitRegistration(token: string, data: {
       emergencyContactName: data.emergencyContactName || null,
       emergencyContact: data.emergencyContact || null,
       emergencyContactRelation: data.emergencyContactRelation || null,
+      linkedInUrl: data.linkedInUrl || null,
       status: "INACTIVE", // pending HR approval
     },
   });

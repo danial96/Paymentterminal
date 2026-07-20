@@ -433,6 +433,7 @@ model HRMEmployee {
   emergencyContactRelation String?
   personalEmail            String?
   companyEmail             String?
+  linkedInUrl              String?
 
   currentAddress           String?            @db.Text
   permanentAddress         String?            @db.Text

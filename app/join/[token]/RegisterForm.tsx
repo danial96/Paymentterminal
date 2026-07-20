@@ -25,6 +25,7 @@ export default function RegisterForm({ token }: { token: string }) {
       emergencyContactName: fd.get("emergencyContactName") as string,
       emergencyContact: fd.get("emergencyContact") as string,
       emergencyContactRelation: fd.get("emergencyContactRelation") as string,
+      linkedInUrl: fd.get("linkedInUrl") as string,
     });
     setLoading(false);
     if (result.error) setError(result.error);
@@ -100,6 +101,11 @@ export default function RegisterForm({ token }: { token: string }) {
       <div>
         <label className={labelClass}>Current Address</label>
         <textarea name="currentAddress" rows={2} className={inputClass} placeholder="House #, Street, City" />
+      </div>
+
+      <div>
+        <label className={labelClass}>LinkedIn Profile URL</label>
+        <input name="linkedInUrl" type="url" className={inputClass} placeholder="https://linkedin.com/in/yourname" />
       </div>
 
       <div className="border-t border-white/10 pt-4">

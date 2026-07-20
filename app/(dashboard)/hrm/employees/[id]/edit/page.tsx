@@ -119,6 +119,10 @@ export default async function EditEmployeePage({ params }: { params: Promise<{ i
               <input name="companyEmail" type="email" defaultValue={employee.companyEmail ?? ""} className={inp} />
             </div>
             <div>
+              <label className={lbl}>LinkedIn Profile URL</label>
+              <input name="linkedInUrl" type="url" defaultValue={(employee as any).linkedInUrl ?? ""} className={inp} placeholder="https://linkedin.com/in/name" />
+            </div>
+            <div>
               <label className={lbl}>Emergency Contact</label>
               <input name="emergencyContact" type="tel" defaultValue={employee.emergencyContact ?? ""} className={inp} />
             </div>

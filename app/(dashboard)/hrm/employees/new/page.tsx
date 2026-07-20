@@ -97,6 +97,10 @@ export default async function NewEmployeePage() {
               <input name="companyEmail" type="email" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <div>
+              <label className="block text-xs font-medium text-zinc-700 mb-1">LinkedIn Profile URL</label>
+              <input name="linkedInUrl" type="url" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" placeholder="https://linkedin.com/in/name" />
+            </div>
+            <div>
               <label className="block text-xs font-medium text-zinc-700 mb-1">Emergency Contact</label>
               <input name="emergencyContact" type="tel" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
