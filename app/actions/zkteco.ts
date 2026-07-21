@@ -221,38 +221,41 @@ export async function syncFingerprintStatus() {
       machineUsers.filter((u) => u.userId && u.userId.startsWith("IKIA")).map((u) => u.userId)
     );
 
-    // Get attendance logs — anyone who has punched has a confirmed finger
-    const logs = await getZKAttendanceLogs();
-    const punchedIds = new Set(
-      logs.map((l) => l.user_id?.trim()).filter((id) => id?.startsWith("IKIA"))
-    );
-
-    // Enrolled = in machine user list AND has punched (finger confirmed working)
-    const enrolledIds = [...machineUserIds].filter((id) => punchedIds.has(id));
-    // Not enrolled = either not in machine, or in machine but never punched
-    const allEmpIds = (await prisma.hRMEmployee.findMany({
+    // Mark enrolled=true for everyone in machine (user record = enrolled via portal)
+    // Mark enrolled=false ONLY for those not in machine at all
+    const allEmps = await prisma.hRMEmployee.findMany({
       where: { deletedAt: null },
-      select: { employeeId: true },
-    })).map((e) => e.employeeId);
-    const notEnrolledIds = allEmpIds.filter((id) => !enrolledIds.includes(id));
+      select: { employeeId: true, fingerprintEnrolled: true },
+    });
 
-    if (enrolledIds.length) {
+    const toEnroll = allEmps
+      .filter((e) => machineUserIds.has(e.employeeId) && !e.fingerprintEnrolled)
+      .map((e) => e.employeeId);
+
+    const toUnenroll = allEmps
+      .filter((e) => !machineUserIds.has(e.employeeId) && e.fingerprintEnrolled)
+      .map((e) => e.employeeId);
+
+    if (toEnroll.length) {
       await prisma.hRMEmployee.updateMany({
-        where: { employeeId: { in: enrolledIds } },
+        where: { employeeId: { in: toEnroll } },
         data: { fingerprintEnrolled: true },
       });
     }
-    if (notEnrolledIds.length) {
+    if (toUnenroll.length) {
       await prisma.hRMEmployee.updateMany({
-        where: { employeeId: { in: notEnrolledIds } },
+        where: { employeeId: { in: toUnenroll } },
         data: { fingerprintEnrolled: false },
       });
     }
 
+    const enrolled = allEmps.filter((e) => machineUserIds.has(e.employeeId)).length;
+    const notEnrolled = allEmps.filter((e) => !machineUserIds.has(e.employeeId)).length;
+
     const { revalidatePath } = await import("next/cache");
     revalidatePath("/hrm/employees");
 
-    return { success: true, enrolled: enrolledIds.length, notEnrolled: notEnrolledIds.length };
+    return { success: true, enrolled, notEnrolled };
   } catch (e: unknown) {
     return { success: false, error: e instanceof Error ? e.message : String(e) };
   }
