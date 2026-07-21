@@ -5,6 +5,7 @@ import { FingerprintSyncButton } from "./FingerprintSyncButton";
 import GenerateLinkButton from "./GenerateLinkButton";
 import ApproveButton from "./ApproveButton";
 import { MachineSyncButton } from "./MachineSyncButton";
+import { getLastZKSync } from "@/app/actions/zkteco";
 
 const STATUS_COLORS: Record<string, string> = {
   ACTIVE: "bg-zinc-900 text-white",
@@ -41,8 +42,11 @@ export default async function EmployeesPage({
     include: { department: true, designation: true, shift: true },
   });
 
-  const departments = await prisma.hRMDepartment.findMany({ where: { isActive: true }, orderBy: { name: "asc" } });
-  const pendingEmployees = await prisma.hRMEmployee.findMany({ where: { status: "INACTIVE", deletedAt: null }, orderBy: { createdAt: "desc" } });
+  const [departments, pendingEmployees, lastSync] = await Promise.all([
+    prisma.hRMDepartment.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
+    prisma.hRMEmployee.findMany({ where: { status: "INACTIVE", deletedAt: null }, orderBy: { createdAt: "desc" } }),
+    getLastZKSync(),
+  ]);
 
   return (
     <div className="space-y-4">
@@ -52,7 +56,7 @@ export default async function EmployeesPage({
           <p className="text-sm text-zinc-500">{employees.length} employee{employees.length !== 1 ? "s" : ""}</p>
         </div>
         <div className="flex items-center gap-2">
-          <MachineSyncButton />
+          <MachineSyncButton lastSync={lastSync ? { syncedAt: lastSync.syncedAt, source: lastSync.source, enrolled: lastSync.enrolled } : null} />
           <GenerateLinkButton />
           <Link href="/hrm/employees/new" className="btn-brand rounded-lg px-4 py-2 text-sm font-medium text-white">
             + Add Employee

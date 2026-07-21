@@ -4,7 +4,17 @@ import { useState } from "react";
 import { syncFingerprintStatus } from "@/app/actions/zkteco";
 import { useRouter } from "next/navigation";
 
-export function MachineSyncButton() {
+type LastSync = { syncedAt: Date; source: string; enrolled: number } | null;
+
+function timeAgo(date: Date) {
+  const diff = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+  if (diff < 60) return `${diff}s ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
+}
+
+export function MachineSyncButton({ lastSync }: { lastSync: LastSync }) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const router = useRouter();
@@ -15,13 +25,13 @@ export function MachineSyncButton() {
     try {
       const res = await syncFingerprintStatus();
       if (res.success) {
-        setResult(`✓ Synced — ${res.enrolled} enrolled, ${res.notEnrolled} not enrolled`);
+        setResult(`✓ ${res.enrolled} enrolled`);
         router.refresh();
       } else {
-        setResult(`Error: ${res.error}`);
+        setResult(`✗ ${res.error}`);
       }
-    } catch (e: unknown) {
-      setResult("Connection failed");
+    } catch {
+      setResult("✗ Connection failed");
     }
     setLoading(false);
   }
@@ -38,11 +48,22 @@ export function MachineSyncButton() {
         </svg>
         {loading ? "Syncing..." : "Sync Machine"}
       </button>
-      {result && (
-        <span className={`text-xs ${result.startsWith("✓") ? "text-emerald-600" : "text-red-500"}`}>
-          {result}
-        </span>
-      )}
+
+      <div className="flex flex-col leading-tight">
+        {result && (
+          <span className={`text-xs font-medium ${result.startsWith("✓") ? "text-emerald-600" : "text-red-500"}`}>
+            {result}
+          </span>
+        )}
+        {!result && lastSync && (
+          <span className="text-xs text-zinc-400">
+            Last: {timeAgo(lastSync.syncedAt)}
+            {lastSync.source === "python" && (
+              <span className="ml-1 text-emerald-500 font-medium">(accurate)</span>
+            )}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

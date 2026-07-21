@@ -252,11 +252,23 @@ export async function syncFingerprintStatus() {
     const enrolled = allEmps.filter((e) => machineUserIds.has(e.employeeId)).length;
     const notEnrolled = allEmps.filter((e) => !machineUserIds.has(e.employeeId)).length;
 
+    await (prisma as any).zKSyncLog.create({
+      data: { enrolled, notEnrolled, source: "node" },
+    });
+
     const { revalidatePath } = await import("next/cache");
     revalidatePath("/hrm/employees");
 
     return { success: true, enrolled, notEnrolled };
   } catch (e: unknown) {
     return { success: false, error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
+export async function getLastZKSync() {
+  try {
+    return await (prisma as any).zKSyncLog.findFirst({ orderBy: { syncedAt: "desc" } });
+  } catch {
+    return null;
   }
 }
