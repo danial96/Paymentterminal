@@ -101,18 +101,28 @@ export default function NavSidebar({
   const pathname = usePathname();
   const [paymentOpen, setPaymentOpen] = useState(pathname.startsWith("/admin/stripe-accounts") || pathname.startsWith("/invoices") || pathname.startsWith("/admin/bank-accounts"));
   const [hrmOpen, setHrmOpen] = useState(hrmOnly || pathname.startsWith("/hrm"));
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   function isActive(href: string) {
     if (href === "/dashboard") return pathname === "/dashboard";
     return pathname.startsWith(href);
   }
 
-  return (
-    <aside className="flex w-56 flex-col min-h-screen" style={{ background: "#141516", color: "#ffffff" }}>
+  const sidebarContent = (
+    <aside className="flex w-56 flex-col h-full" style={{ background: "#141516", color: "#ffffff" }}>
       {/* Logo */}
-      <div className="flex items-center justify-center px-4 py-4 border-b border-white/10">
+      <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo-white.png" alt="IKIA TECH" style={{ height: "48px", objectFit: "contain" }} />
+        {/* Close button on mobile */}
+        <button
+          className="lg:hidden text-white/40 hover:text-white p-1"
+          onClick={() => setMobileOpen(false)}
+        >
+          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
 
       {/* Nav */}
@@ -121,6 +131,7 @@ export default function NavSidebar({
           <Link
             key={link.href}
             href={link.href}
+            onClick={() => setMobileOpen(false)}
             className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
               isActive(link.href)
                 ? "text-white font-medium shadow-sm brand-active"
@@ -137,14 +148,13 @@ export default function NavSidebar({
         {isAdmin && (
           <>
             <div className="mt-4 mb-1 px-3">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-white/30">
-                Admin
-              </p>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-white/30">Admin</p>
             </div>
             {adminLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
+                onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
                   isActive(link.href)
                     ? "brand-active text-white font-medium shadow-sm"
@@ -214,6 +224,7 @@ export default function NavSidebar({
                   <Link
                     key={href}
                     href={href}
+                    onClick={() => setMobileOpen(false)}
                     className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-all ${
                       (href === "/hrm" ? pathname === "/hrm" : pathname.startsWith(href))
                         ? "text-white font-medium brand-active"
@@ -230,7 +241,7 @@ export default function NavSidebar({
           </div>
         )}
 
-        {/* Payment Terminal — visible to admins + invoice-permission users */}
+        {/* Payment Terminal */}
         {(isAdmin || hasInvoicesPermission) && (
           <div className="mt-2">
             <button
@@ -257,10 +268,9 @@ export default function NavSidebar({
               <div className="ml-4 mt-0.5 flex flex-col gap-0.5 border-l border-white/10 pl-3">
                 <Link
                   href="/invoices"
+                  onClick={() => setMobileOpen(false)}
                   className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-all ${
-                    isActive("/invoices")
-                      ? "brand-active text-white font-medium"
-                      : "text-white/50 hover:bg-white/10 hover:text-white"
+                    isActive("/invoices") ? "brand-active text-white font-medium" : "text-white/50 hover:bg-white/10 hover:text-white"
                   }`}
                 >
                   <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -272,10 +282,9 @@ export default function NavSidebar({
                   <>
                     <Link
                       href="/admin/stripe-accounts"
+                      onClick={() => setMobileOpen(false)}
                       className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-all ${
-                        isActive("/admin/stripe-accounts")
-                          ? "brand-active text-white font-medium"
-                          : "text-white/50 hover:bg-white/10 hover:text-white"
+                        isActive("/admin/stripe-accounts") ? "brand-active text-white font-medium" : "text-white/50 hover:bg-white/10 hover:text-white"
                       }`}
                     >
                       <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -285,10 +294,9 @@ export default function NavSidebar({
                     </Link>
                     <Link
                       href="/admin/bank-accounts"
+                      onClick={() => setMobileOpen(false)}
                       className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-all ${
-                        isActive("/admin/bank-accounts")
-                          ? "brand-active text-white font-medium"
-                          : "text-white/50 hover:bg-white/10 hover:text-white"
+                        isActive("/admin/bank-accounts") ? "brand-active text-white font-medium" : "text-white/50 hover:bg-white/10 hover:text-white"
                       }`}
                     >
                       <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -318,5 +326,43 @@ export default function NavSidebar({
         <SignOutButton />
       </div>
     </aside>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <div className="hidden lg:flex lg:w-56 lg:flex-col lg:min-h-screen shrink-0">
+        {sidebarContent}
+      </div>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setMobileOpen(false)}
+          />
+          {/* Drawer */}
+          <div className="absolute left-0 top-0 h-full w-56 z-50">
+            {sidebarContent}
+          </div>
+        </div>
+      )}
+
+      {/* Mobile hamburger button — rendered inside layout header via context trick */}
+      {/* We expose a toggle fn via a global button rendered in children slot */}
+      <button
+        id="sidebar-toggle"
+        className="lg:hidden fixed bottom-4 right-4 z-30 flex h-12 w-12 items-center justify-center rounded-full shadow-lg text-white"
+        style={{ background: "linear-gradient(135deg, #29c0d5 0%, #503d98 100%)" }}
+        onClick={() => setMobileOpen((o) => !o)}
+        aria-label="Open menu"
+      >
+        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </>
   );
 }

@@ -153,6 +153,7 @@ export default async function DashboardPage() {
             Read more &rarr;
           </Link>
         </div>
+        <div className="overflow-x-auto">
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="border-b border-zinc-200 bg-zinc-50 text-left text-xs uppercase text-zinc-500">
@@ -175,6 +176,7 @@ export default async function DashboardPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       <div className="rounded-lg border border-zinc-200 bg-white">
@@ -184,6 +186,7 @@ export default async function DashboardPage() {
             Read more &rarr;
           </Link>
         </div>
+        <div className="overflow-x-auto">
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="border-b border-zinc-200 bg-zinc-50 text-left text-xs uppercase text-zinc-500">
@@ -234,13 +237,14 @@ export default async function DashboardPage() {
             })}
           </tbody>
         </table>
+        </div>
       </div>
 
       <div className="rounded-lg border border-zinc-200 bg-white">
         <div className="border-b border-zinc-200 px-4 py-3">
           <h2 className="text-sm font-semibold text-zinc-900">Upsell Opportunities</h2>
         </div>
-        <div className="grid grid-cols-3 gap-4 p-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4">
           {missingByType.map((group) => (
             <div key={group.serviceType}>
               <p className="mb-2 text-xs font-semibold uppercase text-zinc-500">
