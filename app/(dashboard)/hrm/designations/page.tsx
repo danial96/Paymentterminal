@@ -2,6 +2,7 @@ import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import { createDesignation, deleteDesignation, updateDesignationRoles } from "@/app/actions/hrm-departments";
 import { DeleteButton } from "@/app/(dashboard)/hrm/components/DeleteButton";
+import { SubmitButton } from "@/app/components/SubmitButton";
 
 const CRM_ROLES = [
   { value: "front_seller",          label: "Front Sales" },
@@ -61,7 +62,7 @@ export default async function DesignationsPage() {
                 {HRM_ROLES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
               </select>
             </div>
-            <button type="submit" className="btn-brand w-full rounded-lg py-2 text-sm font-medium text-white">Add Designation</button>
+            <SubmitButton className="btn-brand w-full rounded-lg py-2 text-sm font-medium text-white" pendingText="Adding...">Add Designation</SubmitButton>
           </form>
         </div>
 
@@ -96,7 +97,7 @@ export default async function DesignationsPage() {
                   <select name="crmHrmRole" defaultValue={d.crmHrmRole ?? ""} className="rounded border border-zinc-200 px-2 py-1 text-xs text-zinc-700 focus:outline-none focus:ring-1 focus:ring-zinc-400">
                     {HRM_ROLES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
                   </select>
-                  <button type="submit" className="rounded px-2 py-1 text-xs font-medium bg-zinc-100 hover:bg-zinc-200 text-zinc-700">Save</button>
+                  <SubmitButton className="rounded px-2 py-1 text-xs font-medium bg-zinc-100 hover:bg-zinc-200 text-zinc-700" pendingText="Saving...">Save</SubmitButton>
                 </form>
               </div>
             ))}

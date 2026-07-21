@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import { createHoliday, deleteHoliday } from "@/app/actions/hrm-holidays";
 import { DeleteButton } from "@/app/(dashboard)/hrm/components/DeleteButton";
+import { SubmitButton } from "@/app/components/SubmitButton";
 
 const TYPE_COLORS: Record<string, string> = {
   NATIONAL: "bg-zinc-200 text-zinc-600",
@@ -59,7 +60,7 @@ export default async function HolidaysPage() {
               <label className="block text-xs font-medium text-zinc-700 mb-1">Description</label>
               <input name="description" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
-            <button type="submit" className="btn-brand w-full rounded-lg py-2 text-sm font-medium text-white">Add Holiday</button>
+            <SubmitButton className="btn-brand w-full rounded-lg py-2 text-sm font-medium text-white" pendingText="Adding...">Add Holiday</SubmitButton>
           </form>
         </div>
 

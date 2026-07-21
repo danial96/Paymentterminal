@@ -1,6 +1,7 @@
 import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import { createNotice, deleteNotice, publishNotice } from "@/app/actions/hrm-notices";
+import { SubmitButton } from "@/app/components/SubmitButton";
 import { DeleteButton } from "@/app/(dashboard)/hrm/components/DeleteButton";
 
 const PRIORITY_STYLES: Record<string, string> = {
@@ -95,9 +96,9 @@ export default async function NoticesPage() {
                 <input name="isPublished" type="checkbox" value="true" id="publish" className="rounded border-zinc-300" />
                 <span className="text-sm text-zinc-700">Publish immediately</span>
               </label>
-              <button type="submit" className="btn-brand w-full rounded-lg py-2.5 text-sm font-semibold text-white">
+              <SubmitButton className="btn-brand w-full rounded-lg py-2.5 text-sm font-semibold text-white" pendingText="Posting...">
                 Post Notice
-              </button>
+              </SubmitButton>
             </form>
           </div>
         </div>
@@ -152,9 +153,9 @@ function NoticeRow({ n, isDraft }: { n: any; isDraft: boolean }) {
         <div className="flex items-center gap-1 shrink-0">
           {isDraft && (
             <form action={publishNotice.bind(null, n.id)}>
-              <button type="submit" className="rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50 transition-colors">
+              <SubmitButton className="rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50 transition-colors" pendingText="Publishing...">
                 Publish
-              </button>
+              </SubmitButton>
             </form>
           )}
           <form action={deleteNotice.bind(null, n.id)}>

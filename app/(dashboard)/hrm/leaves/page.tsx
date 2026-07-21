@@ -1,6 +1,7 @@
 ﻿import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import { approveLeave, rejectLeaveWithReason, applyLeave, addLeaveManually } from "@/app/actions/hrm-leaves";
+import { SubmitButton } from "@/app/components/SubmitButton";
 
 const STATUS_COLORS: Record<string, string> = {
   PENDING: "bg-zinc-200 text-zinc-700",
@@ -66,7 +67,7 @@ export default async function LeavesPage({
               <input name="endDate" type="date" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <input name="reason" placeholder="Reason (optional)" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
-            <button type="submit" className="btn-brand rounded-md px-4 py-2 text-sm font-medium text-white w-full">Submit for Approval</button>
+            <SubmitButton className="btn-brand rounded-md px-4 py-2 text-sm font-medium text-white w-full" pendingText="Submitting...">Submit for Approval</SubmitButton>
           </form>
         </div>
 
@@ -92,7 +93,7 @@ export default async function LeavesPage({
               <input name="endDate" type="date" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
             <input name="reason" placeholder="Reason / Note (optional)" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
-            <button type="submit" className="w-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">Add & Approve Directly</button>
+            <SubmitButton className="w-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700" pendingText="Adding...">Add & Approve Directly</SubmitButton>
           </form>
         </div>
       </div>
@@ -157,7 +158,7 @@ export default async function LeavesPage({
                   {leave.status === "PENDING" && (
                     <div className="flex flex-col gap-1.5">
                       <form action={approveLeave.bind(null, leave.id, Number(user.id))}>
-                        <button type="submit" className="text-xs text-zinc-700 hover:text-zinc-800 font-medium">Approve</button>
+                        <SubmitButton className="text-xs text-zinc-700 hover:text-zinc-800 font-medium" pendingText="Approving...">Approve</SubmitButton>
                       </form>
                       <form action={rejectLeaveWithReason} className="flex items-center gap-1">
                         <input type="hidden" name="id" value={leave.id} />
@@ -166,7 +167,7 @@ export default async function LeavesPage({
                           placeholder="Reason (optional)"
                           className="w-28 rounded border border-zinc-200 px-1.5 py-0.5 text-[11px] text-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-300"
                         />
-                        <button type="submit" className="text-xs text-red-500 hover:text-red-700 font-medium">Reject</button>
+                        <SubmitButton className="text-xs text-red-500 hover:text-red-700 font-medium" pendingText="Rejecting...">Reject</SubmitButton>
                       </form>
                     </div>
                   )}
