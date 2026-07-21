@@ -31,6 +31,7 @@ export default async function HRMDashboard() {
     recentEmployees,
     pendingLeaveList,
     upcomingBirthdays,
+    upcomingAnniversaries,
     recentNotices,
   ] = await Promise.all([
     prisma.hRMEmployee.count({ where: { deletedAt: null } }),
@@ -56,6 +57,10 @@ export default async function HRMDashboard() {
       where: { deletedAt: null, dateOfBirth: { not: null } },
       select: { id: true, firstName: true, lastName: true, dateOfBirth: true, department: { select: { name: true } } },
     }),
+    prisma.hRMEmployee.findMany({
+      where: { deletedAt: null, joiningDate: { not: null } },
+      select: { id: true, firstName: true, lastName: true, joiningDate: true, designation: { select: { name: true } } },
+    }),
     prisma.hRMNotice.findMany({
       where: { isPublished: true },
       orderBy: { publishedAt: "desc" },
@@ -76,6 +81,21 @@ export default async function HRMDashboard() {
     })
     .filter(Boolean)
     .sort((a, b) => (a!.daysLeft - b!.daysLeft))
+    .slice(0, 5);
+
+  // Work anniversaries (next 30 days)
+  const anniversaries = upcomingAnniversaries
+    .map((e) => {
+      if (!e.joiningDate) return null;
+      const jd = new Date(e.joiningDate);
+      const nextAnniv = new Date(now.getFullYear(), jd.getMonth(), jd.getDate());
+      if (nextAnniv < now) nextAnniv.setFullYear(now.getFullYear() + 1);
+      const diff = (nextAnniv.getTime() - now.getTime()) / 86400000;
+      const years = nextAnniv.getFullYear() - jd.getFullYear();
+      return diff <= 30 ? { ...e, daysLeft: Math.ceil(diff), nextAnniv, years } : null;
+    })
+    .filter(Boolean)
+    .sort((a, b) => a!.daysLeft - b!.daysLeft)
     .slice(0, 5);
 
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -186,6 +206,29 @@ export default async function HRMDashboard() {
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-medium text-zinc-900">{e.firstName} {e.lastName}</p>
                     <p className="text-[10px] text-zinc-400">{e.nextBday?.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</p>
+                  </div>
+                  <span className="text-[10px] font-medium text-zinc-500">{e.daysLeft === 0 ? "Today!" : `${e.daysLeft}d`}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
+            <div className="px-4 py-3 border-b border-zinc-100">
+              <h2 className="text-sm font-semibold text-zinc-900">Work Anniversaries 🎉</h2>
+            </div>
+            <div className="divide-y divide-zinc-50">
+              {anniversaries.length === 0 && (
+                <p className="px-4 py-4 text-center text-sm text-zinc-400">None in next 30 days</p>
+              )}
+              {anniversaries.map((e) => e && (
+                <div key={e.id} className="flex items-center gap-3 px-4 py-2.5">
+                  <div className="h-7 w-7 rounded-full bg-zinc-100 flex items-center justify-center text-xs font-bold text-zinc-600 shrink-0">
+                    {e.firstName[0]}{e.lastName[0]}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium text-zinc-900">{e.firstName} {e.lastName}</p>
+                    <p className="text-[10px] text-zinc-400">{e.years} year{e.years !== 1 ? "s" : ""} · {e.nextAnniv?.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</p>
                   </div>
                   <span className="text-[10px] font-medium text-zinc-500">{e.daysLeft === 0 ? "Today!" : `${e.daysLeft}d`}</span>
                 </div>

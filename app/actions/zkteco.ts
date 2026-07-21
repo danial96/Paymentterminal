@@ -272,3 +272,13 @@ export async function getLastZKSync() {
     return null;
   }
 }
+
+export async function updateComplaintStatus(formData: FormData) {
+  await requireUser();
+  const id = Number(formData.get("id"));
+  const status = String(formData.get("status"));
+  const hrNote = String(formData.get("hrNote") ?? "").trim() || null;
+  await (prisma as any).hRMComplaint.update({ where: { id }, data: { status, hrNote } });
+  const { revalidatePath } = await import("next/cache");
+  revalidatePath("/hrm/complaints");
+}

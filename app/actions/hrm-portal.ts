@@ -138,3 +138,15 @@ export async function portalChangePassword(formData: FormData) {
   });
   revalidatePath("/portal/profile");
 }
+
+export async function portalSubmitComplaint(formData: FormData) {
+  const { employeeId } = await requireEmployee();
+  const title = String(formData.get("title") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+  const category = String(formData.get("category") ?? "").trim() || null;
+  if (!title || !description) throw new Error("Title and description are required");
+  await (prisma as any).hRMComplaint.create({
+    data: { employeeId, title, description, category },
+  });
+  revalidatePath("/portal/complaints");
+}
