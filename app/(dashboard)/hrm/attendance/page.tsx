@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import ManualMarkForm from "./ManualMarkForm";
 import { AttendanceSearch } from "./AttendanceSearch";
+import { MachineSyncButton } from "../employees/MachineSyncButton";
+import { getLastZKSync } from "@/app/actions/zkteco";
 import { Suspense } from "react";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -46,7 +48,7 @@ export default async function AttendancePage({
     ],
   } : {};
 
-  const [employees, departments, attendanceRecords] = await Promise.all([
+  const [employees, departments, attendanceRecords, lastSync] = await Promise.all([
     prisma.hRMEmployee.findMany({
       where: {
         deletedAt: null,
@@ -65,6 +67,7 @@ export default async function AttendancePage({
         ...(q ? { employee: nameFilter } : {}),
       },
     }),
+    getLastZKSync(),
   ]);
 
   const attendanceMap = new Map(attendanceRecords.map((a) => [a.employeeId, a]));
@@ -90,7 +93,10 @@ export default async function AttendancePage({
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-zinc-900">Attendance</h1>
-        <p className="text-sm text-zinc-500">{selectedDate.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p>
+        <div className="flex items-center gap-3">
+          <MachineSyncButton lastSync={lastSync ? { syncedAt: lastSync.syncedAt, source: lastSync.source, enrolled: lastSync.enrolled } : null} />
+          <p className="text-sm text-zinc-500">{selectedDate.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p>
+        </div>
       </div>
 
       {/* Stats */}
