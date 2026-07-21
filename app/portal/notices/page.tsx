@@ -11,27 +11,42 @@ export default async function PortalNoticesPage() {
   // (HRMNoticeReaction, HRMCommentReaction, parentId added after last cache snapshot)
   const db = prisma as any;
 
-  const notices: any[] = await db.hRMNotice.findMany({
-    where: { isPublished: true },
-    orderBy: { publishedAt: "desc" },
-    include: {
-      reactions: { include: { employee: { select: { firstName: true, lastName: true } } } },
-      comments: {
-        include: {
-          employee: { select: { firstName: true, lastName: true, id: true } },
-          reactions: { include: { employee: { select: { firstName: true, lastName: true } } } },
-          replies: {
-            include: {
-              employee: { select: { firstName: true, lastName: true, id: true } },
-              reactions: { include: { employee: { select: { firstName: true, lastName: true } } } },
+  let notices: any[] = [];
+  try {
+    notices = await db.hRMNotice.findMany({
+      where: { isPublished: true },
+      orderBy: { publishedAt: "desc" },
+      include: {
+        reactions: { include: { employee: { select: { firstName: true, lastName: true } } } },
+        comments: {
+          include: {
+            employee: { select: { firstName: true, lastName: true, id: true } },
+            reactions: { include: { employee: { select: { firstName: true, lastName: true } } } },
+            replies: {
+              include: {
+                employee: { select: { firstName: true, lastName: true, id: true } },
+                reactions: { include: { employee: { select: { firstName: true, lastName: true } } } },
+              },
+              orderBy: { createdAt: "asc" },
             },
-            orderBy: { createdAt: "asc" },
           },
+          orderBy: { createdAt: "asc" },
         },
-        orderBy: { createdAt: "asc" },
       },
-    },
-  });
+    });
+  } catch {
+    // Fallback if new relations not yet in production DB
+    notices = await db.hRMNotice.findMany({
+      where: { isPublished: true },
+      orderBy: { publishedAt: "desc" },
+      include: {
+        comments: {
+          include: { employee: { select: { firstName: true, lastName: true, id: true } } },
+          orderBy: { createdAt: "asc" },
+        },
+      },
+    });
+  }
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
