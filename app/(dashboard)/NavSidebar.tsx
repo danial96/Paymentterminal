@@ -126,7 +126,7 @@ export default function NavSidebar({
       </div>
 
       {/* Nav */}
-      <nav className="flex flex-1 flex-col gap-0.5 px-2 py-3 text-sm overflow-y-auto min-h-0">
+      <nav className="sidebar-scroll flex flex-1 flex-col gap-0.5 px-2 py-3 text-sm overflow-y-auto min-h-0">
         {navLinks.map((link) => (
           <Link
             key={link.href}

@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+/* Sidebar scrollbar */
+nav.sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+nav.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+nav.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #29c0d5, #503d98);
+  border-radius: 99px;
+}
+nav.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #1eaec2, #3d2e7a);
+}
+
 /* Enable dark mode via .dark class on <html> */
 @custom-variant dark (&:where(.dark, .dark *));
 
