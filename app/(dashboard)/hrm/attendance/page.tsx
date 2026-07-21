@@ -2,6 +2,8 @@ import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import ManualMarkForm from "./ManualMarkForm";
+import { AttendanceSearch } from "./AttendanceSearch";
+import { Suspense } from "react";
 
 const STATUS_COLORS: Record<string, string> = {
   PRESENT:    "bg-emerald-100 text-emerald-700",
@@ -36,21 +38,23 @@ export default async function AttendancePage({
   selectedDate.setHours(0, 0, 0, 0);
   const selectedStr = selectedDate.toISOString().split("T")[0];
 
-  const [employees, departments, attendanceRecords, recentActivity] = await Promise.all([
+  const nameFilter = q ? {
+    OR: [
+      { firstName: { contains: q } },
+      { lastName: { contains: q } },
+      { employeeId: { contains: q } },
+    ],
+  } : {};
+
+  const [employees, departments, attendanceRecords] = await Promise.all([
     prisma.hRMEmployee.findMany({
       where: {
         deletedAt: null,
         status: "ACTIVE",
         ...(dept ? { departmentId: Number(dept) } : {}),
-        ...(q ? {
-          OR: [
-            { firstName: { contains: q } },
-            { lastName: { contains: q } },
-            { employeeId: { contains: q } },
-          ],
-        } : {}),
+        ...nameFilter,
       },
-      include: { department: true, designation: true },
+      include: { department: true },
       orderBy: { firstName: "asc" },
     }),
     prisma.hRMDepartment.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
@@ -58,25 +62,25 @@ export default async function AttendancePage({
       where: {
         date: selectedDate,
         ...(dept ? { employee: { departmentId: Number(dept) } } : {}),
-        ...(q ? {
-          employee: {
-            OR: [
-              { firstName: { contains: q } },
-              { lastName: { contains: q } },
-              { employeeId: { contains: q } },
-            ],
-          },
-        } : {}),
+        ...(q ? { employee: nameFilter } : {}),
       },
-    }),
-    prisma.hRMAttendance.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 8,
-      include: { employee: { select: { firstName: true, lastName: true, employeeId: true } } },
     }),
   ]);
 
   const attendanceMap = new Map(attendanceRecords.map((a) => [a.employeeId, a]));
+
+  // Sort: checked-in employees first (by checkIn desc), then rest alphabetically
+  const sorted = [...employees].sort((a, b) => {
+    const attA = attendanceMap.get(a.id);
+    const attB = attendanceMap.get(b.id);
+    if (attA?.checkIn && attB?.checkIn) {
+      return new Date(attB.checkIn).getTime() - new Date(attA.checkIn).getTime();
+    }
+    if (attA?.checkIn) return -1;
+    if (attB?.checkIn) return 1;
+    return 0;
+  });
+
   const presentCount = attendanceRecords.filter((a) => a.status === "PRESENT" || a.status === "LATE").length;
   const absentCount = employees.filter((e) => !attendanceMap.has(e.id) || attendanceMap.get(e.id)?.status === "ABSENT").length;
   const lateCount = attendanceRecords.filter((a) => a.status === "LATE").length;
@@ -87,38 +91,6 @@ export default async function AttendancePage({
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-zinc-900">Attendance</h1>
         <p className="text-sm text-zinc-500">{selectedDate.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p>
-      </div>
-
-      {/* Recent Activity */}
-      <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
-        <div className="px-4 py-3 border-b border-zinc-100">
-          <h2 className="text-sm font-semibold text-zinc-900">Recent Activity</h2>
-        </div>
-        <div className="divide-y divide-zinc-50">
-          {recentActivity.length === 0 && (
-            <p className="px-4 py-6 text-center text-sm text-zinc-400">No recent records</p>
-          )}
-          {recentActivity.map((a) => (
-            <div key={a.id} className="flex items-center gap-3 px-4 py-2.5">
-              <div className="h-7 w-7 rounded-full bg-zinc-100 flex items-center justify-center text-[10px] font-bold text-zinc-600 shrink-0">
-                {a.employee.firstName[0]}{a.employee.lastName[0]}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-zinc-900">{a.employee.firstName} {a.employee.lastName}
-                  <span className="ml-1.5 font-normal text-zinc-400">{a.employee.employeeId}</span>
-                </p>
-                <p className="text-[10px] text-zinc-400">
-                  {new Date(a.date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
-                  {a.checkIn && <> · In: <span className="font-mono">{fmtTime(a.checkIn)}</span></>}
-                  {a.checkOut && <> · Out: <span className="font-mono">{fmtTime(a.checkOut)}</span></>}
-                </p>
-              </div>
-              <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${STATUS_COLORS[a.status] ?? "bg-zinc-100 text-zinc-500"}`}>
-                {a.status.replace("_", " ")}
-              </span>
-            </div>
-          ))}
-        </div>
       </div>
 
       {/* Stats */}
@@ -144,12 +116,9 @@ export default async function AttendancePage({
           defaultValue={selectedStr}
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400"
         />
-        <input
-          name="q"
-          defaultValue={q}
-          placeholder="Search employee name or ID…"
-          className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400 w-56"
-        />
+        <Suspense>
+          <AttendanceSearch defaultValue={q} />
+        </Suspense>
         <select name="dept" defaultValue={dept} className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
           <option value="">All Departments</option>
           {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
@@ -160,7 +129,7 @@ export default async function AttendancePage({
 
       {/* Attendance Table */}
       <div className="rounded-xl border border-zinc-200 bg-white">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-100">
+        <div className="px-4 py-3 border-b border-zinc-100">
           <h2 className="text-sm font-semibold text-zinc-900">
             {selectedDate.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} — {employees.length} employee{employees.length !== 1 ? "s" : ""}
           </h2>
@@ -181,10 +150,10 @@ export default async function AttendancePage({
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100">
-              {employees.length === 0 && (
+              {sorted.length === 0 && (
                 <tr><td colSpan={9} className="px-4 py-10 text-center text-zinc-400">No employees found</td></tr>
               )}
-              {employees.map((emp) => {
+              {sorted.map((emp) => {
                 const att = attendanceMap.get(emp.id);
                 return (
                   <tr key={emp.id} className="hover:bg-zinc-50">
