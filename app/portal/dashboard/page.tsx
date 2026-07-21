@@ -6,15 +6,6 @@ import { AttendanceCheckIn } from "./AttendanceCheckIn";
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
-function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
-  return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-4">
-      <p className={`text-2xl font-bold ${color}`}>{value}</p>
-      <p className="text-xs text-zinc-500 mt-0.5">{label}</p>
-    </div>
-  );
-}
-
 export default async function PortalDashboard() {
   const session = await auth();
   const empId = Number((session?.user as any)?.employeeId);
@@ -69,7 +60,6 @@ export default async function PortalDashboard() {
 
   const initials = `${employee?.firstName?.[0] ?? ""}${employee?.lastName?.[0] ?? ""}`.toUpperCase();
 
-  // Upcoming birthdays (next 30 days)
   const upcomingBirthdays = allEmployees
     .filter((e) => e.dateOfBirth)
     .map((e) => {
@@ -83,7 +73,6 @@ export default async function PortalDashboard() {
     .sort((a, b) => a!.daysLeft - b!.daysLeft)
     .slice(0, 5);
 
-  // Upcoming work anniversaries (next 30 days)
   const upcomingAnniversaries = allEmployees
     .filter((e) => e.joiningDate)
     .map((e) => {
@@ -92,104 +81,136 @@ export default async function PortalDashboard() {
       if (next < now) next.setFullYear(now.getFullYear() + 1);
       const diff = Math.ceil((next.getTime() - now.getTime()) / 86400000);
       const years = next.getFullYear() - jd.getFullYear();
-      return diff <= 30 ? { ...e, daysLeft: diff, next, years } : null;
+      return diff <= 30 && years > 0 ? { ...e, daysLeft: diff, next, years } : null;
     })
     .filter(Boolean)
     .sort((a, b) => a!.daysLeft - b!.daysLeft)
     .slice(0, 5);
 
-  return (
-    <div className="space-y-6">
+  const wh = todayRecord?.workingHours ? Number(todayRecord.workingHours) : null;
+  const whStr = wh !== null ? `${Math.floor(wh)}h ${Math.round((wh % 1) * 60)}m` : null;
 
-      {/* Profile card */}
-      <div className="rounded-xl border border-zinc-200 bg-white p-5">
-        <div className="flex items-center gap-4">
-          <div
-            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white"
-            style={{ background: "linear-gradient(135deg, #29c0d5 0%, #503d98 100%)" }}
-          >
-            {initials}
-          </div>
-          <div className="min-w-0">
-            <h1 className="text-lg font-bold text-zinc-900">
-              {employee?.firstName} {employee?.lastName}
-            </h1>
-            <p className="text-sm text-zinc-500">
-              {employee?.designation?.name ?? "—"}
-              {employee?.department?.name ? ` · ${employee.department.name}` : ""}
-            </p>
-            <p className="text-xs text-zinc-400 mt-0.5">{employee?.employeeId}</p>
-          </div>
-          <div className="ml-auto hidden md:grid grid-cols-2 gap-x-8 gap-y-1 text-right">
-            <div>
-              <p className="text-[10px] text-zinc-400 uppercase tracking-wide">Joined</p>
-              <p className="text-xs font-medium text-zinc-700">
-                {employee?.joiningDate ? new Date(employee.joiningDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—"}
-              </p>
+  return (
+    <div className="space-y-5 max-w-5xl">
+
+      {/* ── Profile banner ─────────────────────────────────────────── */}
+      <div className="rounded-2xl overflow-hidden">
+        <div className="h-20 w-full" style={{ background: "linear-gradient(135deg, #29c0d5 0%, #503d98 100%)" }} />
+        <div className="bg-white border border-zinc-200 border-t-0 rounded-b-2xl px-6 pb-5">
+          <div className="flex items-end gap-4 -mt-8">
+            <div
+              className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border-4 border-white text-lg font-bold text-white shadow-md"
+              style={{ background: "linear-gradient(135deg, #29c0d5 0%, #503d98 100%)" }}
+            >
+              {initials}
             </div>
-            <div>
-              <p className="text-[10px] text-zinc-400 uppercase tracking-wide">Type</p>
-              <p className="text-xs font-medium text-zinc-700">{employee?.employmentType?.replace("_", " ") ?? "—"}</p>
+            <div className="pb-1 flex-1 min-w-0">
+              <h1 className="text-base font-bold text-zinc-900 leading-tight">{employee?.firstName} {employee?.lastName}</h1>
+              <p className="text-xs text-zinc-500">{employee?.designation?.name ?? "—"}{employee?.department?.name ? ` · ${employee.department.name}` : ""}</p>
             </div>
-            <div>
-              <p className="text-[10px] text-zinc-400 uppercase tracking-wide">Email</p>
-              <p className="text-xs font-medium text-zinc-700">{employee?.companyEmail ?? employee?.portalEmail ?? "—"}</p>
-            </div>
-            <div>
-              <p className="text-[10px] text-zinc-400 uppercase tracking-wide">Status</p>
-              <span className="inline-block rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold text-green-700">{employee?.status ?? "—"}</span>
+            <div className="pb-1 hidden sm:flex items-center gap-6 text-right">
+              <div>
+                <p className="text-[10px] text-zinc-400 uppercase tracking-wide">ID</p>
+                <p className="text-xs font-semibold text-zinc-700">{employee?.employeeId}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-zinc-400 uppercase tracking-wide">Type</p>
+                <p className="text-xs font-semibold text-zinc-700">{employee?.employmentType?.replace("_", " ") ?? "—"}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-zinc-400 uppercase tracking-wide">Joined</p>
+                <p className="text-xs font-semibold text-zinc-700">
+                  {employee?.joiningDate ? new Date(employee.joiningDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—"}
+                </p>
+              </div>
+              <span className="inline-flex items-center rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-[11px] font-semibold text-emerald-700">
+                ● {employee?.status ?? "—"}
+              </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Today's attendance */}
-      <div className="rounded-xl border border-zinc-200 bg-white p-5">
-        <div className="flex items-center justify-between mb-3">
+      {/* ── Today's attendance ─────────────────────────────────────── */}
+      <div className="rounded-2xl border border-zinc-200 bg-white p-5">
+        <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-semibold text-zinc-900">Today&apos;s Attendance</h2>
           <span className="text-xs text-zinc-400">{DAYS[now.getDay()]}, {now.getDate()} {MONTHS[now.getMonth()]} {now.getFullYear()}</span>
+        </div>
+        <div className="flex items-stretch gap-3 mb-4 flex-wrap">
+          {[
+            { label: "Check In", value: todayRecord?.checkIn ? new Date(todayRecord.checkIn).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null },
+            { label: "Check Out", value: todayRecord?.checkOut ? new Date(todayRecord.checkOut).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null },
+            { label: "Hours", value: whStr },
+          ].map(({ label, value }) => (
+            <div key={label} className="flex-1 min-w-[90px] rounded-xl bg-zinc-50 border border-zinc-100 px-4 py-3">
+              <p className="text-[10px] font-medium text-zinc-400 uppercase tracking-wide mb-1">{label}</p>
+              <p className={`text-base font-bold ${value ? "text-zinc-900" : "text-zinc-300"}`}>{value ?? "—"}</p>
+            </div>
+          ))}
+          {todayRecord?.status && (
+            <div className="flex-1 min-w-[90px] rounded-xl bg-zinc-50 border border-zinc-100 px-4 py-3">
+              <p className="text-[10px] font-medium text-zinc-400 uppercase tracking-wide mb-1">Status</p>
+              <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                todayRecord.status === "PRESENT" ? "bg-emerald-100 text-emerald-700" :
+                todayRecord.status === "LATE" ? "bg-yellow-100 text-yellow-700" :
+                todayRecord.status === "ON_LEAVE" ? "bg-blue-100 text-blue-700" :
+                "bg-red-100 text-red-700"
+              }`}>{todayRecord.status.replace("_", " ")}</span>
+            </div>
+          )}
         </div>
         <AttendanceCheckIn
           hasCheckedIn={!!todayRecord?.checkIn}
           hasCheckedOut={!!todayRecord?.checkOut}
-          checkInTime={todayRecord?.checkIn ? new Date(todayRecord.checkIn).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null}
-          checkOutTime={todayRecord?.checkOut ? new Date(todayRecord.checkOut).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null}
+          checkInTime={null}
+          checkOutTime={null}
           status={todayRecord?.status ?? null}
-          workingHours={todayRecord?.workingHours ? String(todayRecord.workingHours) : null}
+          workingHours={null}
         />
       </div>
 
-      {/* This month stats */}
+      {/* ── Monthly stats ──────────────────────────────────────────── */}
       <div>
-        <h2 className="text-sm font-semibold text-zinc-700 mb-3">{MONTHS[now.getMonth()]} {now.getFullYear()} Summary</h2>
+        <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-3">{MONTHS[now.getMonth()]} {now.getFullYear()} Summary</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <StatCard label="Present" value={presentCount} color="text-green-600" />
-          <StatCard label="Absent" value={absentCount} color="text-red-500" />
-          <StatCard label="Late" value={lateCount} color="text-yellow-600" />
-          <StatCard label="On Leave" value={onLeaveCount} color="text-blue-500" />
+          {[
+            { label: "Present", value: presentCount, color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100", icon: "✓" },
+            { label: "Absent", value: absentCount, color: "text-red-500", bg: "bg-red-50", border: "border-red-100", icon: "✗" },
+            { label: "Late", value: lateCount, color: "text-yellow-600", bg: "bg-yellow-50", border: "border-yellow-100", icon: "⏱" },
+            { label: "On Leave", value: onLeaveCount, color: "text-blue-500", bg: "bg-blue-50", border: "border-blue-100", icon: "🏖" },
+          ].map(({ label, value, color, bg, border, icon }) => (
+            <div key={label} className={`rounded-xl border ${border} ${bg} p-4`}>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs text-zinc-500">{label}</p>
+                <span className="text-base">{icon}</span>
+              </div>
+              <p className={`text-2xl font-bold ${color}`}>{value}</p>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
         {/* Leave balances */}
         {balances.length > 0 && (
-          <div className="rounded-xl border border-zinc-200 bg-white p-5">
-            <div className="flex items-center justify-between mb-3">
+          <div className="rounded-2xl border border-zinc-200 bg-white p-5">
+            <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-semibold text-zinc-900">Leave Balance {now.getFullYear()}</h2>
-              <Link href="/portal/leaves" className="text-xs text-zinc-400 hover:text-zinc-600">Apply →</Link>
+              <Link href="/portal/leaves" className="text-xs font-medium text-[#29c0d5] hover:underline">Apply →</Link>
             </div>
             <div className="space-y-3">
               {balances.map((lb) => {
-                const pct = lb.allocated > 0 ? Math.max(0, Math.min(100, (lb.remaining / lb.allocated) * 100)) : 0;
+                const pct = lb.allocated > 0 ? Math.max(0, Math.min(100, (Number(lb.remaining) / Number(lb.allocated)) * 100)) : 0;
                 return (
                   <div key={lb.id}>
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="text-zinc-600">{lb.leaveType.name}</span>
-                      <span className="font-medium text-zinc-800">{lb.remaining} / {lb.allocated} days</span>
+                    <div className="flex items-center justify-between text-xs mb-1.5">
+                      <span className="text-zinc-600 font-medium">{lb.leaveType.name}</span>
+                      <span className="text-zinc-400">{String(lb.remaining)} / {String(lb.allocated)} days</span>
                     </div>
                     <div className="h-1.5 w-full rounded-full bg-zinc-100">
-                      <div className="h-1.5 rounded-full" style={{ width: `${pct}%`, background: "linear-gradient(135deg, #29c0d5 0%, #503d98 100%)" }} />
+                      <div className="h-1.5 rounded-full transition-all" style={{ width: `${pct}%`, background: "linear-gradient(90deg, #29c0d5, #503d98)" }} />
                     </div>
                   </div>
                 );
@@ -200,21 +221,21 @@ export default async function PortalDashboard() {
 
         {/* Pending leaves */}
         {leaves.length > 0 && (
-          <div className="rounded-xl border border-zinc-200 bg-white p-5">
-            <div className="flex items-center justify-between mb-3">
+          <div className="rounded-2xl border border-zinc-200 bg-white p-5">
+            <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-semibold text-zinc-900">Pending Leave Requests</h2>
-              <Link href="/portal/leaves" className="text-xs text-zinc-400 hover:text-zinc-600">View all →</Link>
+              <Link href="/portal/leaves" className="text-xs font-medium text-[#29c0d5] hover:underline">View all →</Link>
             </div>
             <div className="space-y-2">
               {leaves.map((l) => (
-                <div key={l.id} className="flex items-center justify-between rounded-lg bg-yellow-50 border border-yellow-100 px-3 py-2">
+                <div key={l.id} className="flex items-center justify-between rounded-xl bg-amber-50 border border-amber-100 px-4 py-3">
                   <div>
-                    <p className="text-xs font-medium text-zinc-800">{l.leaveType.name}</p>
-                    <p className="text-[10px] text-zinc-500">
+                    <p className="text-xs font-semibold text-zinc-800">{l.leaveType.name}</p>
+                    <p className="text-[10px] text-zinc-500 mt-0.5">
                       {l.startDate.toLocaleDateString("en-GB", { day: "numeric", month: "short" })} → {l.endDate.toLocaleDateString("en-GB", { day: "numeric", month: "short" })} · {l.days} day{l.days !== 1 ? "s" : ""}
                     </p>
                   </div>
-                  <span className="rounded-full bg-yellow-100 px-2 py-0.5 text-[10px] font-semibold text-yellow-700">PENDING</span>
+                  <span className="rounded-full bg-amber-100 border border-amber-200 px-2.5 py-0.5 text-[10px] font-bold text-amber-700">PENDING</span>
                 </div>
               ))}
             </div>
@@ -223,17 +244,17 @@ export default async function PortalDashboard() {
 
         {/* Upcoming holidays */}
         {upcomingHolidays.length > 0 && (
-          <div className="rounded-xl border border-zinc-200 bg-white p-5">
-            <h2 className="text-sm font-semibold text-zinc-900 mb-3">Upcoming Holidays</h2>
-            <div className="space-y-2">
+          <div className="rounded-2xl border border-zinc-200 bg-white p-5">
+            <h2 className="text-sm font-semibold text-zinc-900 mb-4">Upcoming Holidays</h2>
+            <div className="space-y-3">
               {upcomingHolidays.map((h) => (
                 <div key={h.id} className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 shrink-0 flex-col items-center justify-center rounded-lg bg-purple-50 border border-purple-100">
-                    <p className="text-[10px] font-bold text-purple-500 leading-none">{MONTHS[new Date(h.date).getMonth()]}</p>
-                    <p className="text-sm font-bold text-purple-700 leading-none">{new Date(h.date).getDate()}</p>
+                  <div className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-xl border border-purple-100 bg-purple-50">
+                    <p className="text-[9px] font-bold text-purple-400 uppercase leading-none">{MONTHS[new Date(h.date).getMonth()]}</p>
+                    <p className="text-sm font-bold text-purple-700 leading-none mt-0.5">{new Date(h.date).getDate()}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-zinc-800">{h.name}</p>
+                    <p className="text-xs font-semibold text-zinc-800">{h.name}</p>
                     <p className="text-[10px] text-zinc-400">{DAYS[new Date(h.date).getDay()]}</p>
                   </div>
                 </div>
@@ -242,24 +263,22 @@ export default async function PortalDashboard() {
           </div>
         )}
 
-        {/* Recent payslip requests */}
+        {/* Payslip requests */}
         {payslipRequests.length > 0 && (
-          <div className="rounded-xl border border-zinc-200 bg-white p-5">
-            <div className="flex items-center justify-between mb-3">
+          <div className="rounded-2xl border border-zinc-200 bg-white p-5">
+            <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-semibold text-zinc-900">Payslip Requests</h2>
-              <Link href="/portal/payslip-request" className="text-xs text-zinc-400 hover:text-zinc-600">New request →</Link>
+              <Link href="/portal/payslip-request" className="text-xs font-medium text-[#29c0d5] hover:underline">New →</Link>
             </div>
             <div className="space-y-2">
               {payslipRequests.map((req) => (
-                <div key={req.id} className="flex items-center justify-between text-sm">
-                  <span className="text-zinc-600 text-xs">{MONTHS[req.month - 1]} {req.year}</span>
-                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                    req.status === "FULFILLED" ? "bg-green-100 text-green-700" :
+                <div key={req.id} className="flex items-center justify-between rounded-xl bg-zinc-50 border border-zinc-100 px-4 py-3">
+                  <span className="text-xs font-medium text-zinc-700">{MONTHS[req.month - 1]} {req.year}</span>
+                  <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                    req.status === "FULFILLED" ? "bg-emerald-100 text-emerald-700" :
                     req.status === "REJECTED" ? "bg-red-100 text-red-700" :
-                    "bg-zinc-100 text-zinc-500"
-                  }`}>
-                    {req.status}
-                  </span>
+                    "bg-zinc-200 text-zinc-500"
+                  }`}>{req.status}</span>
                 </div>
               ))}
             </div>
@@ -268,24 +287,24 @@ export default async function PortalDashboard() {
 
       </div>
 
-      {/* Birthdays & Anniversaries */}
+      {/* ── Birthdays & Anniversaries ──────────────────────────────── */}
       {(upcomingBirthdays.length > 0 || upcomingAnniversaries.length > 0) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {upcomingBirthdays.length > 0 && (
-            <div className="rounded-xl border border-zinc-200 bg-white p-5">
-              <h2 className="text-sm font-semibold text-zinc-900 mb-3">🎂 Upcoming Birthdays</h2>
-              <div className="space-y-2">
+            <div className="rounded-2xl border border-zinc-200 bg-white p-5">
+              <h2 className="text-sm font-semibold text-zinc-900 mb-4">🎂 Upcoming Birthdays</h2>
+              <div className="space-y-3">
                 {upcomingBirthdays.map((e) => e && (
                   <div key={e.id} className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-pink-50 border border-pink-100 flex items-center justify-center text-xs font-bold text-pink-500 shrink-0">
+                    <div className="h-8 w-8 rounded-full flex items-center justify-center text-[11px] font-bold text-pink-600 bg-pink-50 border border-pink-100 shrink-0">
                       {e.firstName[0]}{e.lastName[0]}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-zinc-900">{e.firstName} {e.lastName}</p>
-                      <p className="text-[10px] text-zinc-400">{e.next.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</p>
+                      <p className="text-xs font-semibold text-zinc-900">{e.firstName} {e.lastName}</p>
+                      <p className="text-[10px] text-zinc-400">{e.next.toLocaleDateString("en-GB", { day: "numeric", month: "long" })}</p>
                     </div>
-                    <span className={`text-[10px] font-semibold rounded-full px-2 py-0.5 ${e.daysLeft === 0 ? "bg-pink-100 text-pink-600" : "bg-zinc-100 text-zinc-500"}`}>
-                      {e.daysLeft === 0 ? "Today! 🎉" : `${e.daysLeft}d`}
+                    <span className={`text-[10px] font-bold rounded-full px-2.5 py-0.5 border ${e.daysLeft === 0 ? "bg-pink-50 border-pink-200 text-pink-600" : "bg-zinc-50 border-zinc-200 text-zinc-500"}`}>
+                      {e.daysLeft === 0 ? "🎉 Today!" : `${e.daysLeft}d`}
                     </span>
                   </div>
                 ))}
@@ -293,20 +312,20 @@ export default async function PortalDashboard() {
             </div>
           )}
           {upcomingAnniversaries.length > 0 && (
-            <div className="rounded-xl border border-zinc-200 bg-white p-5">
-              <h2 className="text-sm font-semibold text-zinc-900 mb-3">🎉 Work Anniversaries</h2>
-              <div className="space-y-2">
+            <div className="rounded-2xl border border-zinc-200 bg-white p-5">
+              <h2 className="text-sm font-semibold text-zinc-900 mb-4">🎊 Work Anniversaries</h2>
+              <div className="space-y-3">
                 {upcomingAnniversaries.map((e) => e && (
                   <div key={e.id} className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-purple-50 border border-purple-100 flex items-center justify-center text-xs font-bold text-purple-500 shrink-0">
+                    <div className="h-8 w-8 rounded-full flex items-center justify-center text-[11px] font-bold text-purple-600 bg-purple-50 border border-purple-100 shrink-0">
                       {e.firstName[0]}{e.lastName[0]}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-zinc-900">{e.firstName} {e.lastName}</p>
-                      <p className="text-[10px] text-zinc-400">{e.years} year{e.years !== 1 ? "s" : ""} · {e.next.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</p>
+                      <p className="text-xs font-semibold text-zinc-900">{e.firstName} {e.lastName}</p>
+                      <p className="text-[10px] text-zinc-400">{e.years} year{e.years !== 1 ? "s" : ""} · {e.next.toLocaleDateString("en-GB", { day: "numeric", month: "long" })}</p>
                     </div>
-                    <span className={`text-[10px] font-semibold rounded-full px-2 py-0.5 ${e.daysLeft === 0 ? "bg-purple-100 text-purple-600" : "bg-zinc-100 text-zinc-500"}`}>
-                      {e.daysLeft === 0 ? "Today! 🎊" : `${e.daysLeft}d`}
+                    <span className={`text-[10px] font-bold rounded-full px-2.5 py-0.5 border ${e.daysLeft === 0 ? "bg-purple-50 border-purple-200 text-purple-600" : "bg-zinc-50 border-zinc-200 text-zinc-500"}`}>
+                      {e.daysLeft === 0 ? "🎊 Today!" : `${e.daysLeft}d`}
                     </span>
                   </div>
                 ))}
@@ -316,20 +335,25 @@ export default async function PortalDashboard() {
         </div>
       )}
 
-      {/* Latest notices */}
+      {/* ── Latest notices ─────────────────────────────────────────── */}
       {notices.length > 0 && (
-        <div className="rounded-xl border border-zinc-200 bg-white p-5">
-          <div className="flex items-center justify-between mb-3">
+        <div className="rounded-2xl border border-zinc-200 bg-white p-5">
+          <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-zinc-900">Latest Notices</h2>
-            <Link href="/portal/notices" className="text-xs text-zinc-400 hover:text-zinc-600">View all →</Link>
+            <Link href="/portal/notices" className="text-xs font-medium text-[#29c0d5] hover:underline">View all →</Link>
           </div>
           <div className="space-y-3">
             {notices.map((n) => (
-              <div key={n.id} className="rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-3">
-                <p className="text-sm font-medium text-zinc-900">{n.title}</p>
-                {n.content && <p className="text-xs text-zinc-500 mt-1 line-clamp-2">{n.content}</p>}
-                <p className="text-[10px] text-zinc-400 mt-1.5">{n.publishedAt?.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
-              </div>
+              <Link key={n.id} href="/portal/notices" className="flex items-start gap-3 rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3 hover:bg-zinc-100 transition-colors">
+                <span className="text-lg shrink-0 mt-0.5">
+                  {n.type === "URGENT" ? "🚨" : n.type === "EVENT" ? "🎉" : n.type === "POLICY" ? "📋" : n.type === "HR" ? "👥" : "📢"}
+                </span>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-zinc-900 leading-snug">{n.title}</p>
+                  {n.content && <p className="text-[11px] text-zinc-500 mt-0.5 line-clamp-1">{n.content}</p>}
+                  <p className="text-[10px] text-zinc-400 mt-1">{n.publishedAt?.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
+                </div>
+              </Link>
             ))}
           </div>
         </div>
