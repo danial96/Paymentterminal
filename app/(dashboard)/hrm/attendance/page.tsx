@@ -2,10 +2,8 @@ import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import ManualMarkForm from "./ManualMarkForm";
-import { AttendanceSearch } from "./AttendanceSearch";
 import { MachineSyncButton } from "../employees/MachineSyncButton";
 import { getLastZKSync } from "@/app/actions/zkteco";
-import { Suspense } from "react";
 
 const STATUS_COLORS: Record<string, string> = {
   PRESENT:    "bg-emerald-100 text-emerald-700",
@@ -29,10 +27,10 @@ function fmtHours(h: unknown) {
 export default async function AttendancePage({
   searchParams,
 }: {
-  searchParams: Promise<{ date?: string; q?: string; dept?: string }>;
+  searchParams: Promise<{ date?: string; emp?: string; dept?: string }>;
 }) {
   await requireUser();
-  const { date: dateParam, q, dept } = await searchParams;
+  const { date: dateParam, emp, dept } = await searchParams;
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -40,35 +38,23 @@ export default async function AttendancePage({
   selectedDate.setHours(0, 0, 0, 0);
   const selectedStr = selectedDate.toISOString().split("T")[0];
 
-  const nameFilter = q ? {
-    OR: [
-      { firstName: { contains: q } },
-      { lastName: { contains: q } },
-      { employeeId: { contains: q } },
-    ],
-  } : {};
-
-  const [employees, departments, attendanceRecords, lastSync] = await Promise.all([
+  const [allEmployees, departments, attendanceRecords, lastSync] = await Promise.all([
     prisma.hRMEmployee.findMany({
-      where: {
-        deletedAt: null,
-        status: "ACTIVE",
-        ...(dept ? { departmentId: Number(dept) } : {}),
-        ...nameFilter,
-      },
+      where: { deletedAt: null, status: "ACTIVE" },
       include: { department: true },
       orderBy: { firstName: "asc" },
     }),
     prisma.hRMDepartment.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
-    prisma.hRMAttendance.findMany({
-      where: {
-        date: selectedDate,
-        ...(dept ? { employee: { departmentId: Number(dept) } } : {}),
-        ...(q ? { employee: nameFilter } : {}),
-      },
-    }),
+    prisma.hRMAttendance.findMany({ where: { date: selectedDate } }),
     getLastZKSync(),
   ]);
+
+  // Filter employees by dept and/or specific employee selection
+  const employees = allEmployees.filter((e) => {
+    if (dept && e.departmentId !== Number(dept)) return false;
+    if (emp && e.id !== Number(emp)) return false;
+    return true;
+  });
 
   const attendanceMap = new Map(attendanceRecords.map((a) => [a.employeeId, a]));
 
@@ -122,9 +108,10 @@ export default async function AttendancePage({
           defaultValue={selectedStr}
           className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400"
         />
-        <Suspense>
-          <AttendanceSearch defaultValue={q} />
-        </Suspense>
+        <select name="emp" defaultValue={emp} className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400 w-52">
+          <option value="">All Employees</option>
+          {allEmployees.map((e) => <option key={e.id} value={e.id}>{e.firstName} {e.lastName} ({e.employeeId})</option>)}
+        </select>
         <select name="dept" defaultValue={dept} className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
           <option value="">All Departments</option>
           {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
