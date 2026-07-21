@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { addPayment } from "@/app/actions/payments";
+import { SubmitButton } from "@/app/components/SubmitButton";
 
 export default function LogPaymentModal({
   clientId,
@@ -79,12 +80,9 @@ export default function LogPaymentModal({
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              className="btn-brand rounded-md px-4 py-2 text-sm font-medium text-white"
-            >
+            <SubmitButton className="btn-brand rounded-md px-4 py-2 text-sm font-medium text-white" pendingText="Adding...">
               Add Payment
-            </button>
+            </SubmitButton>
           </div>
         </form>
       </dialog>

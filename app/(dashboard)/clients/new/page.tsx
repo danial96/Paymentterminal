@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/app/actions/clients";
+import { SubmitButton } from "@/app/components/SubmitButton";
 
 export default async function NewClientPage() {
   const [brands, sellers, managers] = await Promise.all([
@@ -33,12 +34,9 @@ export default async function NewClientPage() {
           />
         </div>
 
-        <button
-          type="submit"
-          className="btn-brand mt-2 self-start rounded-md px-4 py-2 text-sm font-medium text-white"
-        >
+        <SubmitButton className="btn-brand mt-2 self-start rounded-md px-4 py-2 text-sm font-medium text-white" pendingText="Creating...">
           Create Client
-        </button>
+        </SubmitButton>
       </form>
     </div>
   );

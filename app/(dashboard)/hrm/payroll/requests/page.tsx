@@ -1,6 +1,7 @@
 import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import { fulfillPayslipRequest, rejectPayslipRequest } from "@/app/actions/hrm-payslip-request";
+import { SubmitButton } from "@/app/components/SubmitButton";
 
 const MONTHS_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
@@ -79,13 +80,9 @@ export default async function PayslipRequestsPage() {
                           await fulfillPayslipRequest(req.id);
                         }}
                       >
-                        <button
-                          type="submit"
-                          className="rounded-md px-3 py-1 text-xs font-medium text-white"
-                          style={{ background: "linear-gradient(135deg, #29c0d5 0%, #503d98 100%)" }}
-                        >
+                        <SubmitButton className="rounded-md px-3 py-1 text-xs font-medium text-white" style={{ background: "linear-gradient(135deg, #29c0d5 0%, #503d98 100%)" }} pendingText="...">
                           Fulfill
-                        </button>
+                        </SubmitButton>
                       </form>
                       <form
                         action={async () => {
@@ -93,12 +90,9 @@ export default async function PayslipRequestsPage() {
                           await rejectPayslipRequest(req.id);
                         }}
                       >
-                        <button
-                          type="submit"
-                          className="rounded-md border border-zinc-300 px-3 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-50"
-                        >
+                        <SubmitButton className="rounded-md border border-zinc-300 px-3 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-50" pendingText="...">
                           Reject
-                        </button>
+                        </SubmitButton>
                       </form>
                     </div>
                   )}

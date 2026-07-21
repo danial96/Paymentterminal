@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { portalChangePassword } from "@/app/actions/hrm-portal";
+import { SubmitButton } from "@/app/components/SubmitButton";
 
 function Field({ label, value }: { label: string; value?: string | null }) {
   return (
@@ -100,13 +101,9 @@ export default async function PortalProfilePage() {
               placeholder="At least 6 characters"
             />
           </div>
-          <button
-            type="submit"
-            className="rounded-lg px-6 py-2 text-sm font-medium text-white"
-            style={{ background: "linear-gradient(135deg, #29c0d5 0%, #503d98 100%)" }}
-          >
+          <SubmitButton className="rounded-lg px-6 py-2 text-sm font-medium text-white" style={{ background: "linear-gradient(135deg, #29c0d5 0%, #503d98 100%)" }} pendingText="Updating...">
             Update Password
-          </button>
+          </SubmitButton>
         </form>
       </div>
     </div>

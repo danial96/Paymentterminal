@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import { generatePayroll } from "@/app/actions/hrm-payroll";
 import Link from "next/link";
+import { SubmitButton } from "@/app/components/SubmitButton";
 
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -113,7 +114,7 @@ export default async function GeneratePayrollPage({ searchParams }: { searchPara
           </p>
 
           <div className="flex gap-3">
-            <button type="submit" className="btn-brand rounded-lg px-6 py-2.5 text-sm font-medium text-white">Generate Payslip</button>
+            <SubmitButton className="btn-brand rounded-lg px-6 py-2.5 text-sm font-medium text-white" pendingText="Generating...">Generate Payslip</SubmitButton>
             <Link href="/hrm/payroll" className="rounded-lg border border-zinc-300 px-6 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50">Cancel</Link>
           </div>
         </form>

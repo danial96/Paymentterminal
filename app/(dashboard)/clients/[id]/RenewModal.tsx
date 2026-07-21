@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { renewService } from "@/app/actions/services";
+import { SubmitButton } from "@/app/components/SubmitButton";
 
 export default function RenewModal({
   clientId,
@@ -80,12 +81,9 @@ export default function RenewModal({
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              className="btn-brand rounded-md px-4 py-2 text-sm font-medium text-white"
-            >
+            <SubmitButton className="btn-brand rounded-md px-4 py-2 text-sm font-medium text-white" pendingText="Renewing...">
               Renew
-            </button>
+            </SubmitButton>
           </div>
         </form>
       </dialog>

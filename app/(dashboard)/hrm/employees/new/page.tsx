@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import { createEmployee } from "@/app/actions/hrm-employees";
 import Link from "next/link";
+import { SubmitButton } from "@/app/components/SubmitButton";
 
 export default async function NewEmployeePage() {
   await requireUser();
@@ -239,9 +240,9 @@ export default async function NewEmployeePage() {
         </div>
 
         <div className="flex gap-3">
-          <button type="submit" className="btn-brand rounded-lg px-6 py-2.5 text-sm font-medium text-white">
+          <SubmitButton className="btn-brand rounded-lg px-6 py-2.5 text-sm font-medium text-white" pendingText="Creating...">
             Create Employee
-          </button>
+          </SubmitButton>
           <Link href="/hrm/employees" className="rounded-lg border border-zinc-300 px-6 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50">
             Cancel
           </Link>

@@ -1,6 +1,7 @@
 import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import { updateComplaintStatus } from "@/app/actions/zkteco";
+import { SubmitButton } from "@/app/components/SubmitButton";
 
 const STATUS_STYLES: Record<string, string> = {
   PENDING: "bg-yellow-100 text-yellow-800",
@@ -71,7 +72,7 @@ export default async function ComplaintsPage({ searchParams }: { searchParams: P
                   {STATUSES.map((s) => <option key={s} value={s}>{s.replace("_", " ")}</option>)}
                 </select>
                 <textarea name="hrNote" defaultValue={c.hrNote ?? ""} rows={2} placeholder="HR response (optional)" className="rounded-md border border-zinc-300 px-2 py-1.5 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-zinc-400" />
-                <button type="submit" className="rounded-md px-3 py-1.5 text-xs font-medium text-white btn-brand">Update</button>
+                <SubmitButton className="rounded-md px-3 py-1.5 text-xs font-medium text-white btn-brand" pendingText="Updating...">Update</SubmitButton>
               </form>
             </div>
           </div>

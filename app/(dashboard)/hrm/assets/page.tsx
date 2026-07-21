@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import { createAsset, deleteAsset } from "@/app/actions/hrm-assets";
 import { DeleteButton } from "@/app/(dashboard)/hrm/components/DeleteButton";
+import { SubmitButton } from "@/app/components/SubmitButton";
 
 const STATUS_COLORS: Record<string, string> = {
   AVAILABLE: "bg-zinc-900 text-white",
@@ -109,7 +110,7 @@ export default async function AssetsPage({
                 <input name="returnDate" type="date" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
               </div>
             </div>
-            <button type="submit" className="btn-brand w-full rounded-lg py-2 text-sm font-medium text-white">Add Asset</button>
+            <SubmitButton className="btn-brand w-full rounded-lg py-2 text-sm font-medium text-white" pendingText="Adding...">Add Asset</SubmitButton>
           </form>
         </div>
 

@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import { createPerformanceReview, deletePerformanceReview } from "@/app/actions/hrm-performance";
 import { DeleteButton } from "@/app/(dashboard)/hrm/components/DeleteButton";
+import { SubmitButton } from "@/app/components/SubmitButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 import { faStar as faStarEmpty } from "@fortawesome/free-regular-svg-icons";
@@ -80,7 +81,7 @@ export default async function PerformancePage() {
               <label className="block text-xs font-medium text-zinc-700 mb-1">Manager Comment</label>
               <textarea name="managerComment" rows={2} className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
             </div>
-            <button type="submit" className="btn-brand w-full rounded-lg py-2 text-sm font-medium text-white">Add Review</button>
+            <SubmitButton className="btn-brand w-full rounded-lg py-2 text-sm font-medium text-white" pendingText="Adding...">Add Review</SubmitButton>
           </form>
         </div>
 
