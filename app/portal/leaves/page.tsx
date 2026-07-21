@@ -10,12 +10,21 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 const LEAVE_COLORS = [
-  { bg: "bg-blue-50", text: "text-blue-600", bar: "#3b82f6", icon: "🏖️" },
-  { bg: "bg-green-50", text: "text-green-600", bar: "#22c55e", icon: "🤒" },
-  { bg: "bg-purple-50", text: "text-purple-600", bar: "#a855f7", icon: "👶" },
-  { bg: "bg-orange-50", text: "text-orange-600", bar: "#f97316", icon: "⚡" },
-  { bg: "bg-pink-50", text: "text-pink-600", bar: "#ec4899", icon: "📅" },
-  { bg: "bg-teal-50", text: "text-teal-600", bar: "#14b8a6", icon: "🌿" },
+  { bg: "bg-blue-50", text: "text-blue-600", bar: "#3b82f6" },
+  { bg: "bg-green-50", text: "text-green-600", bar: "#22c55e" },
+  { bg: "bg-purple-50", text: "text-purple-600", bar: "#a855f7" },
+  { bg: "bg-orange-50", text: "text-orange-600", bar: "#f97316" },
+  { bg: "bg-pink-50", text: "text-pink-600", bar: "#ec4899" },
+  { bg: "bg-teal-50", text: "text-teal-600", bar: "#14b8a6" },
+];
+
+const LEAVE_ICONS = [
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>,
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M12 2a5 5 0 1 0 0 10A5 5 0 0 0 12 2z"/><path d="M12 12c-4.418 0-8 2.239-8 5v1h16v-1c0-2.761-3.582-5-8-5z"/></svg>,
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M9 12h6m-3-3v6"/><circle cx="12" cy="12" r="9"/></svg>,
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>,
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>,
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2 2"/></svg>,
 ];
 
 export default async function PortalLeavesPage() {
@@ -81,11 +90,11 @@ export default async function PortalLeavesPage() {
       {/* Leave balance cards */}
       <div>
         <h2 className="text-sm font-semibold text-zinc-700 mb-3">Leave Balance — {year}</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {leaveCards.map(({ lt, allocated, used, remaining, pct, color }) => (
-            <div key={lt.id} className={`rounded-xl border border-zinc-200 bg-white p-4`}>
+        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3">
+          {leaveCards.map(({ lt, allocated, used, remaining, pct, color }, i) => (
+            <div key={lt.id} className="rounded-xl border border-zinc-200 bg-white p-4">
               <div className="flex items-center gap-2 mb-3">
-                <span className={`text-lg rounded-lg p-1.5 ${color.bg}`}>{color.icon}</span>
+                <span className={`rounded-lg p-1.5 ${color.bg} ${color.text}`}>{LEAVE_ICONS[i % LEAVE_ICONS.length]}</span>
                 <div className="min-w-0">
                   <p className="text-xs font-semibold text-zinc-800 truncate">{lt.name}</p>
                   <p className={`text-[10px] font-medium ${lt.isPaid ? "text-emerald-600" : "text-zinc-400"}`}>{lt.isPaid ? "Paid" : "Unpaid"}</p>
