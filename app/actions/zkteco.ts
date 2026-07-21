@@ -17,16 +17,18 @@ export async function syncZKAttendance() {
   const logs = await getZKAttendanceLogs();
   if (!logs.length) return { synced: 0, skipped: 0, errors: [] as string[] };
 
-  // Build employee map
+  // Build employee map (include shift for late calculation)
   const employees = await prisma.hRMEmployee.findMany({
     where: { deletedAt: null },
-    select: { id: true, employeeId: true },
+    select: { id: true, employeeId: true, shift: { select: { startTime: true } } },
   });
   const empMap = new Map<string, number>();
+  const empShiftMap = new Map<number, string | null>(); // empId → shift startTime e.g. "09:00"
   for (const e of employees) {
     empMap.set(e.employeeId, e.id);
     const numericId = e.employeeId.replace(/^IKIA|^EMP/i, "").replace("-", "");
     if (numericId !== e.employeeId) empMap.set(numericId, e.id);
+    empShiftMap.set(e.id, e.shift?.startTime ?? null);
   }
 
   // Group by employee+date. Use punch type: 0=check-in, 1=check-out.
@@ -75,8 +77,16 @@ export async function syncZKAttendance() {
 
   for (const [key, entry] of dayMap) {
     const rec = existingMap.get(key);
+
+    // Shift-based late threshold: shiftStart + 30min grace → LATE; shiftStart + 4h → HALF_DAY
+    const shiftStart = empShiftMap.get(entry.empId); // e.g. "09:00" or "14:00" (PKT)
+    const [shiftH, shiftM] = shiftStart ? shiftStart.split(":").map(Number) : [9, 0];
+    // Convert PKT (UTC+5) shift time to UTC for comparison
     const lateThreshold = new Date(entry.date);
-    lateThreshold.setUTCHours(9, 15, 0, 0);
+    lateThreshold.setUTCHours(shiftH - 5, shiftM + 30, 0, 0); // +30 min grace, -5 for PKT→UTC
+    const halfDayThreshold = new Date(entry.date);
+    halfDayThreshold.setUTCHours(shiftH - 5, shiftM, 0, 0);
+    halfDayThreshold.setUTCMinutes(halfDayThreshold.getUTCMinutes() + 4 * 60); // +4h
 
     // Use punch type strictly: type=0 → check-in, type=1 → check-out
     const checkIn = entry.checkIns.length > 0
@@ -101,7 +111,7 @@ export async function syncZKAttendance() {
         date: entry.date,
         checkIn: checkIn!,
         checkOut: effectiveCheckOut,
-        status: checkIn! > lateThreshold ? "LATE" : "PRESENT",
+        status: checkIn! >= halfDayThreshold ? "HALF_DAY" : checkIn! > lateThreshold ? "LATE" : "PRESENT",
         isManual: false,
         ...(effectiveCheckOut ? (() => {
           const workMs = effectiveCheckOut.getTime() - checkIn!.getTime();
