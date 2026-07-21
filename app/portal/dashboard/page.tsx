@@ -24,7 +24,7 @@ export default async function PortalDashboard() {
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const todayEnd = new Date(todayStart.getTime() + 86400000 - 1);
 
-  const [employee, attendance, todayRecord, leaves, balances, notices, payslipRequests, upcomingHolidays] = await Promise.all([
+  const [employee, attendance, todayRecord, leaves, balances, notices, payslipRequests, upcomingHolidays, allEmployees] = await Promise.all([
     prisma.hRMEmployee.findUnique({
       where: { id: empId },
       include: { department: true, designation: true },
@@ -56,6 +56,10 @@ export default async function PortalDashboard() {
       orderBy: { date: "asc" },
       take: 3,
     }),
+    prisma.hRMEmployee.findMany({
+      where: { deletedAt: null, status: "ACTIVE" },
+      select: { id: true, firstName: true, lastName: true, dateOfBirth: true, joiningDate: true },
+    }),
   ]);
 
   const presentCount = attendance.filter((a) => a.status === "PRESENT" || a.status === "LATE").length;
@@ -64,6 +68,35 @@ export default async function PortalDashboard() {
   const onLeaveCount = attendance.filter((a) => a.status === "ON_LEAVE").length;
 
   const initials = `${employee?.firstName?.[0] ?? ""}${employee?.lastName?.[0] ?? ""}`.toUpperCase();
+
+  // Upcoming birthdays (next 30 days)
+  const upcomingBirthdays = allEmployees
+    .filter((e) => e.dateOfBirth)
+    .map((e) => {
+      const bd = new Date(e.dateOfBirth!);
+      const next = new Date(now.getFullYear(), bd.getMonth(), bd.getDate());
+      if (next < now) next.setFullYear(now.getFullYear() + 1);
+      const diff = Math.ceil((next.getTime() - now.getTime()) / 86400000);
+      return diff <= 30 ? { ...e, daysLeft: diff, next } : null;
+    })
+    .filter(Boolean)
+    .sort((a, b) => a!.daysLeft - b!.daysLeft)
+    .slice(0, 5);
+
+  // Upcoming work anniversaries (next 30 days)
+  const upcomingAnniversaries = allEmployees
+    .filter((e) => e.joiningDate)
+    .map((e) => {
+      const jd = new Date(e.joiningDate!);
+      const next = new Date(now.getFullYear(), jd.getMonth(), jd.getDate());
+      if (next < now) next.setFullYear(now.getFullYear() + 1);
+      const diff = Math.ceil((next.getTime() - now.getTime()) / 86400000);
+      const years = next.getFullYear() - jd.getFullYear();
+      return diff <= 30 ? { ...e, daysLeft: diff, next, years } : null;
+    })
+    .filter(Boolean)
+    .sort((a, b) => a!.daysLeft - b!.daysLeft)
+    .slice(0, 5);
 
   return (
     <div className="space-y-6">
@@ -234,6 +267,54 @@ export default async function PortalDashboard() {
         )}
 
       </div>
+
+      {/* Birthdays & Anniversaries */}
+      {(upcomingBirthdays.length > 0 || upcomingAnniversaries.length > 0) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {upcomingBirthdays.length > 0 && (
+            <div className="rounded-xl border border-zinc-200 bg-white p-5">
+              <h2 className="text-sm font-semibold text-zinc-900 mb-3">🎂 Upcoming Birthdays</h2>
+              <div className="space-y-2">
+                {upcomingBirthdays.map((e) => e && (
+                  <div key={e.id} className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-full bg-pink-50 border border-pink-100 flex items-center justify-center text-xs font-bold text-pink-500 shrink-0">
+                      {e.firstName[0]}{e.lastName[0]}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-zinc-900">{e.firstName} {e.lastName}</p>
+                      <p className="text-[10px] text-zinc-400">{e.next.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</p>
+                    </div>
+                    <span className={`text-[10px] font-semibold rounded-full px-2 py-0.5 ${e.daysLeft === 0 ? "bg-pink-100 text-pink-600" : "bg-zinc-100 text-zinc-500"}`}>
+                      {e.daysLeft === 0 ? "Today! 🎉" : `${e.daysLeft}d`}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {upcomingAnniversaries.length > 0 && (
+            <div className="rounded-xl border border-zinc-200 bg-white p-5">
+              <h2 className="text-sm font-semibold text-zinc-900 mb-3">🎉 Work Anniversaries</h2>
+              <div className="space-y-2">
+                {upcomingAnniversaries.map((e) => e && (
+                  <div key={e.id} className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-full bg-purple-50 border border-purple-100 flex items-center justify-center text-xs font-bold text-purple-500 shrink-0">
+                      {e.firstName[0]}{e.lastName[0]}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-zinc-900">{e.firstName} {e.lastName}</p>
+                      <p className="text-[10px] text-zinc-400">{e.years} year{e.years !== 1 ? "s" : ""} · {e.next.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</p>
+                    </div>
+                    <span className={`text-[10px] font-semibold rounded-full px-2 py-0.5 ${e.daysLeft === 0 ? "bg-purple-100 text-purple-600" : "bg-zinc-100 text-zinc-500"}`}>
+                      {e.daysLeft === 0 ? "Today! 🎊" : `${e.daysLeft}d`}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Latest notices */}
       {notices.length > 0 && (
