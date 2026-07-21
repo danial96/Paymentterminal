@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { syncFingerprintStatus } from "@/app/actions/zkteco";
+import { syncZKAttendance } from "@/app/actions/zkteco";
 import { useRouter } from "next/navigation";
 
 type LastSync = { syncedAt: Date; source: string; enrolled: number } | null;
@@ -23,12 +23,12 @@ export function MachineSyncButton({ lastSync }: { lastSync: LastSync }) {
     setLoading(true);
     setResult(null);
     try {
-      const res = await syncFingerprintStatus();
-      if (res.success) {
-        setResult(`✓ ${res.enrolled} enrolled`);
+      const res = await syncZKAttendance();
+      if ("synced" in res) {
+        setResult(`✓ ${res.synced} synced`);
         router.refresh();
       } else {
-        setResult(`✗ ${res.error}`);
+        setResult("✗ Failed");
       }
     } catch {
       setResult("✗ Connection failed");
@@ -46,7 +46,7 @@ export function MachineSyncButton({ lastSync }: { lastSync: LastSync }) {
         <svg className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
         </svg>
-        {loading ? "Syncing..." : "Sync Machine"}
+        {loading ? "Syncing..." : "Sync Attendance"}
       </button>
 
       <div className="flex flex-col leading-tight">
@@ -57,9 +57,9 @@ export function MachineSyncButton({ lastSync }: { lastSync: LastSync }) {
         )}
         {!result && lastSync && (
           <span className="text-xs text-zinc-400">
-            Last: {timeAgo(lastSync.syncedAt)}
+            Finger sync: {timeAgo(lastSync.syncedAt)}
             {lastSync.source === "python" && (
-              <span className="ml-1 text-emerald-500 font-medium">(accurate)</span>
+              <span className="ml-1 text-emerald-500 font-medium">✓</span>
             )}
           </span>
         )}
