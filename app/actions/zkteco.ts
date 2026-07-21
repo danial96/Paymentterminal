@@ -42,8 +42,9 @@ export async function syncZKAttendance() {
     const key = `${empId}_${dateOnly.getTime()}`;
     if (!dayMap.has(key)) dayMap.set(key, { empId, date: dateOnly, checkIns: [], checkOuts: [] });
     const entry = dayMap.get(key)!;
-    // type 0 = check-in, 1 = check-out (ZKTeco convention)
-    if (log.type === 1) {
+    // state = in/out direction: 0=check-in, 1=check-out (byte 31 in ZKTeco protocol)
+    // type = verification method (fingerprint/card) — NOT the punch direction
+    if (log.state === 1) {
       entry.checkOuts.push(ts);
     } else {
       entry.checkIns.push(ts);
