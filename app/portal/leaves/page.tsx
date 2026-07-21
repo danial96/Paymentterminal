@@ -119,7 +119,7 @@ export default async function PortalLeavesPage() {
               <option value="">— Select leave type —</option>
               {leaveCards.map(({ lt, remaining }) => (
                 <option key={lt.id} value={lt.id}>
-                  {lt.icon ? `${lt.icon} ` : ""}{lt.name} · {remaining} days remaining
+                  {lt.name} · {remaining} days remaining
                 </option>
               ))}
             </select>
