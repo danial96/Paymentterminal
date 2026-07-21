@@ -29,8 +29,9 @@ export async function syncZKAttendance() {
     if (numericId !== e.employeeId) empMap.set(numericId, e.id);
   }
 
-  // Filter only relevant logs, group by employee+date — keep earliest (check-in) and latest (check-out)
-  type DayEntry = { empId: number; date: Date; first: Date; last: Date };
+  // Group by employee+date. Use punch type: 0=check-in, 1=check-out.
+  // If machine has separate buttons, use typed punches. Fallback: first punch=in, last punch=out.
+  type DayEntry = { empId: number; date: Date; checkIns: Date[]; checkOuts: Date[] };
   const dayMap = new Map<string, DayEntry>();
 
   for (const log of logs) {
@@ -39,12 +40,13 @@ export async function syncZKAttendance() {
     const ts = new Date(log.record_time);
     const dateOnly = new Date(Date.UTC(ts.getUTCFullYear(), ts.getUTCMonth(), ts.getUTCDate()));
     const key = `${empId}_${dateOnly.getTime()}`;
-    const existing = dayMap.get(key);
-    if (!existing) {
-      dayMap.set(key, { empId, date: dateOnly, first: ts, last: ts });
+    if (!dayMap.has(key)) dayMap.set(key, { empId, date: dateOnly, checkIns: [], checkOuts: [] });
+    const entry = dayMap.get(key)!;
+    // type 0 = check-in, 1 = check-out (ZKTeco convention)
+    if (log.type === 1) {
+      entry.checkOuts.push(ts);
     } else {
-      if (ts < existing.first) existing.first = ts;
-      if (ts > existing.last) existing.last = ts;
+      entry.checkIns.push(ts);
     }
   }
 
@@ -75,27 +77,40 @@ export async function syncZKAttendance() {
     const lateThreshold = new Date(entry.date);
     lateThreshold.setUTCHours(9, 15, 0, 0);
 
+    // Resolve check-in: earliest typed check-in, or if none, earliest of any punch
+    const allPunches = [...entry.checkIns, ...entry.checkOuts].sort((a, b) => a.getTime() - b.getTime());
+    const checkIn = entry.checkIns.length > 0
+      ? entry.checkIns.reduce((a, b) => a < b ? a : b)
+      : allPunches[0];
+    // Resolve check-out: latest typed check-out, only if after check-in
+    const checkOut = entry.checkOuts.length > 0
+      ? entry.checkOuts.reduce((a, b) => a > b ? a : b)
+      : (allPunches.length > 1 ? allPunches[allPunches.length - 1] : null);
+    const effectiveCheckOut = checkOut && checkIn && checkOut > checkIn ? checkOut : null;
+
+    if (!checkIn) { skipped++; continue; }
+
     if (!rec) {
       toCreate.push({
         employeeId: entry.empId,
         date: entry.date,
-        checkIn: entry.first,
-        checkOut: entry.last > entry.first ? entry.last : null,
-        status: entry.first > lateThreshold ? "LATE" : "PRESENT",
+        checkIn,
+        checkOut: effectiveCheckOut,
+        status: checkIn > lateThreshold ? "LATE" : "PRESENT",
         isManual: false,
-        ...(entry.last > entry.first ? (() => {
-          const workMs = entry.last.getTime() - entry.first.getTime();
+        ...(effectiveCheckOut ? (() => {
+          const workMs = effectiveCheckOut.getTime() - checkIn.getTime();
           const wh = Math.round((workMs / 3600000) * 100) / 100;
           return { workingHours: wh, overtimeHours: wh > 8 ? Math.round((wh - 8) * 100) / 100 : 0 };
         })() : {}),
       });
       enrollIds.add(entry.empId);
       synced++;
-    } else if (!rec.checkOut && entry.last > entry.first) {
-      const checkInDate = rec.checkIn ? new Date(rec.checkIn) : entry.first;
-      const workMs = entry.last.getTime() - checkInDate.getTime();
+    } else if (!rec.checkOut && effectiveCheckOut) {
+      const checkInDate = rec.checkIn ? new Date(rec.checkIn) : checkIn;
+      const workMs = effectiveCheckOut.getTime() - checkInDate.getTime();
       const wh = Math.round((workMs / 3600000) * 100) / 100;
-      toUpdate.push({ id: rec.id, checkOut: entry.last, workingHours: wh, overtimeHours: wh > 8 ? Math.round((wh - 8) * 100) / 100 : 0 });
+      toUpdate.push({ id: rec.id, checkOut: effectiveCheckOut, workingHours: wh, overtimeHours: wh > 8 ? Math.round((wh - 8) * 100) / 100 : 0 });
       enrollIds.add(entry.empId);
       synced++;
     } else {
