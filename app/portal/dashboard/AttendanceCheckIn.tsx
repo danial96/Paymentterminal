@@ -23,35 +23,32 @@ export function AttendanceCheckIn({ hasCheckedIn, hasCheckedOut, checkInTime, ch
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-      {/* Times */}
-      <div className="flex items-center gap-6">
+    <div className="flex flex-col gap-4">
+      {/* Times row */}
+      <div className="flex items-center gap-4 flex-wrap">
         <div>
           <p className="text-[10px] text-zinc-400 uppercase tracking-wide mb-0.5">Check In</p>
           <p className="text-lg font-bold text-zinc-900">{checkInTime ?? "—"}</p>
         </div>
-        <div className="h-8 w-px bg-zinc-100" />
+        <div className="h-8 w-px bg-zinc-100 hidden sm:block" />
         <div>
           <p className="text-[10px] text-zinc-400 uppercase tracking-wide mb-0.5">Check Out</p>
           <p className="text-lg font-bold text-zinc-900">{checkOutTime ?? "—"}</p>
         </div>
-        <div className="h-8 w-px bg-zinc-100" />
+        <div className="h-8 w-px bg-zinc-100 hidden sm:block" />
         <div>
           <p className="text-[10px] text-zinc-400 uppercase tracking-wide mb-0.5">Hours</p>
           <p className="text-lg font-bold text-zinc-900">{workingHours ? `${workingHours}h` : "—"}</p>
         </div>
         {status && (
-          <>
-            <div className="h-8 w-px bg-zinc-100" />
-            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_STYLE[status] ?? "bg-zinc-100 text-zinc-600"}`}>
-              {status.replace(/_/g, " ")}
-            </span>
-          </>
+          <span className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_STYLE[status] ?? "bg-zinc-100 text-zinc-600"}`}>
+            {status.replace(/_/g, " ")}
+          </span>
         )}
       </div>
 
-      {/* Buttons */}
-      <div className="flex items-center gap-2 sm:ml-auto">
+      {/* Button row */}
+      <div className="flex items-center gap-2">
         {!hasCheckedIn && (
           <button
             type="button"
@@ -80,7 +77,7 @@ export function AttendanceCheckIn({ hasCheckedIn, hasCheckedOut, checkInTime, ch
           </button>
         )}
         {hasCheckedIn && hasCheckedOut && (
-          <span className="text-xs text-zinc-400 italic">Attendance complete</span>
+          <span className="text-xs text-zinc-400 italic">Attendance complete for today</span>
         )}
       </div>
     </div>

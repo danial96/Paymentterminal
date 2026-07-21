@@ -87,7 +87,7 @@ export default async function PortalDashboard() {
             </p>
             <p className="text-xs text-zinc-400 mt-0.5">{employee?.employeeId}</p>
           </div>
-          <div className="ml-auto hidden sm:grid grid-cols-2 gap-x-8 gap-y-1 text-right">
+          <div className="ml-auto hidden md:grid grid-cols-2 gap-x-8 gap-y-1 text-right">
             <div>
               <p className="text-[10px] text-zinc-400 uppercase tracking-wide">Joined</p>
               <p className="text-xs font-medium text-zinc-700">

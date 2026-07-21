@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { useState } from "react";
 
 const LINKS = [
   {
@@ -72,27 +73,28 @@ const LINKS = [
 
 export default function PortalSidebar({ user }: { user: { name: string; employeeId: string } }) {
   const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   function isActive(href: string) {
     return pathname === href || pathname.startsWith(href + "/");
   }
 
-  return (
-    <aside
-      className="flex w-56 flex-col min-h-screen shrink-0"
-      style={{ background: "#141516", color: "#ffffff" }}
-    >
+  const sidebarContent = (
+    <aside className="flex w-56 flex-col h-full shrink-0" style={{ background: "#141516", color: "#ffffff" }}>
       {/* Logo */}
-      <div className="flex items-center justify-center px-4 py-4 border-b border-white/10">
+      <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo-white.png" alt="Logo" style={{ height: "48px", objectFit: "contain" }} />
+        <button className="lg:hidden text-white/40 hover:text-white p-1" onClick={() => setMobileOpen(false)}>
+          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
 
       {/* Label */}
       <div className="px-4 py-2 border-b border-white/10">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-white/30 text-center">
-          Employee Portal
-        </p>
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-white/30 text-center">Employee Portal</p>
       </div>
 
       {/* Nav */}
@@ -101,16 +103,11 @@ export default function PortalSidebar({ user }: { user: { name: string; employee
           <Link
             key={link.href}
             href={link.href}
+            onClick={() => setMobileOpen(false)}
             className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
-              isActive(link.href)
-                ? "text-white font-medium shadow-sm"
-                : "text-white/60 hover:bg-white/10 hover:text-white"
+              isActive(link.href) ? "text-white font-medium shadow-sm" : "text-white/60 hover:bg-white/10 hover:text-white"
             }`}
-            style={
-              isActive(link.href)
-                ? { background: "linear-gradient(135deg, #29c0d5 0%, #503d98 100%)" }
-                : {}
-            }
+            style={isActive(link.href) ? { background: "linear-gradient(135deg, #29c0d5 0%, #503d98 100%)" } : {}}
           >
             <span className={isActive(link.href) ? "text-white" : "text-white/50"}>{link.icon}</span>
             {link.label}
@@ -130,5 +127,36 @@ export default function PortalSidebar({ user }: { user: { name: string; employee
         </button>
       </div>
     </aside>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <div className="hidden lg:flex lg:w-56 lg:flex-col lg:min-h-screen shrink-0">
+        {sidebarContent}
+      </div>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
+          <div className="absolute left-0 top-0 h-full w-56 z-50">
+            {sidebarContent}
+          </div>
+        </div>
+      )}
+
+      {/* Mobile FAB hamburger */}
+      <button
+        className="lg:hidden fixed bottom-4 right-4 z-30 flex h-12 w-12 items-center justify-center rounded-full shadow-lg text-white"
+        style={{ background: "linear-gradient(135deg, #29c0d5 0%, #503d98 100%)" }}
+        onClick={() => setMobileOpen((o) => !o)}
+        aria-label="Open menu"
+      >
+        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </>
   );
 }

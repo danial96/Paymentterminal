@@ -27,7 +27,7 @@ export default async function PortalLayout({ children }: { children: React.React
           employeeId: emp?.employeeId ?? String(empDbId),
         }}
       />
-      <main className="flex-1 overflow-auto p-6 bg-gray-50">{children}</main>
+      <main className="flex-1 overflow-auto p-4 lg:p-6 bg-gray-50">{children}</main>
     </div>
   );
 }
