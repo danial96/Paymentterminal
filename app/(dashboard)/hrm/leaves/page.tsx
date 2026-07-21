@@ -1,6 +1,6 @@
 ﻿import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
-import { approveLeave, rejectLeaveWithReason, applyLeave } from "@/app/actions/hrm-leaves";
+import { approveLeave, rejectLeaveWithReason, applyLeave, addLeaveManually } from "@/app/actions/hrm-leaves";
 
 const STATUS_COLORS: Record<string, string> = {
   PENDING: "bg-zinc-200 text-zinc-700",
@@ -42,22 +42,59 @@ export default async function LeavesPage({
         <a href="/hrm/leaves/types" className="text-sm text-zinc-700 hover:underline">Manage Leave Types →</a>
       </div>
 
-      {/* Apply Leave Form */}
-      <div className="rounded-xl border border-zinc-200 bg-white p-5">
-        <h2 className="text-sm font-semibold text-zinc-900 mb-4">Apply Leave (on behalf)</h2>
-        <form action={applyLeave} className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-          <select name="employeeId" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
-            <option value="">Select Employee</option>
-            {employees.map((e) => <option key={e.id} value={e.id}>{e.firstName} {e.lastName}</option>)}
-          </select>
-          <select name="leaveTypeId" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
-            <option value="">Leave Type</option>
-            {leaveTypes.map((lt) => <option key={lt.id} value={lt.id}>{lt.name}</option>)}
-          </select>
-          <input name="startDate" type="date" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
-          <input name="endDate" type="date" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
-          <button type="submit" className="btn-brand rounded-md px-4 py-2 text-sm font-medium text-white">Apply</button>
-        </form>
+      {/* Leave Forms */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        {/* Apply on behalf — goes to PENDING */}
+        <div className="rounded-xl border border-zinc-200 bg-white p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <h2 className="text-sm font-semibold text-zinc-900">Apply on Behalf</h2>
+            <span className="rounded-full bg-yellow-100 text-yellow-700 px-2 py-0.5 text-[10px] font-semibold">PENDING</span>
+          </div>
+          <form action={applyLeave} className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <select name="employeeId" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
+                <option value="">Select Employee</option>
+                {employees.map((e) => <option key={e.id} value={e.id}>{e.firstName} {e.lastName}</option>)}
+              </select>
+              <select name="leaveTypeId" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
+                <option value="">Leave Type</option>
+                {leaveTypes.map((lt) => <option key={lt.id} value={lt.id}>{lt.name}</option>)}
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <input name="startDate" type="date" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
+              <input name="endDate" type="date" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
+            </div>
+            <input name="reason" placeholder="Reason (optional)" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
+            <button type="submit" className="btn-brand rounded-md px-4 py-2 text-sm font-medium text-white w-full">Submit for Approval</button>
+          </form>
+        </div>
+
+        {/* Manual add — direct APPROVED */}
+        <div className="rounded-xl border border-emerald-200 bg-white p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <h2 className="text-sm font-semibold text-zinc-900">Add Leave Manually</h2>
+            <span className="rounded-full bg-emerald-100 text-emerald-700 px-2 py-0.5 text-[10px] font-semibold">AUTO APPROVED</span>
+          </div>
+          <form action={addLeaveManually} className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <select name="employeeId" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
+                <option value="">Select Employee</option>
+                {employees.map((e) => <option key={e.id} value={e.id}>{e.firstName} {e.lastName}</option>)}
+              </select>
+              <select name="leaveTypeId" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
+                <option value="">Leave Type</option>
+                {leaveTypes.map((lt) => <option key={lt.id} value={lt.id}>{lt.name}</option>)}
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <input name="startDate" type="date" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
+              <input name="endDate" type="date" required className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
+            </div>
+            <input name="reason" placeholder="Reason / Note (optional)" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
+            <button type="submit" className="w-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">Add & Approve Directly</button>
+          </form>
+        </div>
       </div>
 
       {/* Filters */}

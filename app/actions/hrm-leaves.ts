@@ -50,6 +50,33 @@ export async function deleteLeaveType(id: number) {
   revalidatePath("/hrm/leaves/types");
 }
 
+export async function addLeaveManually(formData: FormData) {
+  const user = await requireUser();
+  const employeeId = Number(formData.get("employeeId"));
+  const leaveTypeId = Number(formData.get("leaveTypeId"));
+  const startDate = new Date(String(formData.get("startDate")));
+  const endDate = new Date(String(formData.get("endDate")));
+  startDate.setHours(0, 0, 0, 0);
+  endDate.setHours(0, 0, 0, 0);
+  const days = Math.max(1, Math.ceil((endDate.getTime() - startDate.getTime()) / 86400000) + 1);
+  const reason = formData.get("reason") ? String(formData.get("reason")) : null;
+
+  await prisma.hRMLeave.create({
+    data: {
+      employeeId,
+      leaveTypeId,
+      startDate,
+      endDate,
+      days,
+      reason,
+      status: "APPROVED",
+      approvedById: Number(user.id),
+      approvedAt: new Date(),
+    },
+  });
+  revalidatePath("/hrm/leaves");
+}
+
 export async function applyLeave(formData: FormData) {
   await requireUser();
   const employeeId = Number(formData.get("employeeId"));
