@@ -1,4 +1,41 @@
 import ZKLib from "zkteco-js";
+import { execFile } from "child_process";
+import path from "path";
+
+export interface ZKFingerStatus {
+  userId: string;
+  uid: number;
+  name: string;
+  enrolled: boolean;
+  fingerCount: number;
+  fingerIds: number[];
+}
+
+function runPythonSync(command: string): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    const script = path.join(process.cwd(), "scripts", "zk_sync.py");
+    execFile("python", [script, command], { timeout: 30000 }, (err, stdout, stderr) => {
+      if (err) return reject(new Error(stderr || err.message));
+      try {
+        resolve(JSON.parse(stdout));
+      } catch {
+        reject(new Error("Invalid JSON from zk_sync.py: " + stdout.slice(0, 200)));
+      }
+    });
+  });
+}
+
+export async function getZKFingerStatus(): Promise<ZKFingerStatus[]> {
+  const data = await runPythonSync("finger_status");
+  if (Array.isArray(data)) return data as ZKFingerStatus[];
+  throw new Error((data as { error: string }).error || "Failed to get finger status");
+}
+
+export async function getZKAttendanceViaPython(): Promise<{ userId: string; timestamp: string; status: number; punch: number }[]> {
+  const data = await runPythonSync("attendance");
+  if (Array.isArray(data)) return data as { userId: string; timestamp: string; status: number; punch: number }[];
+  throw new Error((data as { error: string }).error || "Failed to get attendance");
+}
 
 export interface ZKAttendanceLog {
   sn: number;

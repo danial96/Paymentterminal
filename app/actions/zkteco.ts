@@ -1,7 +1,7 @@
 "use server";
 
 import { requireAdmin, requireUser } from "@/lib/scope";
-import { getZKAttendanceLogs, getZKUsers, startFingerprintEnrollment, pushUserToZK, deleteZKUser } from "@/lib/zkteco";
+import { getZKAttendanceLogs, getZKUsers, getZKFingerStatus, startFingerprintEnrollment, pushUserToZK, deleteZKUser } from "@/lib/zkteco";
 import { prisma } from "@/lib/prisma";
 
 export async function debugZKLogs() {
@@ -210,4 +210,38 @@ export async function getPendingFingerprintEmployees() {
     select: { id: true, firstName: true, lastName: true, employeeId: true, createdAt: true },
     orderBy: { createdAt: "desc" },
   });
+}
+
+export async function syncFingerprintStatus() {
+  await requireAdmin();
+  try {
+    const machineUsers = await getZKFingerStatus();
+    const enrolledIds = machineUsers.filter((u) => u.enrolled).map((u) => u.userId);
+    const notEnrolledIds = machineUsers.filter((u) => !u.enrolled).map((u) => u.userId);
+
+    if (enrolledIds.length) {
+      await prisma.hRMEmployee.updateMany({
+        where: { employeeId: { in: enrolledIds } },
+        data: { fingerprintEnrolled: true },
+      });
+    }
+    if (notEnrolledIds.length) {
+      await prisma.hRMEmployee.updateMany({
+        where: { employeeId: { in: notEnrolledIds } },
+        data: { fingerprintEnrolled: false },
+      });
+    }
+
+    const { revalidatePath } = await import("next/cache");
+    revalidatePath("/hrm/employees");
+
+    return {
+      success: true,
+      enrolled: enrolledIds.length,
+      notEnrolled: notEnrolledIds.length,
+      details: machineUsers.map((u) => ({ userId: u.userId, name: u.name, enrolled: u.enrolled, fingers: u.fingerCount })),
+    };
+  } catch (e: unknown) {
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
+  }
 }

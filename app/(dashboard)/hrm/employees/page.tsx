@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FingerprintSyncButton } from "./FingerprintSyncButton";
 import GenerateLinkButton from "./GenerateLinkButton";
 import ApproveButton from "./ApproveButton";
+import { MachineSyncButton } from "./MachineSyncButton";
 
 const STATUS_COLORS: Record<string, string> = {
   ACTIVE: "bg-zinc-900 text-white",
@@ -51,6 +52,7 @@ export default async function EmployeesPage({
           <p className="text-sm text-zinc-500">{employees.length} employee{employees.length !== 1 ? "s" : ""}</p>
         </div>
         <div className="flex items-center gap-2">
+          <MachineSyncButton />
           <GenerateLinkButton />
           <Link href="/hrm/employees/new" className="btn-brand rounded-lg px-4 py-2 text-sm font-medium text-white">
             + Add Employee
