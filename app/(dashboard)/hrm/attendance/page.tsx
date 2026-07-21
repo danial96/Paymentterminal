@@ -137,7 +137,7 @@ export default async function AttendancePage({
                     <td className="px-4 py-3 text-xs font-mono">
                       {att?.checkOut ? att.checkOut.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : "—"}
                     </td>
-                    <td className="px-4 py-3 text-xs">{att?.workingHours ? `${Number(att.workingHours).toFixed(1)}h` : "—"}</td>
+                    <td className="px-4 py-3 text-xs">{att?.workingHours ? (() => { const h = Math.floor(Number(att.workingHours)); const m = Math.round((Number(att.workingHours) - h) * 60); return `${h}h ${m}m`; })() : "—"}</td>
                     <td className="px-4 py-3 text-xs text-zinc-500">{att?.lateMinutes ? `${att.lateMinutes}min` : "—"}</td>
                     <td className="px-4 py-3">
                       {att ? (
