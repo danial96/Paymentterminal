@@ -77,40 +77,47 @@ export async function syncZKAttendance() {
     const lateThreshold = new Date(entry.date);
     lateThreshold.setUTCHours(9, 15, 0, 0);
 
-    // Resolve check-in: earliest typed check-in, or if none, earliest of any punch
-    const allPunches = [...entry.checkIns, ...entry.checkOuts].sort((a, b) => a.getTime() - b.getTime());
+    // Use punch type strictly: type=0 → check-in, type=1 → check-out
     const checkIn = entry.checkIns.length > 0
-      ? entry.checkIns.reduce((a, b) => a < b ? a : b)
-      : allPunches[0];
-    // Resolve check-out: latest typed check-out, only if after check-in
+      ? entry.checkIns.reduce((a, b) => a < b ? a : b)  // earliest check-in punch
+      : null;
     const checkOut = entry.checkOuts.length > 0
-      ? entry.checkOuts.reduce((a, b) => a > b ? a : b)
-      : (allPunches.length > 1 ? allPunches[allPunches.length - 1] : null);
+      ? entry.checkOuts.reduce((a, b) => a > b ? a : b)  // latest check-out punch
+      : null;
     const effectiveCheckOut = checkOut && checkIn && checkOut > checkIn ? checkOut : null;
 
-    if (!checkIn) { skipped++; continue; }
+    if (!checkIn && !checkOut) { skipped++; continue; }
 
     if (!rec) {
+      // Only checkout punch (no check-in): update existing record's checkout if exists, else skip
+      if (!checkIn && effectiveCheckOut === null && checkOut) {
+        // Will be handled below as an update if record exists
+        skipped++;
+        continue;
+      }
       toCreate.push({
         employeeId: entry.empId,
         date: entry.date,
-        checkIn,
+        checkIn: checkIn!,
         checkOut: effectiveCheckOut,
-        status: checkIn > lateThreshold ? "LATE" : "PRESENT",
+        status: checkIn! > lateThreshold ? "LATE" : "PRESENT",
         isManual: false,
         ...(effectiveCheckOut ? (() => {
-          const workMs = effectiveCheckOut.getTime() - checkIn.getTime();
+          const workMs = effectiveCheckOut.getTime() - checkIn!.getTime();
           const wh = Math.round((workMs / 3600000) * 100) / 100;
           return { workingHours: wh, overtimeHours: wh > 8 ? Math.round((wh - 8) * 100) / 100 : 0 };
         })() : {}),
       });
       enrollIds.add(entry.empId);
       synced++;
-    } else if (!rec.checkOut && effectiveCheckOut) {
-      const checkInDate = rec.checkIn ? new Date(rec.checkIn) : checkIn;
-      const workMs = effectiveCheckOut.getTime() - checkInDate.getTime();
+    } else if (checkOut && !rec.checkOut) {
+      // Update checkout on existing record
+      const checkInDate = rec.checkIn ? new Date(rec.checkIn) : null;
+      const validCheckout = checkInDate && checkOut > checkInDate ? checkOut : null;
+      if (!validCheckout) { skipped++; continue; }
+      const workMs = validCheckout.getTime() - checkInDate!.getTime();
       const wh = Math.round((workMs / 3600000) * 100) / 100;
-      toUpdate.push({ id: rec.id, checkOut: effectiveCheckOut, workingHours: wh, overtimeHours: wh > 8 ? Math.round((wh - 8) * 100) / 100 : 0 });
+      toUpdate.push({ id: rec.id, checkOut: validCheckout, workingHours: wh, overtimeHours: wh > 8 ? Math.round((wh - 8) * 100) / 100 : 0 });
       enrollIds.add(entry.empId);
       synced++;
     } else {
