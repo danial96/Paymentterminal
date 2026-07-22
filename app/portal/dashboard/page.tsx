@@ -131,52 +131,33 @@ export default async function PortalDashboard() {
   return (
     <div className="space-y-5">
 
-      {/* ── Birthday celebration ────────────────────────────────────── */}
+      {/* ── Birthday celebration (my birthday) ─────────────────────── */}
       {isBirthday && (
         <>
           <BirthdayCelebration name={employee?.firstName ?? ""} />
           <div className="relative rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg, #f472b6 0%, #a855f7 50%, #503d98 100%)" }}>
             <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px), radial-gradient(circle at 60% 80%, white 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
             <div className="relative px-6 py-5 flex items-center gap-5">
-              <div className="text-5xl select-none" aria-hidden>🎂</div>
+              <svg className="h-12 w-12 shrink-0 text-white/90" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C10.34 2 9 3.34 9 5c0 1.1.6 2.06 1.5 2.6V9H7a2 2 0 00-2 2v9a2 2 0 002 2h10a2 2 0 002-2v-9a2 2 0 00-2-2h-3.5V7.6C14.4 7.06 15 6.1 15 5c0-1.66-1.34-3-3-3zm0 2a1 1 0 110 2 1 1 0 010-2zm-4 7h8v9H8v-9z"/></svg>
               <div className="flex-1">
                 <p className="text-white/80 text-xs font-semibold uppercase tracking-widest mb-0.5">Special Day</p>
-                <h2 className="text-white text-2xl font-bold leading-tight">
-                  Happy Birthday, {employee?.firstName}!
-                </h2>
-                <p className="text-white/80 text-sm mt-1">
-                  Wishing you a wonderful day filled with joy. The entire IKIA Tech team celebrates with you!
-                </p>
+                <h2 className="text-white text-2xl font-bold leading-tight">Happy Birthday, {employee?.firstName}!</h2>
+                <p className="text-white/80 text-sm mt-1">Wishing you a wonderful day filled with joy. The entire IKIA Tech team celebrates with you!</p>
               </div>
-              <div className="text-5xl select-none hidden sm:block" aria-hidden>🎉</div>
             </div>
-
-            {/* Birthday card */}
             <div className="mx-6 mb-5 rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 px-5 py-4">
               <p className="text-white text-sm font-semibold mb-1">A message from IKIA Tech</p>
-              <p className="text-white/90 text-sm leading-relaxed">
-                "On your special day, we want you to know how much you mean to our team. Your dedication and hard work make a real difference every single day. Here&apos;s to another amazing year ahead — keep shining!"
-              </p>
+              <p className="text-white/90 text-sm leading-relaxed">"On your special day, we want you to know how much you mean to our team. Your dedication and hard work make a real difference every single day. Here&apos;s to another amazing year ahead — keep shining!"</p>
               <p className="text-white/60 text-xs mt-2">— IKIA Tech Family</p>
             </div>
           </div>
-
-          {/* Wishes received */}
-          <BirthdayWishes wishes={myWishesReceived.map((w: any) => ({
-            id: w.id,
-            message: w.message,
-            createdAt: w.createdAt.toISOString(),
-            from: w.from,
-          }))} />
+          <BirthdayWishes wishes={myWishesReceived.map((w: any) => ({ id: w.id, message: w.message, createdAt: w.createdAt.toISOString(), from: w.from }))} />
         </>
       )}
 
-      {/* ── Other employees' birthdays (for non-birthday employees) ─── */}
+      {/* ── Wish sender (for non-birthday employees) ────────────────── */}
       {!isBirthday && otherBirthdayPeople.length > 0 && (
-        <BirthdayWishSender
-          birthdayPeople={otherBirthdayPeople}
-          alreadyWished={alreadyWishedIds}
-        />
+        <BirthdayWishSender birthdayPeople={otherBirthdayPeople} alreadyWished={alreadyWishedIds} />
       )}
 
       {/* ── Profile banner ─────────────────────────────────────────── */}
@@ -184,10 +165,7 @@ export default async function PortalDashboard() {
         <div className="h-20 w-full" style={{ background: "linear-gradient(135deg, #29c0d5 0%, #503d98 100%)" }} />
         <div className="bg-white border border-zinc-200 border-t-0 rounded-b-2xl px-6 pb-5">
           <div className="flex items-end gap-4 -mt-8">
-            <div
-              className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border-4 border-white text-lg font-bold text-white shadow-md"
-              style={{ background: "linear-gradient(135deg, #29c0d5 0%, #503d98 100%)" }}
-            >
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border-4 border-white text-lg font-bold text-white shadow-md" style={{ background: "linear-gradient(135deg, #29c0d5 0%, #503d98 100%)" }}>
               {initials}
             </div>
             <div className="pb-1 flex-1 min-w-0">
@@ -217,70 +195,7 @@ export default async function PortalDashboard() {
         </div>
       </div>
 
-      {/* ── Latest notices ─────────────────────────────────────────── */}
-      {notices.length > 0 && (
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-zinc-900">Latest Notices</h2>
-            <Link href="/portal/notices" className="text-xs font-medium text-[#29c0d5] hover:underline">View all →</Link>
-          </div>
-          <div className="space-y-3">
-            {notices.map((n) => (
-              <Link key={n.id} href="/portal/notices" className="flex items-start gap-3 rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3 hover:bg-zinc-100 transition-colors">
-                <span className={`mt-0.5 h-4 w-4 shrink-0 flex items-center justify-center ${n.type === "URGENT" ? "text-red-500" : n.type === "EVENT" ? "text-[#503d98]" : n.type === "POLICY" ? "text-zinc-500" : n.type === "HR" ? "text-[#29c0d5]" : "text-zinc-400"}`}>
-                  <FontAwesomeIcon icon={n.type === "URGENT" ? faTriangleExclamation : n.type === "EVENT" ? faCalendarDays : n.type === "POLICY" ? faFileLines : n.type === "HR" ? faUsers : faBullhorn} className="h-4 w-4" />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold text-zinc-900 leading-snug">{n.title}</p>
-                  {n.content && <p className="text-[11px] text-zinc-500 mt-0.5 line-clamp-1">{n.content}</p>}
-                  <p className="text-[10px] text-zinc-400 mt-1">{n.publishedAt?.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── Today's attendance ─────────────────────────────────────── */}
-      <div className="rounded-2xl border border-zinc-200 bg-white p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold text-zinc-900">Today&apos;s Attendance</h2>
-          <span className="text-xs text-zinc-400">{DAYS[now.getDay()]}, {now.getDate()} {MONTHS[now.getMonth()]} {now.getFullYear()}</span>
-        </div>
-        <div className="flex items-stretch gap-3 mb-4 flex-wrap">
-          {[
-            { label: "Check In", value: todayRecord?.checkIn ? new Date(todayRecord.checkIn).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null },
-            { label: "Check Out", value: todayRecord?.checkOut ? new Date(todayRecord.checkOut).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null },
-            { label: "Hours", value: whStr },
-          ].map(({ label, value }) => (
-            <div key={label} className="flex-1 min-w-[90px] rounded-xl bg-zinc-50 border border-zinc-100 px-4 py-3">
-              <p className="text-[10px] font-medium text-zinc-400 uppercase tracking-wide mb-1">{label}</p>
-              <p className={`text-base font-bold ${value ? "text-zinc-900" : "text-zinc-300"}`}>{value ?? "—"}</p>
-            </div>
-          ))}
-          {todayRecord?.status && (
-            <div className="flex-1 min-w-[90px] rounded-xl bg-zinc-50 border border-zinc-100 px-4 py-3">
-              <p className="text-[10px] font-medium text-zinc-400 uppercase tracking-wide mb-1">Status</p>
-              <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-bold ${
-                todayRecord.status === "PRESENT" ? "bg-emerald-100 text-emerald-700" :
-                todayRecord.status === "LATE" ? "bg-yellow-100 text-yellow-700" :
-                todayRecord.status === "ON_LEAVE" ? "bg-blue-100 text-blue-700" :
-                "bg-red-100 text-red-700"
-              }`}>{todayRecord.status.replace("_", " ")}</span>
-            </div>
-          )}
-        </div>
-        <AttendanceCheckIn
-          hasCheckedIn={!!todayRecord?.checkIn}
-          hasCheckedOut={!!todayRecord?.checkOut}
-          checkInTime={todayRecord?.checkIn ? new Date(todayRecord.checkIn).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null}
-          checkOutTime={todayRecord?.checkOut ? new Date(todayRecord.checkOut).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null}
-          status={todayRecord?.status ?? null}
-          workingHours={whStr}
-        />
-      </div>
-
-      {/* ── Monthly stats ──────────────────────────────────────────── */}
+      {/* ── Monthly stat cards ─────────────────────────────────────── */}
       <div>
         <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-3">{MONTHS[now.getMonth()]} {now.getFullYear()} Summary</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -301,105 +216,130 @@ export default async function PortalDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      {/* ── Main content grid (left: attendance + leaves | right: sidebar) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
-        {/* Leave balances */}
-        {balances.length > 0 && (
+        {/* LEFT — col-span-2 */}
+        <div className="lg:col-span-2 space-y-5">
+
+          {/* Today's attendance */}
           <div className="rounded-2xl border border-zinc-200 bg-white p-5">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-zinc-900">Leave Balance {now.getFullYear()}</h2>
-              <Link href="/portal/leaves" className="text-xs font-medium text-[#29c0d5] hover:underline">Apply →</Link>
+              <h2 className="text-sm font-semibold text-zinc-900">Today&apos;s Attendance</h2>
+              <span className="text-xs text-zinc-400">{DAYS[now.getDay()]}, {now.getDate()} {MONTHS[now.getMonth()]} {now.getFullYear()}</span>
             </div>
-            <div className="space-y-3">
-              {balances.map((lb) => {
-                const pct = lb.allocated > 0 ? Math.max(0, Math.min(100, (Number(lb.remaining) / Number(lb.allocated)) * 100)) : 0;
-                return (
-                  <div key={lb.id}>
-                    <div className="flex items-center justify-between text-xs mb-1.5">
-                      <span className="text-zinc-600 font-medium">{lb.leaveType.name}</span>
-                      <span className="text-zinc-400">{String(lb.remaining)} / {String(lb.allocated)} days</span>
+            <div className="flex items-stretch gap-3 mb-4 flex-wrap">
+              {[
+                { label: "Check In", value: todayRecord?.checkIn ? new Date(todayRecord.checkIn).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null },
+                { label: "Check Out", value: todayRecord?.checkOut ? new Date(todayRecord.checkOut).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null },
+                { label: "Hours", value: whStr },
+              ].map(({ label, value }) => (
+                <div key={label} className="flex-1 min-w-[90px] rounded-xl bg-zinc-50 border border-zinc-100 px-4 py-3">
+                  <p className="text-[10px] font-medium text-zinc-400 uppercase tracking-wide mb-1">{label}</p>
+                  <p className={`text-base font-bold ${value ? "text-zinc-900" : "text-zinc-300"}`}>{value ?? "—"}</p>
+                </div>
+              ))}
+              {todayRecord?.status && (
+                <div className="flex-1 min-w-[90px] rounded-xl bg-zinc-50 border border-zinc-100 px-4 py-3">
+                  <p className="text-[10px] font-medium text-zinc-400 uppercase tracking-wide mb-1">Status</p>
+                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                    todayRecord.status === "PRESENT" ? "bg-emerald-100 text-emerald-700" :
+                    todayRecord.status === "LATE" ? "bg-yellow-100 text-yellow-700" :
+                    todayRecord.status === "ON_LEAVE" ? "bg-blue-100 text-blue-700" :
+                    "bg-red-100 text-red-700"
+                  }`}>{todayRecord.status.replace("_", " ")}</span>
+                </div>
+              )}
+            </div>
+            <AttendanceCheckIn
+              hasCheckedIn={!!todayRecord?.checkIn}
+              hasCheckedOut={!!todayRecord?.checkOut}
+              checkInTime={todayRecord?.checkIn ? new Date(todayRecord.checkIn).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null}
+              checkOutTime={todayRecord?.checkOut ? new Date(todayRecord.checkOut).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null}
+              status={todayRecord?.status ?? null}
+              workingHours={whStr}
+            />
+          </div>
+
+          {/* Pending leave requests */}
+          {leaves.length > 0 && (
+            <div className="rounded-2xl border border-zinc-200 bg-white p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-semibold text-zinc-900">Pending Leave Requests</h2>
+                <Link href="/portal/leaves" className="text-xs font-medium text-[#29c0d5] hover:underline">View all →</Link>
+              </div>
+              <div className="space-y-2">
+                {leaves.map((l) => (
+                  <div key={l.id} className="flex items-center justify-between rounded-xl bg-amber-50 border border-amber-100 px-4 py-3">
+                    <div>
+                      <p className="text-xs font-semibold text-zinc-800">{l.leaveType.name}</p>
+                      <p className="text-[10px] text-zinc-500 mt-0.5">
+                        {l.startDate.toLocaleDateString("en-GB", { day: "numeric", month: "short" })} → {l.endDate.toLocaleDateString("en-GB", { day: "numeric", month: "short" })} · {l.days} day{l.days !== 1 ? "s" : ""}
+                      </p>
                     </div>
-                    <div className="h-1.5 w-full rounded-full bg-zinc-100">
-                      <div className="h-1.5 rounded-full transition-all" style={{ width: `${pct}%`, background: "linear-gradient(90deg, #29c0d5, #503d98)" }} />
+                    <span className="rounded-full bg-amber-100 border border-amber-200 px-2.5 py-0.5 text-[10px] font-bold text-amber-700">PENDING</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Leave balance */}
+          {balances.length > 0 && (
+            <div className="rounded-2xl border border-zinc-200 bg-white p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-semibold text-zinc-900">Leave Balance {now.getFullYear()}</h2>
+                <Link href="/portal/leaves" className="text-xs font-medium text-[#29c0d5] hover:underline">Apply →</Link>
+              </div>
+              <div className="space-y-3">
+                {balances.map((lb) => {
+                  const pct = lb.allocated > 0 ? Math.max(0, Math.min(100, (Number(lb.remaining) / Number(lb.allocated)) * 100)) : 0;
+                  return (
+                    <div key={lb.id}>
+                      <div className="flex items-center justify-between text-xs mb-1.5">
+                        <span className="text-zinc-600 font-medium">{lb.leaveType.name}</span>
+                        <span className="text-zinc-400">{String(lb.remaining)} / {String(lb.allocated)} days</span>
+                      </div>
+                      <div className="h-1.5 w-full rounded-full bg-zinc-100">
+                        <div className="h-1.5 rounded-full transition-all" style={{ width: `${pct}%`, background: "linear-gradient(90deg, #29c0d5, #503d98)" }} />
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Pending leaves */}
-        {leaves.length > 0 && (
-          <div className="rounded-2xl border border-zinc-200 bg-white p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-zinc-900">Pending Leave Requests</h2>
-              <Link href="/portal/leaves" className="text-xs font-medium text-[#29c0d5] hover:underline">View all →</Link>
-            </div>
-            <div className="space-y-2">
-              {leaves.map((l) => (
-                <div key={l.id} className="flex items-center justify-between rounded-xl bg-amber-50 border border-amber-100 px-4 py-3">
-                  <div>
-                    <p className="text-xs font-semibold text-zinc-800">{l.leaveType.name}</p>
-                    <p className="text-[10px] text-zinc-500 mt-0.5">
-                      {l.startDate.toLocaleDateString("en-GB", { day: "numeric", month: "short" })} → {l.endDate.toLocaleDateString("en-GB", { day: "numeric", month: "short" })} · {l.days} day{l.days !== 1 ? "s" : ""}
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-amber-100 border border-amber-200 px-2.5 py-0.5 text-[10px] font-bold text-amber-700">PENDING</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        </div>
 
-        {/* Upcoming holidays */}
-        {upcomingHolidays.length > 0 && (
-          <div className="rounded-2xl border border-zinc-200 bg-white p-5">
-            <h2 className="text-sm font-semibold text-zinc-900 mb-4">Upcoming Holidays</h2>
-            <div className="space-y-3">
-              {upcomingHolidays.map((h) => (
-                <div key={h.id} className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-xl border border-purple-100 bg-purple-50">
-                    <p className="text-[9px] font-bold text-purple-400 uppercase leading-none">{MONTHS[new Date(h.date).getMonth()]}</p>
-                    <p className="text-sm font-bold text-purple-700 leading-none mt-0.5">{new Date(h.date).getDate()}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-zinc-800">{h.name}</p>
-                    <p className="text-[10px] text-zinc-400">{DAYS[new Date(h.date).getDay()]}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* RIGHT sidebar — col-span-1 */}
+        <div className="space-y-5">
 
-        {/* Payslip requests */}
-        {payslipRequests.length > 0 && (
-          <div className="rounded-2xl border border-zinc-200 bg-white p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-zinc-900">Payslip Requests</h2>
-              <Link href="/portal/payslip-request" className="text-xs font-medium text-[#29c0d5] hover:underline">New →</Link>
+          {/* Latest notices */}
+          {notices.length > 0 && (
+            <div className="rounded-2xl border border-zinc-200 bg-white p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-semibold text-zinc-900">Latest Notices</h2>
+                <Link href="/portal/notices" className="text-xs font-medium text-[#29c0d5] hover:underline">View all →</Link>
+              </div>
+              <div className="space-y-3">
+                {notices.map((n) => (
+                  <Link key={n.id} href="/portal/notices" className="flex items-start gap-3 rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3 hover:bg-zinc-100 transition-colors">
+                    <span className={`mt-0.5 shrink-0 ${n.type === "URGENT" ? "text-red-500" : n.type === "EVENT" ? "text-[#503d98]" : n.type === "POLICY" ? "text-zinc-500" : n.type === "HR" ? "text-[#29c0d5]" : "text-zinc-400"}`}>
+                      <FontAwesomeIcon icon={n.type === "URGENT" ? faTriangleExclamation : n.type === "EVENT" ? faCalendarDays : n.type === "POLICY" ? faFileLines : n.type === "HR" ? faUsers : faBullhorn} className="h-3.5 w-3.5" />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-zinc-900 leading-snug">{n.title}</p>
+                      {n.content && <p className="text-[11px] text-zinc-500 mt-0.5 line-clamp-1">{n.content}</p>}
+                      <p className="text-[10px] text-zinc-400 mt-1">{n.publishedAt?.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
-            <div className="space-y-2">
-              {payslipRequests.map((req) => (
-                <div key={req.id} className="flex items-center justify-between rounded-xl bg-zinc-50 border border-zinc-100 px-4 py-3">
-                  <span className="text-xs font-medium text-zinc-700">{MONTHS[req.month - 1]} {req.year}</span>
-                  <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
-                    req.status === "FULFILLED" ? "bg-emerald-100 text-emerald-700" :
-                    req.status === "REJECTED" ? "bg-red-100 text-red-700" :
-                    "bg-zinc-200 text-zinc-500"
-                  }`}>{req.status}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+          )}
 
-      </div>
-
-      {/* ── Birthdays & Anniversaries ──────────────────────────────── */}
-      {(upcomingBirthdays.length > 0 || upcomingAnniversaries.length > 0) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {/* Upcoming birthdays */}
           {upcomingBirthdays.length > 0 && (
             <div className="rounded-2xl border border-zinc-200 bg-white p-5">
               <h2 className="text-sm font-semibold text-zinc-900 mb-4 flex items-center gap-2">
@@ -424,6 +364,8 @@ export default async function PortalDashboard() {
               </div>
             </div>
           )}
+
+          {/* Work anniversaries */}
           {upcomingAnniversaries.length > 0 && (
             <div className="rounded-2xl border border-zinc-200 bg-white p-5">
               <h2 className="text-sm font-semibold text-zinc-900 mb-4 flex items-center gap-2">
@@ -448,9 +390,52 @@ export default async function PortalDashboard() {
               </div>
             </div>
           )}
-        </div>
-      )}
 
+          {/* Upcoming holidays */}
+          {upcomingHolidays.length > 0 && (
+            <div className="rounded-2xl border border-zinc-200 bg-white p-5">
+              <h2 className="text-sm font-semibold text-zinc-900 mb-4">Upcoming Holidays</h2>
+              <div className="space-y-3">
+                {upcomingHolidays.map((h) => (
+                  <div key={h.id} className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-xl border border-purple-100 bg-purple-50">
+                      <p className="text-[9px] font-bold text-purple-400 uppercase leading-none">{MONTHS[new Date(h.date).getMonth()]}</p>
+                      <p className="text-sm font-bold text-purple-700 leading-none mt-0.5">{new Date(h.date).getDate()}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-zinc-800">{h.name}</p>
+                      <p className="text-[10px] text-zinc-400">{DAYS[new Date(h.date).getDay()]}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Payslip requests */}
+          {payslipRequests.length > 0 && (
+            <div className="rounded-2xl border border-zinc-200 bg-white p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-sm font-semibold text-zinc-900">Payslip Requests</h2>
+                <Link href="/portal/payslip-request" className="text-xs font-medium text-[#29c0d5] hover:underline">New →</Link>
+              </div>
+              <div className="space-y-2">
+                {payslipRequests.map((req) => (
+                  <div key={req.id} className="flex items-center justify-between rounded-xl bg-zinc-50 border border-zinc-100 px-4 py-3">
+                    <span className="text-xs font-medium text-zinc-700">{MONTHS[req.month - 1]} {req.year}</span>
+                    <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                      req.status === "FULFILLED" ? "bg-emerald-100 text-emerald-700" :
+                      req.status === "REJECTED" ? "bg-red-100 text-red-700" :
+                      "bg-zinc-200 text-zinc-500"
+                    }`}>{req.status}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+        </div>
+      </div>
 
     </div>
   );
