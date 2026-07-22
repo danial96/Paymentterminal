@@ -42,6 +42,7 @@ export function ShiftFormClient() {
           <option value="NIGHT">Night</option>
           <option value="FLEXIBLE">Flexible</option>
           <option value="ROTATIONAL">Rotational</option>
+          <option value="REMOTE">Remote</option>
           <option value="CUSTOM">Custom</option>
         </select>
       </div>

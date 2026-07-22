@@ -300,6 +300,7 @@ enum HRMShiftType {
   NIGHT
   FLEXIBLE
   ROTATIONAL
+  REMOTE
   CUSTOM
 }
 
