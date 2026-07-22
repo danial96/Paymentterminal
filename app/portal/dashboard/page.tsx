@@ -139,6 +139,30 @@ export default async function PortalDashboard() {
         </div>
       </div>
 
+      {/* ── Latest notices ─────────────────────────────────────────── */}
+      {notices.length > 0 && (
+        <div className="rounded-2xl border border-zinc-200 bg-white p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-zinc-900">Latest Notices</h2>
+            <Link href="/portal/notices" className="text-xs font-medium text-[#29c0d5] hover:underline">View all →</Link>
+          </div>
+          <div className="space-y-3">
+            {notices.map((n) => (
+              <Link key={n.id} href="/portal/notices" className="flex items-start gap-3 rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3 hover:bg-zinc-100 transition-colors">
+                <span className={`mt-0.5 h-4 w-4 shrink-0 flex items-center justify-center ${n.type === "URGENT" ? "text-red-500" : n.type === "EVENT" ? "text-[#503d98]" : n.type === "POLICY" ? "text-zinc-500" : n.type === "HR" ? "text-[#29c0d5]" : "text-zinc-400"}`}>
+                  <FontAwesomeIcon icon={n.type === "URGENT" ? faTriangleExclamation : n.type === "EVENT" ? faCalendarDays : n.type === "POLICY" ? faFileLines : n.type === "HR" ? faUsers : faBullhorn} className="h-4 w-4" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-zinc-900 leading-snug">{n.title}</p>
+                  {n.content && <p className="text-[11px] text-zinc-500 mt-0.5 line-clamp-1">{n.content}</p>}
+                  <p className="text-[10px] text-zinc-400 mt-1">{n.publishedAt?.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ── Today's attendance ─────────────────────────────────────── */}
       <div className="rounded-2xl border border-zinc-200 bg-white p-5">
         <div className="flex items-center justify-between mb-4">
@@ -349,29 +373,6 @@ export default async function PortalDashboard() {
         </div>
       )}
 
-      {/* ── Latest notices ─────────────────────────────────────────── */}
-      {notices.length > 0 && (
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-zinc-900">Latest Notices</h2>
-            <Link href="/portal/notices" className="text-xs font-medium text-[#29c0d5] hover:underline">View all →</Link>
-          </div>
-          <div className="space-y-3">
-            {notices.map((n) => (
-              <Link key={n.id} href="/portal/notices" className="flex items-start gap-3 rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3 hover:bg-zinc-100 transition-colors">
-                <span className={`mt-0.5 h-4 w-4 shrink-0 flex items-center justify-center ${n.type === "URGENT" ? "text-red-500" : n.type === "EVENT" ? "text-[#503d98]" : n.type === "POLICY" ? "text-zinc-500" : n.type === "HR" ? "text-[#29c0d5]" : "text-zinc-400"}`}>
-                  <FontAwesomeIcon icon={n.type === "URGENT" ? faTriangleExclamation : n.type === "EVENT" ? faCalendarDays : n.type === "POLICY" ? faFileLines : n.type === "HR" ? faUsers : faBullhorn} className="h-4 w-4" />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold text-zinc-900 leading-snug">{n.title}</p>
-                  {n.content && <p className="text-[11px] text-zinc-500 mt-0.5 line-clamp-1">{n.content}</p>}
-                  <p className="text-[10px] text-zinc-400 mt-1">{n.publishedAt?.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
 
     </div>
   );
