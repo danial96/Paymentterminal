@@ -101,6 +101,13 @@ export default async function HRMDashboard() {
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const todayFormatted = `${today.getDate()} ${monthNames[today.getMonth()]} ${today.getFullYear()}`;
 
+  // Employees with birthday TODAY
+  const birthdayToday = upcomingBirthdays.filter((e) => {
+    if (!e.dateOfBirth) return false;
+    const bd = new Date(e.dateOfBirth);
+    return bd.getMonth() === today.getMonth() && bd.getDate() === today.getDate();
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -112,6 +119,27 @@ export default async function HRMDashboard() {
           + Add Employee
         </Link>
       </div>
+
+      {/* Today's Birthdays */}
+      {birthdayToday.length > 0 && (
+        <div className="rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg, #f472b6 0%, #a855f7 50%, #503d98 100%)" }}>
+          <div className="px-5 py-4 flex items-center gap-4">
+            <span className="text-3xl select-none" aria-hidden>🎂</span>
+            <div className="flex-1">
+              <p className="text-white/70 text-[10px] font-bold uppercase tracking-widest mb-0.5">Today&apos;s Birthdays</p>
+              <div className="flex flex-wrap gap-x-4 gap-y-0.5">
+                {birthdayToday.map((e) => (
+                  <Link key={e.id} href={`/hrm/employees/${e.id}`} className="text-white font-semibold text-sm hover:underline">
+                    {e.firstName} {e.lastName}
+                    {e.department?.name && <span className="font-normal text-white/70 text-xs ml-1">({e.department.name})</span>}
+                  </Link>
+                ))}
+              </div>
+            </div>
+            <span className="text-3xl select-none hidden sm:block" aria-hidden>🎉</span>
+          </div>
+        </div>
+      )}
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

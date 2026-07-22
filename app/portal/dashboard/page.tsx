@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { AttendanceCheckIn } from "./AttendanceCheckIn";
+import BirthdayCelebration from "./BirthdayCelebration";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCheck, faXmark, faClock, faUmbrellaBeach,
@@ -68,6 +69,13 @@ export default async function PortalDashboard() {
 
   const initials = `${employee?.firstName?.[0] ?? ""}${employee?.lastName?.[0] ?? ""}`.toUpperCase();
 
+  // Check if today is this employee's birthday
+  const isBirthday = (() => {
+    if (!employee?.dateOfBirth) return false;
+    const bd = new Date(employee.dateOfBirth);
+    return bd.getMonth() === now.getMonth() && bd.getDate() === now.getDate();
+  })();
+
   const upcomingBirthdays = allEmployees
     .filter((e) => e.dateOfBirth)
     .map((e) => {
@@ -100,6 +108,38 @@ export default async function PortalDashboard() {
 
   return (
     <div className="space-y-5">
+
+      {/* ── Birthday celebration ────────────────────────────────────── */}
+      {isBirthday && (
+        <>
+          <BirthdayCelebration name={employee?.firstName ?? ""} />
+          <div className="relative rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg, #f472b6 0%, #a855f7 50%, #503d98 100%)" }}>
+            <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px), radial-gradient(circle at 60% 80%, white 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
+            <div className="relative px-6 py-5 flex items-center gap-5">
+              <div className="text-5xl select-none" aria-hidden>🎂</div>
+              <div className="flex-1">
+                <p className="text-white/80 text-xs font-semibold uppercase tracking-widest mb-0.5">Special Day</p>
+                <h2 className="text-white text-2xl font-bold leading-tight">
+                  Happy Birthday, {employee?.firstName}!
+                </h2>
+                <p className="text-white/80 text-sm mt-1">
+                  Wishing you a wonderful day filled with joy. The entire IKIA Tech team celebrates with you!
+                </p>
+              </div>
+              <div className="text-5xl select-none hidden sm:block" aria-hidden>🎉</div>
+            </div>
+
+            {/* Birthday card */}
+            <div className="mx-6 mb-5 rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 px-5 py-4">
+              <p className="text-white text-sm font-semibold mb-1">A message from IKIA Tech</p>
+              <p className="text-white/90 text-sm leading-relaxed">
+                "On your special day, we want you to know how much you mean to our team. Your dedication and hard work make a real difference every single day. Here&apos;s to another amazing year ahead — keep shining!"
+              </p>
+              <p className="text-white/60 text-xs mt-2">— IKIA Tech Family</p>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* ── Profile banner ─────────────────────────────────────────── */}
       <div className="rounded-2xl overflow-hidden">
