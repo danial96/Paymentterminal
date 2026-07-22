@@ -27,7 +27,7 @@ export default async function BankLetterPage() {
   const hasPending = !!activeRequest;
 
   return (
-    <div className="space-y-6 max-w-xl">
+    <div className="space-y-6">
       <h1 className="text-xl font-bold text-zinc-900">Bank Account Opening Letter</h1>
 
       {/* Active request status */}
