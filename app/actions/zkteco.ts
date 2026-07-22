@@ -162,7 +162,8 @@ export async function syncZKAttendance() {
   // Batch writes
   try {
     if (toCreate.length) await prisma.hRMAttendance.createMany({ data: toCreate, skipDuplicates: true });
-    await Promise.all(toUpdate.map((u) => prisma.hRMAttendance.update({ where: { id: u.id }, data: { checkOut: u.checkOut, workingHours: u.workingHours, overtimeHours: u.overtimeHours, ...(u.status ? { status: u.status } : {}) } })));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await Promise.all(toUpdate.map((u) => prisma.hRMAttendance.update({ where: { id: u.id }, data: { checkOut: u.checkOut, workingHours: u.workingHours, overtimeHours: u.overtimeHours, ...(u.status ? { status: u.status } : {}) } as any })));
     if (enrollIds.size) await prisma.hRMEmployee.updateMany({ where: { id: { in: [...enrollIds] }, fingerprintEnrolled: false }, data: { fingerprintEnrolled: true } });
   } catch (e) {
     errors.push(String(e));
