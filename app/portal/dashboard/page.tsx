@@ -99,7 +99,7 @@ export default async function PortalDashboard() {
   const whStr = wh !== null ? `${Math.floor(wh)}h ${Math.round((wh % 1) * 60)}m` : null;
 
   return (
-    <div className="space-y-5 max-w-5xl">
+    <div className="space-y-5">
 
       {/* ── Profile banner ─────────────────────────────────────────── */}
       <div className="rounded-2xl overflow-hidden">
