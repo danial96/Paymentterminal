@@ -37,7 +37,7 @@ export default function BirthdayWishes({ wishes }: { wishes: Wish[] }) {
               </div>
               <p className="text-xs font-semibold text-zinc-800">{w.from.firstName} {w.from.lastName}</p>
               <p className="text-[10px] text-zinc-400 ml-auto">
-                {new Date(w.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Karachi" })}
+                {new Date(w.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
               </p>
             </div>
             <p className="text-sm text-zinc-700 pl-9 leading-relaxed">{w.message}</p>

@@ -106,7 +106,7 @@ function CommentItem({ c, currentEmpId, noticeId, isReply, isPending, startTrans
             <div className="flex items-center gap-2 shrink-0">
               <p className="text-[10px] text-zinc-400">
                 {new Date(c.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}{" "}
-                {new Date(c.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Karachi" })}
+                {new Date(c.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
               </p>
               {c.employeeId === currentEmpId && (
                 <button type="button" disabled={isPending}

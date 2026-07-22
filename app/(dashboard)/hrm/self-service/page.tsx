@@ -70,7 +70,7 @@ export default function SelfServicePage() {
 
   const dayName = time.toLocaleDateString("en-US", { weekday: "long" });
   const dateStr = time.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
-  const timeStr = time.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit", timeZone: "Asia/Karachi" });
+  const timeStr = time.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
   return (
     <div className="space-y-6">
@@ -89,7 +89,7 @@ export default function SelfServicePage() {
               <p className="text-3xl font-bold text-zinc-700 font-mono tabular-nums mt-1">
                 {String(hours).padStart(2, "0")}:{String(mins).padStart(2, "0")}:{String(secs).padStart(2, "0")}
               </p>
-              <p className="text-xs text-zinc-400 mt-1">Checked in at {checkInTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Karachi" })}</p>
+              <p className="text-xs text-zinc-400 mt-1">Checked in at {checkInTime.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}</p>
             </div>
           )}
 
