@@ -13,7 +13,7 @@ export async function addEmployeeBankAccount(formData: FormData) {
   const iban = String(formData.get("iban") ?? "").trim() || null;
   const isDefault = formData.get("isDefault") === "true";
 
-  if (!accountTitle) return { error: "Account title is required" };
+  if (!accountTitle) return;
 
   // If marking as default, unset existing defaults
   if (isDefault) {
