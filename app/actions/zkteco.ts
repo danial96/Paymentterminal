@@ -165,6 +165,10 @@ export async function syncZKAttendance() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await Promise.all(toUpdate.map((u) => prisma.hRMAttendance.update({ where: { id: u.id }, data: { checkOut: u.checkOut, workingHours: u.workingHours, overtimeHours: u.overtimeHours, ...(u.status ? { status: u.status } : {}) } as any })));
     if (enrollIds.size) await prisma.hRMEmployee.updateMany({ where: { id: { in: [...enrollIds] }, fingerprintEnrolled: false }, data: { fingerprintEnrolled: true } });
+    const { revalidatePath } = await import("next/cache");
+    revalidatePath("/portal/dashboard");
+    revalidatePath("/portal/attendance");
+    revalidatePath("/hrm/attendance");
   } catch (e) {
     errors.push(String(e));
   }
