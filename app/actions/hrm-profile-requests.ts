@@ -78,7 +78,7 @@ export async function approveProfileUpdateRequest(id: number, employeeId: number
   if (!req || req.status !== "PENDING") return;
 
   // Apply the change to the employee record
-  await prisma.hRMEmployee.update({
+  await (prisma.hRMEmployee.update as any)({
     where: { id: employeeId },
     data: { [req.fieldKey]: req.requestedValue },
   });
