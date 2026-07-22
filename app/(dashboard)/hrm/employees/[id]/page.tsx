@@ -195,7 +195,7 @@ export default async function EmployeeProfilePage({ params }: { params: Promise<
               <InfoRow label="Joining Date" value={emp.joiningDate?.toLocaleDateString("en-GB")} />
               <InfoRow label="Confirmation Date" value={emp.confirmationDate?.toLocaleDateString("en-GB")} />
               <InfoRow label="Probation Status" value={emp.probationStatus.replace("_", " ")} />
-              <InfoRow label="Shift" value={emp.shift ? (emp.shift.shiftType === "REMOTE" ? emp.shift.name : `${emp.shift.name} (${emp.shift.startTime}–${emp.shift.endTime})`) : undefined} />
+              <InfoRow label="Shift" value={emp.shift ? ((emp.shift.shiftType as string) === "REMOTE" ? emp.shift.name : `${emp.shift.name} (${emp.shift.startTime}–${emp.shift.endTime})`) : undefined} />
               <InfoRow label="Work Location" value={emp.workLocation} />
               <InfoRow label="Branch" value={emp.branch} />
               <InfoRow label="Floor / Desk" value={[emp.officeFloor, emp.deskNumber].filter(Boolean).join(" / ") || undefined} />
