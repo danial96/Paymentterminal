@@ -2,12 +2,14 @@ export const dynamic = "force-dynamic";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import Link from "next/link";
+import { FilterForm } from "@/app/components/FilterForm";
 
 const STATUS_STYLES: Record<string, string> = {
   PRESENT: "bg-green-100 text-green-800",
   ABSENT: "bg-red-100 text-red-800",
   LATE: "bg-yellow-100 text-yellow-800",
+  HALF_DAY: "bg-orange-100 text-orange-700",
+  EARLY_LEAVE: "bg-amber-100 text-amber-700",
   ON_LEAVE: "bg-blue-100 text-blue-800",
   HOLIDAY: "bg-purple-100 text-purple-800",
   OFF: "bg-zinc-100 text-zinc-500",
@@ -16,31 +18,40 @@ const STATUS_STYLES: Record<string, string> = {
 export default async function PortalAttendancePage({
   searchParams,
 }: {
-  searchParams: { month?: string; year?: string };
+  searchParams: Promise<{ month?: string; year?: string }>;
 }) {
   const session = await auth();
   const empId = Number((session?.user as any)?.employeeId);
 
   const now = new Date();
-  const month = searchParams.month ? Number(searchParams.month) : now.getMonth() + 1;
-  const year = searchParams.year ? Number(searchParams.year) : now.getFullYear();
+  const { month: monthParam, year: yearParam } = await searchParams;
+  const month = monthParam ? Number(monthParam) : now.getMonth() + 1;
+  const year = yearParam ? Number(yearParam) : now.getFullYear();
 
   const start = new Date(year, month - 1, 1);
   const end = new Date(year, month, 0, 23, 59, 59);
 
   const records = await prisma.hRMAttendance.findMany({
     where: { employeeId: empId, date: { gte: start, lte: end } },
-    orderBy: { date: "asc" },
+    orderBy: { date: "desc" },
   });
 
   const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
+  const present = records.filter(r => r.status === "PRESENT" || r.status === "LATE" || r.status === "EARLY_LEAVE").length;
+  const absent = records.filter(r => r.status === "ABSENT").length;
+  const late = records.filter(r => r.status === "LATE").length;
+  const onLeave = records.filter(r => r.status === "ON_LEAVE").length;
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-zinc-900">My Attendance</h1>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-xl font-bold text-zinc-900">My Attendance</h1>
+          <p className="text-sm text-zinc-500">{MONTHS[month - 1]} {year}</p>
+        </div>
 
-        <form className="flex items-center gap-2">
+        <FilterForm action="/portal/attendance" className="flex items-center gap-2">
           <select
             name="month"
             defaultValue={month}
@@ -55,7 +66,7 @@ export default async function PortalAttendancePage({
             defaultValue={year}
             className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400"
           >
-            {[now.getFullYear() - 1, now.getFullYear()].map((y) => (
+            {[now.getFullYear() - 1, now.getFullYear(), now.getFullYear() + 1].map((y) => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>
@@ -66,7 +77,22 @@ export default async function PortalAttendancePage({
           >
             Go
           </button>
-        </form>
+        </FilterForm>
+      </div>
+
+      {/* Summary stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          { label: "Present", value: present, color: "text-emerald-600", bg: "bg-emerald-50 border-emerald-100" },
+          { label: "Absent", value: absent, color: "text-red-500", bg: "bg-red-50 border-red-100" },
+          { label: "Late", value: late, color: "text-yellow-600", bg: "bg-yellow-50 border-yellow-100" },
+          { label: "On Leave", value: onLeave, color: "text-blue-500", bg: "bg-blue-50 border-blue-100" },
+        ].map(({ label, value, color, bg }) => (
+          <div key={label} className={`rounded-xl border p-4 ${bg}`}>
+            <p className="text-xs text-zinc-500 mb-1">{label}</p>
+            <p className={`text-2xl font-bold ${color}`}>{value}</p>
+          </div>
+        ))}
       </div>
 
       <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
