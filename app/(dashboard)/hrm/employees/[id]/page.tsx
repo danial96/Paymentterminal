@@ -107,13 +107,13 @@ export default async function EmployeeProfilePage({ params }: { params: Promise<
           <div>
             <p className="text-xs text-zinc-400">Today Check In</p>
             <p className="text-sm font-semibold text-zinc-900">
-              {todayAttendance?.checkIn ? todayAttendance.checkIn.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : "—"}
+              {todayAttendance?.checkIn ? todayAttendance.checkIn.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Karachi" }) : "—"}
             </p>
           </div>
           <div>
             <p className="text-xs text-zinc-400">Today Check Out</p>
             <p className="text-sm font-semibold text-zinc-900">
-              {todayAttendance?.checkOut ? todayAttendance.checkOut.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : "—"}
+              {todayAttendance?.checkOut ? todayAttendance.checkOut.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Karachi" }) : "—"}
             </p>
           </div>
           <div>

@@ -121,8 +121,8 @@ export default async function PortalAttendancePage({
                 <td className="px-4 py-3 text-zinc-500">
                   {r.date.toLocaleDateString("en-US", { weekday: "short" })}
                 </td>
-                <td className="px-4 py-3 text-zinc-700">{r.checkIn ? new Date(r.checkIn).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : "—"}</td>
-                <td className="px-4 py-3 text-zinc-700">{r.checkOut ? new Date(r.checkOut).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : "—"}</td>
+                <td className="px-4 py-3 text-zinc-700">{r.checkIn ? new Date(r.checkIn).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Karachi" }) : "—"}</td>
+                <td className="px-4 py-3 text-zinc-700">{r.checkOut ? new Date(r.checkOut).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Karachi" }) : "—"}</td>
                 <td className="px-4 py-3">
                   <span
                     className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${

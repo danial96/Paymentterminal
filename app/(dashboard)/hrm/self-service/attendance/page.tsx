@@ -13,7 +13,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 function fmt(d: Date | null) {
   if (!d) return "—";
-  return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Karachi" });
 }
 
 export default async function ESSAttendancePage() {
