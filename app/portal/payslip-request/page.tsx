@@ -61,6 +61,9 @@ export default async function PortalPayslipRequestPage() {
               <tr key={req.id} className="hover:bg-zinc-50">
                 <td className="px-4 py-3 text-zinc-900">
                   {MONTHS_SHORT[req.month - 1]} {req.year}
+                  {req.toMonth && req.toYear && (
+                    <span className="text-zinc-400"> → {MONTHS_SHORT[req.toMonth - 1]} {req.toYear}</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-zinc-500">
                   {req.createdAt.toLocaleDateString()}

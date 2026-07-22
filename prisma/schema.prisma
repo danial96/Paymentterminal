@@ -830,6 +830,8 @@ model HRMPayslipRequest {
   employee   HRMEmployee @relation(fields: [employeeId], references: [id])
   month      Int
   year       Int
+  toMonth    Int?
+  toYear     Int?
   status     String      @default("PENDING")
   hrNote     String?
   createdAt  DateTime    @default(now())
