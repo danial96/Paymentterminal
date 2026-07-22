@@ -28,8 +28,10 @@ function InfoRow({ label, value }: { label: string; value?: string | null }) {
 export default async function EmployeeProfilePage({ params }: { params: Promise<{ id: string }> }) {
   await requireUser();
   const { id } = await params;
-  const emp = await prisma.hRMEmployee.findFirst({
-    where: { id: Number(id), deletedAt: null },
+  const empId = Number(id);
+  const [emp, bankAccounts] = await Promise.all([
+    prisma.hRMEmployee.findFirst({
+    where: { id: empId, deletedAt: null },
     include: {
       department: true,
       designation: true,
@@ -45,7 +47,9 @@ export default async function EmployeeProfilePage({ params }: { params: Promise<
       allowances: { where: { isActive: true } },
       deductions: { where: { isActive: true } },
     },
-  });
+  }),
+    (prisma as any).hRMEmployeeBankAccount.findMany({ where: { employeeId: empId }, orderBy: { createdAt: "asc" } }),
+  ]);
   if (!emp) notFound();
 
   const today = new Date();
@@ -199,13 +203,28 @@ export default async function EmployeeProfilePage({ params }: { params: Promise<
           {/* Financial */}
           <div className="rounded-xl border border-zinc-200 bg-white p-5">
             <h2 className="text-sm font-semibold text-zinc-900 mb-4">Financial Information</h2>
-            <dl className="grid grid-cols-3 gap-4">
+            <dl className="grid grid-cols-3 gap-4 mb-4">
               <InfoRow label="Basic Salary" value={emp.basicSalary ? `PKR ${Number(emp.basicSalary).toLocaleString()}` : undefined} />
-              <InfoRow label="Bank Name" value={emp.bankName} />
-              <InfoRow label="Account Number" value={emp.accountNumber} />
-              <InfoRow label="IBAN" value={emp.iban} />
               <InfoRow label="Tax Number" value={emp.taxNumber} />
             </dl>
+            {bankAccounts.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">Bank Accounts</p>
+                {bankAccounts.map((acc: any) => (
+                  <div key={acc.id} className="rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-3">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-sm font-semibold text-zinc-900">{acc.accountTitle}</p>
+                      {acc.isDefault && <span className="rounded-full bg-[#29c0d5]/10 px-2 py-0.5 text-[10px] font-semibold text-[#29c0d5]">Default</span>}
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-xs text-zinc-600">
+                      {acc.bankName && <span><span className="text-zinc-400">Bank: </span>{acc.bankName}</span>}
+                      {acc.accountNumber && <span><span className="text-zinc-400">Account: </span>{acc.accountNumber}</span>}
+                      {acc.iban && <span><span className="text-zinc-400">IBAN: </span>{acc.iban}</span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
             {(emp.allowances.length > 0 || emp.deductions.length > 0) && (
               <div className="mt-4 grid grid-cols-2 gap-4">
                 {emp.allowances.length > 0 && (

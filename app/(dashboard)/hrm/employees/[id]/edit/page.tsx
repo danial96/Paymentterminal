@@ -1,6 +1,7 @@
 import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import { updateEmployee } from "@/app/actions/hrm-employees";
+import { addEmployeeBankAccount, deleteEmployeeBankAccount, setDefaultBankAccount } from "@/app/actions/hrm-bank-accounts";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { SubmitButton } from "@/app/components/SubmitButton";
@@ -11,11 +12,12 @@ export default async function EditEmployeePage({ params }: { params: Promise<{ i
   const empId = Number(id);
   if (isNaN(empId)) notFound();
 
-  const [employee, departments, designations, shifts] = await Promise.all([
+  const [employee, departments, designations, shifts, bankAccounts] = await Promise.all([
     prisma.hRMEmployee.findUnique({ where: { id: empId } }),
     prisma.hRMDepartment.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
     prisma.hRMDesignation.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
     prisma.hRMShift.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
+    (prisma as any).hRMEmployeeBankAccount.findMany({ where: { employeeId: empId }, orderBy: { createdAt: "asc" } }),
   ]);
 
   if (!employee) notFound();
@@ -240,18 +242,6 @@ export default async function EditEmployeePage({ params }: { params: Promise<{ i
               <label className={lbl}>Tax Number</label>
               <input name="taxNumber" defaultValue={employee.taxNumber ?? ""} className={inp} />
             </div>
-            <div>
-              <label className={lbl}>Bank Name</label>
-              <input name="bankName" defaultValue={employee.bankName ?? ""} className={inp} />
-            </div>
-            <div>
-              <label className={lbl}>Account Number</label>
-              <input name="accountNumber" defaultValue={employee.accountNumber ?? ""} className={inp} />
-            </div>
-            <div className="col-span-2">
-              <label className={lbl}>IBAN</label>
-              <input name="iban" defaultValue={employee.iban ?? ""} className={inp} />
-            </div>
           </div>
         </div>
 
@@ -270,6 +260,75 @@ export default async function EditEmployeePage({ params }: { params: Promise<{ i
           </Link>
         </div>
       </form>
+
+      {/* Bank Accounts — managed separately from the main form */}
+      <div className="rounded-xl border border-zinc-200 bg-white p-6 space-y-4">
+        <h2 className="text-sm font-semibold text-zinc-900 border-b border-zinc-100 pb-2">Bank Accounts</h2>
+
+        {/* Existing accounts */}
+        {bankAccounts.length > 0 && (
+          <div className="space-y-2">
+            {bankAccounts.map((acc: any) => (
+              <div key={acc.id} className="flex items-center justify-between rounded-lg border border-zinc-100 bg-zinc-50 px-4 py-3 gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-zinc-900">{acc.accountTitle}</p>
+                    {acc.isDefault && (
+                      <span className="rounded-full bg-[#29c0d5]/10 px-2 py-0.5 text-[10px] font-semibold text-[#29c0d5]">Default</span>
+                    )}
+                  </div>
+                  <p className="text-xs text-zinc-500 mt-0.5">
+                    {[acc.bankName, acc.accountNumber, acc.iban].filter(Boolean).join(" · ") || "—"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  {!acc.isDefault && (
+                    <form action={setDefaultBankAccount.bind(null, acc.id, empId)}>
+                      <button type="submit" className="text-xs text-zinc-500 hover:text-zinc-800">Set Default</button>
+                    </form>
+                  )}
+                  <form action={deleteEmployeeBankAccount.bind(null, acc.id, empId)}>
+                    <button type="submit" className="text-xs text-red-400 hover:text-red-600">Remove</button>
+                  </form>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Add new account form */}
+        <form action={addEmployeeBankAccount} className="space-y-3 border-t border-zinc-100 pt-4">
+          <input type="hidden" name="employeeId" value={empId} />
+          <p className="text-xs font-semibold text-zinc-700">Add Bank Account</p>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className={lbl}>Account Title <span className="text-red-400">*</span></label>
+              <input name="accountTitle" placeholder="e.g. Muhammad Huzaifa Alam" required className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>Bank Name</label>
+              <input name="bankName" placeholder="e.g. HBL, UBL, Meezan" className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>Account Number</label>
+              <input name="accountNumber" placeholder="0123-4567890-1" className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>IBAN</label>
+              <input name="iban" placeholder="PK36SCBL0000001123456702" className={inp} />
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <label className="flex items-center gap-2 text-xs text-zinc-600 cursor-pointer">
+              <input type="checkbox" name="isDefault" value="true" className="rounded" />
+              Set as default account
+            </label>
+            <SubmitButton className="btn-brand rounded-md px-4 py-2 text-sm font-medium text-white" pendingText="Adding...">
+              Add Account
+            </SubmitButton>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

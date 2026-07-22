@@ -511,6 +511,7 @@ model HRMEmployee {
   commentReactions   HRMCommentReaction[]
   bankLetterRequests HRMBankLetterRequest[]
   complaints         HRMComplaint[]
+  bankAccounts       HRMEmployeeBankAccount[]
 }
 
 model HRMAttendance {
@@ -839,6 +840,19 @@ model HRMComplaint {
   hrNote      String?     @db.Text
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+
+  employee HRMEmployee @relation(fields: [employeeId], references: [id])
+}
+
+model HRMEmployeeBankAccount {
+  id            Int      @id @default(autoincrement())
+  employeeId    Int
+  accountTitle  String
+  bankName      String?
+  accountNumber String?
+  iban          String?
+  isDefault     Boolean  @default(false)
+  createdAt     DateTime @default(now())
 
   employee HRMEmployee @relation(fields: [employeeId], references: [id])
 }
