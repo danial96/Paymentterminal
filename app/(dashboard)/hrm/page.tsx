@@ -2,7 +2,7 @@ import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCakeCandles } from "@fortawesome/free-solid-svg-icons";
+import { faCakeCandles, faTrophy } from "@fortawesome/free-solid-svg-icons";
 
 function StatCard({ label, value, sub, href, color }: { label: string; value: string | number; sub?: string; href: string; color: string }) {
   return (
@@ -215,7 +215,7 @@ export default async function HRMDashboard() {
 
           <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
             <div className="px-4 py-3 border-b border-zinc-100">
-              <h2 className="text-sm font-semibold text-zinc-900">Work Anniversaries 🎉</h2>
+              <h2 className="text-sm font-semibold text-zinc-900 flex items-center gap-2"><FontAwesomeIcon icon={faTrophy} className="h-3.5 w-3.5 text-[#503d98]" /> Work Anniversaries</h2>
             </div>
             <div className="divide-y divide-zinc-50">
               {anniversaries.length === 0 && (

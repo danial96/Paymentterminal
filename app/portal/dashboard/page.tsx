@@ -4,6 +4,12 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { AttendanceCheckIn } from "./AttendanceCheckIn";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCheck, faXmark, faClock, faUmbrellaBeach,
+  faCakeCandles, faTrophy, faStar,
+  faTriangleExclamation, faCalendarDays, faFileLines, faUsers, faBullhorn,
+} from "@fortawesome/free-solid-svg-icons";
 
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -177,15 +183,15 @@ export default async function PortalDashboard() {
         <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-3">{MONTHS[now.getMonth()]} {now.getFullYear()} Summary</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: "Present", value: presentCount, color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100", icon: "✓" },
-            { label: "Absent", value: absentCount, color: "text-red-500", bg: "bg-red-50", border: "border-red-100", icon: "✗" },
-            { label: "Late", value: lateCount, color: "text-yellow-600", bg: "bg-yellow-50", border: "border-yellow-100", icon: "⏱" },
-            { label: "On Leave", value: onLeaveCount, color: "text-blue-500", bg: "bg-blue-50", border: "border-blue-100", icon: "🏖" },
-          ].map(({ label, value, color, bg, border, icon }) => (
+            { label: "Present", value: presentCount, color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100", iconEl: <FontAwesomeIcon icon={faCheck} className="text-emerald-500 h-3.5 w-3.5" /> },
+            { label: "Absent", value: absentCount, color: "text-red-500", bg: "bg-red-50", border: "border-red-100", iconEl: <FontAwesomeIcon icon={faXmark} className="text-red-400 h-3.5 w-3.5" /> },
+            { label: "Late", value: lateCount, color: "text-yellow-600", bg: "bg-yellow-50", border: "border-yellow-100", iconEl: <FontAwesomeIcon icon={faClock} className="text-yellow-500 h-3.5 w-3.5" /> },
+            { label: "On Leave", value: onLeaveCount, color: "text-blue-500", bg: "bg-blue-50", border: "border-blue-100", iconEl: <FontAwesomeIcon icon={faUmbrellaBeach} className="text-blue-400 h-3.5 w-3.5" /> },
+          ].map(({ label, value, color, bg, border, iconEl }) => (
             <div key={label} className={`rounded-xl border ${border} ${bg} p-4`}>
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs text-zinc-500">{label}</p>
-                <span className="text-base">{icon}</span>
+                {iconEl}
               </div>
               <p className={`text-2xl font-bold ${color}`}>{value}</p>
             </div>
@@ -294,7 +300,10 @@ export default async function PortalDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {upcomingBirthdays.length > 0 && (
             <div className="rounded-2xl border border-zinc-200 bg-white p-5">
-              <h2 className="text-sm font-semibold text-zinc-900 mb-4">🎂 Upcoming Birthdays</h2>
+              <h2 className="text-sm font-semibold text-zinc-900 mb-4 flex items-center gap-2">
+                <FontAwesomeIcon icon={faCakeCandles} className="h-3.5 w-3.5 text-[#29c0d5]" />
+                Upcoming Birthdays
+              </h2>
               <div className="space-y-3">
                 {upcomingBirthdays.map((e) => e && (
                   <div key={e.id} className="flex items-center gap-3">
@@ -305,8 +314,8 @@ export default async function PortalDashboard() {
                       <p className="text-xs font-semibold text-zinc-900">{e.firstName} {e.lastName}</p>
                       <p className="text-[10px] text-zinc-400">{e.next.toLocaleDateString("en-GB", { day: "numeric", month: "long" })}</p>
                     </div>
-                    <span className={`text-[10px] font-bold rounded-full px-2.5 py-0.5 border ${e.daysLeft === 0 ? "bg-pink-50 border-pink-200 text-pink-600" : "bg-zinc-50 border-zinc-200 text-zinc-500"}`}>
-                      {e.daysLeft === 0 ? "🎉 Today!" : `${e.daysLeft}d`}
+                    <span className={`text-[10px] font-bold rounded-full px-2.5 py-0.5 border flex items-center gap-1 ${e.daysLeft === 0 ? "bg-pink-50 border-pink-200 text-pink-600" : "bg-zinc-50 border-zinc-200 text-zinc-500"}`}>
+                      {e.daysLeft === 0 ? <><FontAwesomeIcon icon={faStar} className="h-2.5 w-2.5" /> Today</> : `${e.daysLeft}d`}
                     </span>
                   </div>
                 ))}
@@ -315,7 +324,10 @@ export default async function PortalDashboard() {
           )}
           {upcomingAnniversaries.length > 0 && (
             <div className="rounded-2xl border border-zinc-200 bg-white p-5">
-              <h2 className="text-sm font-semibold text-zinc-900 mb-4">🎊 Work Anniversaries</h2>
+              <h2 className="text-sm font-semibold text-zinc-900 mb-4 flex items-center gap-2">
+                <FontAwesomeIcon icon={faTrophy} className="h-3.5 w-3.5 text-[#503d98]" />
+                Work Anniversaries
+              </h2>
               <div className="space-y-3">
                 {upcomingAnniversaries.map((e) => e && (
                   <div key={e.id} className="flex items-center gap-3">
@@ -326,8 +338,8 @@ export default async function PortalDashboard() {
                       <p className="text-xs font-semibold text-zinc-900">{e.firstName} {e.lastName}</p>
                       <p className="text-[10px] text-zinc-400">{e.years} year{e.years !== 1 ? "s" : ""} · {e.next.toLocaleDateString("en-GB", { day: "numeric", month: "long" })}</p>
                     </div>
-                    <span className={`text-[10px] font-bold rounded-full px-2.5 py-0.5 border ${e.daysLeft === 0 ? "bg-purple-50 border-purple-200 text-purple-600" : "bg-zinc-50 border-zinc-200 text-zinc-500"}`}>
-                      {e.daysLeft === 0 ? "🎊 Today!" : `${e.daysLeft}d`}
+                    <span className={`text-[10px] font-bold rounded-full px-2.5 py-0.5 border flex items-center gap-1 ${e.daysLeft === 0 ? "bg-purple-50 border-purple-200 text-purple-600" : "bg-zinc-50 border-zinc-200 text-zinc-500"}`}>
+                      {e.daysLeft === 0 ? <><FontAwesomeIcon icon={faStar} className="h-2.5 w-2.5" /> Today</> : `${e.daysLeft}d`}
                     </span>
                   </div>
                 ))}
@@ -347,8 +359,8 @@ export default async function PortalDashboard() {
           <div className="space-y-3">
             {notices.map((n) => (
               <Link key={n.id} href="/portal/notices" className="flex items-start gap-3 rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3 hover:bg-zinc-100 transition-colors">
-                <span className="text-lg shrink-0 mt-0.5">
-                  {n.type === "URGENT" ? "🚨" : n.type === "EVENT" ? "🎉" : n.type === "POLICY" ? "📋" : n.type === "HR" ? "👥" : "📢"}
+                <span className={`mt-0.5 h-4 w-4 shrink-0 flex items-center justify-center ${n.type === "URGENT" ? "text-red-500" : n.type === "EVENT" ? "text-[#503d98]" : n.type === "POLICY" ? "text-zinc-500" : n.type === "HR" ? "text-[#29c0d5]" : "text-zinc-400"}`}>
+                  <FontAwesomeIcon icon={n.type === "URGENT" ? faTriangleExclamation : n.type === "EVENT" ? faCalendarDays : n.type === "POLICY" ? faFileLines : n.type === "HR" ? faUsers : faBullhorn} className="h-4 w-4" />
                 </span>
                 <div className="min-w-0">
                   <p className="text-xs font-semibold text-zinc-900 leading-snug">{n.title}</p>
