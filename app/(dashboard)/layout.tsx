@@ -56,7 +56,7 @@ export default async function DashboardLayout({
   ];
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-gray-50" style={{ fontFamily: "var(--font-outfit), sans-serif", color: "#000" }}>
       <NavSidebar
         user={{ name: user.name ?? sessionUser.name ?? "", role: (user.role ?? sessionUser.role) as string }}
         navLinks={navLinks}
