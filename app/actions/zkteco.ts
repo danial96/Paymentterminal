@@ -76,7 +76,8 @@ export async function syncZKAttendance() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const toCreate: any[] = [];
-  const toUpdate: { id: number; checkOut: Date; workingHours: number; overtimeHours: number; status?: string }[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const toUpdate: { id: number; checkOut: Date; workingHours: number; overtimeHours: number; status?: any }[] = [];
 
   for (const [key, entry] of dayMap) {
     const rec = existingMap.get(key);
