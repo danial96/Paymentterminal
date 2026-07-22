@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { AttendanceCheckIn } from "./AttendanceCheckIn";
 import BirthdayCelebration from "./BirthdayCelebration";
+import BirthdayWishSender from "./BirthdayWishSender";
+import BirthdayWishes from "./BirthdayWishes";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCheck, faXmark, faClock, faUmbrellaBeach,
@@ -24,7 +26,7 @@ export default async function PortalDashboard() {
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const todayEnd = new Date(todayStart.getTime() + 86400000 - 1);
 
-  const [employee, attendance, todayRecord, leaves, balances, notices, payslipRequests, upcomingHolidays, allEmployees] = await Promise.all([
+  const [employee, attendance, todayRecord, leaves, balances, notices, payslipRequests, upcomingHolidays, allEmployees, myWishesReceived, myWishesSent] = await Promise.all([
     prisma.hRMEmployee.findUnique({
       where: { id: empId },
       include: { department: true, designation: true },
@@ -60,6 +62,17 @@ export default async function PortalDashboard() {
       where: { deletedAt: null, status: "ACTIVE" },
       select: { id: true, firstName: true, lastName: true, dateOfBirth: true, joiningDate: true },
     }),
+    // Wishes I received today (if it's my birthday)
+    (prisma as any).hRMBirthdayWish.findMany({
+      where: { toId: empId, year: now.getFullYear() },
+      orderBy: { createdAt: "asc" },
+      include: { from: { select: { firstName: true, lastName: true } } },
+    }),
+    // Wishes I already sent this year (to know which birthday people I've already wished)
+    (prisma as any).hRMBirthdayWish.findMany({
+      where: { fromId: empId, year: now.getFullYear() },
+      select: { toId: true },
+    }),
   ]);
 
   const presentCount = attendance.filter((a) => a.status === "PRESENT" || a.status === "LATE").length;
@@ -75,6 +88,15 @@ export default async function PortalDashboard() {
     const bd = new Date(employee.dateOfBirth);
     return bd.getMonth() === now.getMonth() && bd.getDate() === now.getDate();
   })();
+
+  // Other employees with birthday today (excluding self)
+  const otherBirthdayPeople = allEmployees.filter((e) => {
+    if (e.id === empId || !e.dateOfBirth) return false;
+    const bd = new Date(e.dateOfBirth);
+    return bd.getMonth() === now.getMonth() && bd.getDate() === now.getDate();
+  });
+
+  const alreadyWishedIds: number[] = (myWishesSent as any[]).map((w: any) => w.toId);
 
   const upcomingBirthdays = allEmployees
     .filter((e) => e.dateOfBirth)
@@ -138,7 +160,23 @@ export default async function PortalDashboard() {
               <p className="text-white/60 text-xs mt-2">— IKIA Tech Family</p>
             </div>
           </div>
+
+          {/* Wishes received */}
+          <BirthdayWishes wishes={myWishesReceived.map((w: any) => ({
+            id: w.id,
+            message: w.message,
+            createdAt: w.createdAt.toISOString(),
+            from: w.from,
+          }))} />
         </>
+      )}
+
+      {/* ── Other employees' birthdays (for non-birthday employees) ─── */}
+      {!isBirthday && otherBirthdayPeople.length > 0 && (
+        <BirthdayWishSender
+          birthdayPeople={otherBirthdayPeople}
+          alreadyWished={alreadyWishedIds}
+        />
       )}
 
       {/* ── Profile banner ─────────────────────────────────────────── */}
