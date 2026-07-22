@@ -3,7 +3,8 @@ export const dynamic = "force-dynamic";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { portalChangePassword } from "@/app/actions/hrm-portal";
-import { submitProfileUpdateRequest, cancelProfileUpdateRequest, REQUESTABLE_FIELDS } from "@/app/actions/hrm-profile-requests";
+import { submitProfileUpdateRequest, cancelProfileUpdateRequest } from "@/app/actions/hrm-profile-requests";
+import { REQUESTABLE_FIELDS } from "@/app/actions/hrm-profile-fields";
 import { SubmitButton } from "@/app/components/SubmitButton";
 
 const STATUS_BADGE: Record<string, string> = {
