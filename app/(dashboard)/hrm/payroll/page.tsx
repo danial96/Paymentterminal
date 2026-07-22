@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { approvePayroll, markPayrollPaid } from "@/app/actions/hrm-payroll";
+import { FilterForm } from "@/app/components/FilterForm";
 
 const STATUS_COLORS: Record<string, string> = {
   DRAFT: "bg-zinc-100 text-zinc-500",
@@ -70,7 +71,7 @@ export default async function PayrollPage({
       </div>
 
       {/* Filters */}
-      <form method="GET" className="flex gap-2">
+      <FilterForm action="/hrm/payroll" className="flex gap-2 items-center">
         <select name="month" defaultValue={filterMonth} className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400">
           {MONTHS.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
         </select>
@@ -82,7 +83,7 @@ export default async function PayrollPage({
           {employees.map((e) => <option key={e.id} value={e.id}>{e.firstName} {e.lastName}</option>)}
         </select>
         <button type="submit" className="btn-brand rounded-md px-4 py-2 text-sm font-medium text-white">Filter</button>
-      </form>
+      </FilterForm>
 
       <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
         <table className="w-full text-sm">

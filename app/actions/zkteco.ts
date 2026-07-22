@@ -17,18 +17,21 @@ export async function syncZKAttendance() {
   const logs = await getZKAttendanceLogs();
   if (!logs.length) return { synced: 0, skipped: 0, errors: [] as string[] };
 
-  // Build employee map (include shift for late calculation)
+  // Build employee map (include shift for late/early-leave calculation)
   const employees = await prisma.hRMEmployee.findMany({
     where: { deletedAt: null },
-    select: { id: true, employeeId: true, shift: { select: { startTime: true } } },
+    select: { id: true, employeeId: true, shift: { select: { startTime: true, endTime: true } } },
   });
   const empMap = new Map<string, number>();
-  const empShiftMap = new Map<number, string | null>(); // empId → shift startTime e.g. "09:00"
+  type ShiftInfo = { startTime: string; endTime: string };
+  const empShiftMap = new Map<number, ShiftInfo>(); // empId → shift times (PKT)
+  // Default shift: 14:00–23:00 (2 PM – 11 PM PKT)
+  const DEFAULT_SHIFT: ShiftInfo = { startTime: "14:00", endTime: "23:00" };
   for (const e of employees) {
     empMap.set(e.employeeId, e.id);
     const numericId = e.employeeId.replace(/^IKIA|^EMP/i, "").replace("-", "");
     if (numericId !== e.employeeId) empMap.set(numericId, e.id);
-    empShiftMap.set(e.id, e.shift?.startTime ?? null);
+    empShiftMap.set(e.id, e.shift ? { startTime: e.shift.startTime, endTime: e.shift.endTime } : DEFAULT_SHIFT);
   }
 
   // Group by employee+date. Use punch type: 0=check-in, 1=check-out.
@@ -73,20 +76,29 @@ export async function syncZKAttendance() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const toCreate: any[] = [];
-  const toUpdate: { id: number; checkOut: Date; workingHours: number; overtimeHours: number }[] = [];
+  const toUpdate: { id: number; checkOut: Date; workingHours: number; overtimeHours: number; status?: string }[] = [];
 
   for (const [key, entry] of dayMap) {
     const rec = existingMap.get(key);
 
-    // Shift-based late threshold: shiftStart + 30min grace → LATE; shiftStart + 4h → HALF_DAY
-    const shiftStart = empShiftMap.get(entry.empId); // e.g. "09:00" or "14:00" (PKT)
-    const [shiftH, shiftM] = shiftStart ? shiftStart.split(":").map(Number) : [9, 0];
-    // Convert PKT (UTC+5) shift time to UTC for comparison
+    // Shift-based thresholds — all times are PKT (UTC+5), converted to UTC by subtracting 5h
+    const shift = empShiftMap.get(entry.empId) ?? DEFAULT_SHIFT;
+    const [shiftH, shiftM] = shift.startTime.split(":").map(Number);
+    const [endH, endM] = shift.endTime.split(":").map(Number);
+
+    // LATE threshold: shift start + 30 min grace
     const lateThreshold = new Date(entry.date);
-    lateThreshold.setUTCHours(shiftH - 5, shiftM + 30, 0, 0); // +30 min grace, -5 for PKT→UTC
+    lateThreshold.setUTCHours(shiftH - 5, shiftM + 30, 0, 0);
+
+    // HALF_DAY threshold: shift start + 4 hours
     const halfDayThreshold = new Date(entry.date);
     halfDayThreshold.setUTCHours(shiftH - 5, shiftM, 0, 0);
-    halfDayThreshold.setUTCMinutes(halfDayThreshold.getUTCMinutes() + 4 * 60); // +4h
+    halfDayThreshold.setUTCMinutes(halfDayThreshold.getUTCMinutes() + 4 * 60);
+
+    // EARLY_LEAVE threshold: shift end - 30 min grace (handles midnight overflow via setUTCMinutes)
+    const earlyLeaveThreshold = new Date(entry.date);
+    earlyLeaveThreshold.setUTCHours(endH - 5, endM, 0, 0);
+    earlyLeaveThreshold.setUTCMinutes(earlyLeaveThreshold.getUTCMinutes() - 30);
 
     // Use punch type strictly: type=0 → check-in, type=1 → check-out
     const checkIn = entry.checkIns.length > 0
@@ -106,12 +118,19 @@ export async function syncZKAttendance() {
         skipped++;
         continue;
       }
+      const checkInStatus = checkIn! >= halfDayThreshold ? "HALF_DAY" : checkIn! > lateThreshold ? "LATE" : "PRESENT";
+      const isEarlyLeave = effectiveCheckOut && effectiveCheckOut < earlyLeaveThreshold;
+      const status = isEarlyLeave && checkInStatus === "PRESENT" ? "EARLY_LEAVE" : checkInStatus;
+      const lateMinutes = checkInStatus === "LATE" || checkInStatus === "HALF_DAY"
+        ? Math.round((checkIn!.getTime() - lateThreshold.getTime()) / 60000)
+        : 0;
       toCreate.push({
         employeeId: entry.empId,
         date: entry.date,
         checkIn: checkIn!,
         checkOut: effectiveCheckOut,
-        status: checkIn! >= halfDayThreshold ? "HALF_DAY" : checkIn! > lateThreshold ? "LATE" : "PRESENT",
+        status,
+        lateMinutes,
         isManual: false,
         ...(effectiveCheckOut ? (() => {
           const workMs = effectiveCheckOut.getTime() - checkIn!.getTime();
@@ -128,7 +147,10 @@ export async function syncZKAttendance() {
       if (!validCheckout) { skipped++; continue; }
       const workMs = validCheckout.getTime() - checkInDate!.getTime();
       const wh = Math.round((workMs / 3600000) * 100) / 100;
-      toUpdate.push({ id: rec.id, checkOut: validCheckout, workingHours: wh, overtimeHours: wh > 8 ? Math.round((wh - 8) * 100) / 100 : 0 });
+      // Update status to EARLY_LEAVE if PRESENT and left early
+      const isEarlyLeave = validCheckout < earlyLeaveThreshold;
+      const updatedStatus = isEarlyLeave && rec.status === "PRESENT" ? "EARLY_LEAVE" : undefined;
+      toUpdate.push({ id: rec.id, checkOut: validCheckout, workingHours: wh, overtimeHours: wh > 8 ? Math.round((wh - 8) * 100) / 100 : 0, ...(updatedStatus ? { status: updatedStatus } : {}) });
       enrollIds.add(entry.empId);
       synced++;
     } else {
@@ -139,7 +161,7 @@ export async function syncZKAttendance() {
   // Batch writes
   try {
     if (toCreate.length) await prisma.hRMAttendance.createMany({ data: toCreate, skipDuplicates: true });
-    await Promise.all(toUpdate.map((u) => prisma.hRMAttendance.update({ where: { id: u.id }, data: { checkOut: u.checkOut, workingHours: u.workingHours, overtimeHours: u.overtimeHours } })));
+    await Promise.all(toUpdate.map((u) => prisma.hRMAttendance.update({ where: { id: u.id }, data: { checkOut: u.checkOut, workingHours: u.workingHours, overtimeHours: u.overtimeHours, ...(u.status ? { status: u.status } : {}) } })));
     if (enrollIds.size) await prisma.hRMEmployee.updateMany({ where: { id: { in: [...enrollIds] }, fingerprintEnrolled: false }, data: { fingerprintEnrolled: true } });
   } catch (e) {
     errors.push(String(e));

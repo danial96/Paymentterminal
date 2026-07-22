@@ -6,6 +6,7 @@ import GenerateLinkButton from "./GenerateLinkButton";
 import ApproveButton from "./ApproveButton";
 import { MachineSyncButton } from "./MachineSyncButton";
 import { getLastZKSync } from "@/app/actions/zkteco";
+import { FilterForm } from "@/app/components/FilterForm";
 
 const STATUS_COLORS: Record<string, string> = {
   ACTIVE: "bg-zinc-900 text-white",
@@ -65,7 +66,7 @@ export default async function EmployeesPage({
       </div>
 
       {/* Filters */}
-      <form method="GET" className="flex gap-2 flex-wrap">
+      <FilterForm action="/hrm/employees" className="flex gap-2 flex-wrap items-center">
         <input
           name="q"
           defaultValue={q}
@@ -86,7 +87,7 @@ export default async function EmployeesPage({
         {(q || dept || status) && (
           <Link href="/hrm/employees" className="rounded-md border border-zinc-200 px-4 py-2 text-sm text-zinc-600 hover:bg-zinc-50">Clear</Link>
         )}
-      </form>
+      </FilterForm>
 
       <div className="rounded-xl border border-zinc-200 bg-white overflow-hidden">
         <table className="w-full text-sm">
