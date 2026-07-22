@@ -516,6 +516,8 @@ model HRMEmployee {
   profileUpdateRequests HRMProfileUpdateRequest[]
   birthdayWishesSent    HRMBirthdayWish[] @relation("WishesSent")
   birthdayWishesReceived HRMBirthdayWish[] @relation("WishesReceived")
+  anniversaryWishesSent     HRMAnniversaryWish[] @relation("AnnivWishesSent")
+  anniversaryWishesReceived HRMAnniversaryWish[] @relation("AnnivWishesReceived")
 }
 
 model HRMAttendance {
@@ -886,6 +888,20 @@ model HRMBirthdayWish {
 
   from HRMEmployee @relation("WishesSent",    fields: [fromId], references: [id])
   to   HRMEmployee @relation("WishesReceived", fields: [toId],   references: [id])
+
+  @@unique([fromId, toId, year])
+}
+
+model HRMAnniversaryWish {
+  id        Int      @id @default(autoincrement())
+  fromId    Int
+  toId      Int
+  message   String   @db.Text
+  year      Int
+  createdAt DateTime @default(now())
+
+  from HRMEmployee @relation("AnnivWishesSent",     fields: [fromId], references: [id])
+  to   HRMEmployee @relation("AnnivWishesReceived",  fields: [toId],   references: [id])
 
   @@unique([fromId, toId, year])
 }

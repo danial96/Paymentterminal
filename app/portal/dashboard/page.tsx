@@ -7,6 +7,8 @@ import { AttendanceCheckIn } from "./AttendanceCheckIn";
 import BirthdayCelebration from "./BirthdayCelebration";
 import BirthdayWishSender from "./BirthdayWishSender";
 import BirthdayWishes from "./BirthdayWishes";
+import AnniversaryWishSender from "./AnniversaryWishSender";
+import AnniversaryWishes from "./AnniversaryWishes";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCheck, faXmark, faClock, faUmbrellaBeach,
@@ -26,7 +28,7 @@ export default async function PortalDashboard() {
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const todayEnd = new Date(todayStart.getTime() + 86400000 - 1);
 
-  const [employee, attendance, todayRecord, leaves, balances, notices, payslipRequests, upcomingHolidays, allEmployees, myWishesReceived, myWishesSent] = await Promise.all([
+  const [employee, attendance, todayRecord, leaves, balances, notices, payslipRequests, upcomingHolidays, allEmployees, myWishesReceived, myWishesSent, myAnnivWishesReceived, myAnnivWishesSent] = await Promise.all([
     prisma.hRMEmployee.findUnique({
       where: { id: empId },
       include: { department: true, designation: true },
@@ -73,6 +75,17 @@ export default async function PortalDashboard() {
       where: { fromId: empId, year: now.getFullYear() },
       select: { toId: true },
     }),
+    // Anniversary compliments I received this year
+    (prisma as any).hRMAnniversaryWish.findMany({
+      where: { toId: empId, year: now.getFullYear() },
+      orderBy: { createdAt: "asc" },
+      include: { from: { select: { firstName: true, lastName: true } } },
+    }),
+    // Anniversary compliments I already sent this year
+    (prisma as any).hRMAnniversaryWish.findMany({
+      where: { fromId: empId, year: now.getFullYear() },
+      select: { toId: true },
+    }),
   ]);
 
   const presentCount = attendance.filter((a) => a.status === "PRESENT" || a.status === "LATE").length;
@@ -106,6 +119,20 @@ export default async function PortalDashboard() {
   });
 
   const alreadyWishedIds: number[] = (myWishesSent as any[]).map((w: any) => w.toId);
+  const alreadyComplimentedIds: number[] = (myAnnivWishesSent as any[]).map((w: any) => w.toId);
+
+  // Other employees with work anniversary today (excluding self)
+  const otherAnniversaryPeople = allEmployees
+    .filter((e) => {
+      if (e.id === empId || !e.joiningDate) return false;
+      const jd = new Date(e.joiningDate);
+      if (jd.getMonth() !== now.getMonth() || jd.getDate() !== now.getDate()) return false;
+      return now.getFullYear() - jd.getFullYear() > 0;
+    })
+    .map((e) => {
+      const jd = new Date(e.joiningDate!);
+      return { ...e, years: now.getFullYear() - jd.getFullYear() };
+    });
 
   const upcomingBirthdays = allEmployees
     .filter((e) => e.dateOfBirth)
@@ -171,30 +198,41 @@ export default async function PortalDashboard() {
 
       {/* ── Work anniversary banner ─────────────────────────────────── */}
       {isAnniversary && (
-        <div className="relative rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg, #503d98 0%, #29c0d5 100%)" }}>
-          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 25% 60%, white 1px, transparent 1px), radial-gradient(circle at 75% 30%, white 1px, transparent 1px)", backgroundSize: "36px 36px" }} />
-          <div className="relative px-6 py-5 flex items-center gap-5">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/20 border border-white/30">
-              <FontAwesomeIcon icon={faTrophy} className="h-7 w-7 text-white" />
+        <>
+          <div className="relative rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg, #503d98 0%, #29c0d5 100%)" }}>
+            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 25% 60%, white 1px, transparent 1px), radial-gradient(circle at 75% 30%, white 1px, transparent 1px)", backgroundSize: "36px 36px" }} />
+            <div className="relative px-6 py-5 flex items-center gap-5">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/20 border border-white/30">
+                <FontAwesomeIcon icon={faTrophy} className="h-7 w-7 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-white/80 text-xs font-semibold uppercase tracking-widest mb-0.5">Work Anniversary</p>
+                <h2 className="text-white text-2xl font-bold leading-tight">
+                  {anniversaryYears} Year{anniversaryYears !== 1 ? "s" : ""} at IKIA Tech, {employee?.firstName}!
+                </h2>
+                <p className="text-white/80 text-sm mt-1">
+                  Thank you for {anniversaryYears} incredible year{anniversaryYears !== 1 ? "s" : ""} of dedication and hard work. Your journey with us has been truly meaningful!
+                </p>
+              </div>
             </div>
-            <div className="flex-1">
-              <p className="text-white/80 text-xs font-semibold uppercase tracking-widest mb-0.5">Work Anniversary</p>
-              <h2 className="text-white text-2xl font-bold leading-tight">
-                {anniversaryYears} Year{anniversaryYears !== 1 ? "s" : ""} at IKIA Tech, {employee?.firstName}!
-              </h2>
-              <p className="text-white/80 text-sm mt-1">
-                Thank you for {anniversaryYears} incredible year{anniversaryYears !== 1 ? "s" : ""} of dedication and hard work. Your journey with us has been truly meaningful!
+            <div className="mx-6 mb-5 rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 px-5 py-4">
+              <p className="text-white text-sm font-semibold mb-1">A note from IKIA Tech</p>
+              <p className="text-white/90 text-sm leading-relaxed">
+                "Every year you spend with us adds to the story of something great. Your commitment, energy, and passion inspire everyone around you. Here&apos;s to many more years of success together!"
               </p>
+              <p className="text-white/60 text-xs mt-2">— IKIA Tech Family</p>
             </div>
           </div>
-          <div className="mx-6 mb-5 rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 px-5 py-4">
-            <p className="text-white text-sm font-semibold mb-1">A note from IKIA Tech</p>
-            <p className="text-white/90 text-sm leading-relaxed">
-              "Every year you spend with us adds to the story of something great. Your commitment, energy, and passion inspire everyone around you. Here&apos;s to many more years of success together!"
-            </p>
-            <p className="text-white/60 text-xs mt-2">— IKIA Tech Family</p>
-          </div>
-        </div>
+          <AnniversaryWishes wishes={myAnnivWishesReceived.map((w: any) => ({ id: w.id, message: w.message, createdAt: w.createdAt.toISOString(), from: w.from }))} />
+        </>
+      )}
+
+      {/* ── Other employees' anniversaries (for non-anniversary employees) */}
+      {!isAnniversary && otherAnniversaryPeople.length > 0 && (
+        <AnniversaryWishSender
+          anniversaryPeople={otherAnniversaryPeople}
+          alreadyComplimentedIds={alreadyComplimentedIds}
+        />
       )}
 
       {/* ── Profile banner ─────────────────────────────────────────── */}
