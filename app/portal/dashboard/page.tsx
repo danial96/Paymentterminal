@@ -89,6 +89,15 @@ export default async function PortalDashboard() {
     return bd.getMonth() === now.getMonth() && bd.getDate() === now.getDate();
   })();
 
+  // Check if today is this employee's work anniversary
+  const anniversaryYears = (() => {
+    if (!employee?.joiningDate) return 0;
+    const jd = new Date(employee.joiningDate);
+    if (jd.getMonth() !== now.getMonth() || jd.getDate() !== now.getDate()) return 0;
+    return now.getFullYear() - jd.getFullYear();
+  })();
+  const isAnniversary = anniversaryYears > 0;
+
   // Other employees with birthday today (excluding self)
   const otherBirthdayPeople = allEmployees.filter((e) => {
     if (e.id === empId || !e.dateOfBirth) return false;
@@ -158,6 +167,34 @@ export default async function PortalDashboard() {
       {/* ── Wish sender (for non-birthday employees) ────────────────── */}
       {!isBirthday && otherBirthdayPeople.length > 0 && (
         <BirthdayWishSender birthdayPeople={otherBirthdayPeople} alreadyWished={alreadyWishedIds} />
+      )}
+
+      {/* ── Work anniversary banner ─────────────────────────────────── */}
+      {isAnniversary && (
+        <div className="relative rounded-2xl overflow-hidden" style={{ background: "linear-gradient(135deg, #503d98 0%, #29c0d5 100%)" }}>
+          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle at 25% 60%, white 1px, transparent 1px), radial-gradient(circle at 75% 30%, white 1px, transparent 1px)", backgroundSize: "36px 36px" }} />
+          <div className="relative px-6 py-5 flex items-center gap-5">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/20 border border-white/30">
+              <FontAwesomeIcon icon={faTrophy} className="h-7 w-7 text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="text-white/80 text-xs font-semibold uppercase tracking-widest mb-0.5">Work Anniversary</p>
+              <h2 className="text-white text-2xl font-bold leading-tight">
+                {anniversaryYears} Year{anniversaryYears !== 1 ? "s" : ""} at IKIA Tech, {employee?.firstName}!
+              </h2>
+              <p className="text-white/80 text-sm mt-1">
+                Thank you for {anniversaryYears} incredible year{anniversaryYears !== 1 ? "s" : ""} of dedication and hard work. Your journey with us has been truly meaningful!
+              </p>
+            </div>
+          </div>
+          <div className="mx-6 mb-5 rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 px-5 py-4">
+            <p className="text-white text-sm font-semibold mb-1">A note from IKIA Tech</p>
+            <p className="text-white/90 text-sm leading-relaxed">
+              "Every year you spend with us adds to the story of something great. Your commitment, energy, and passion inspire everyone around you. Here&apos;s to many more years of success together!"
+            </p>
+            <p className="text-white/60 text-xs mt-2">— IKIA Tech Family</p>
+          </div>
+        </div>
       )}
 
       {/* ── Profile banner ─────────────────────────────────────────── */}
