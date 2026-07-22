@@ -23,14 +23,16 @@ export default async function DashboardLayout({
   // Badge counts
   const badges: Record<string, number> = {};
   if (hasHrm) {
-    const [pendingLeaves, pendingPayslips, pendingBankLetters] = await Promise.all([
+    const [pendingLeaves, pendingPayslips, pendingBankLetters, pendingProfileReqs] = await Promise.all([
       prisma.hRMLeave.count({ where: { status: "PENDING" } }),
       prisma.hRMPayslipRequest.count({ where: { status: "PENDING" } }),
       prisma.hRMBankLetterRequest.count({ where: { status: "PENDING" } }),
+      (prisma as any).hRMProfileUpdateRequest.count({ where: { status: "PENDING" } }),
     ]);
     if (pendingLeaves > 0) badges["/hrm/leaves"] = pendingLeaves;
     if (pendingPayslips > 0) badges["/hrm/payroll/requests"] = pendingPayslips;
     if (pendingBankLetters > 0) badges["/hrm/bank-letters"] = pendingBankLetters;
+    if (pendingProfileReqs > 0) badges["/hrm/profile-requests"] = pendingProfileReqs;
   }
   if (isAdmin) {
     const trashCount = await prisma.client.count({ where: { deletedAt: { not: null } } });

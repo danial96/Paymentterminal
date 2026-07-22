@@ -3,8 +3,8 @@ export const dynamic = "force-dynamic";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { portalChangePassword } from "@/app/actions/hrm-portal";
-import { submitProfileUpdateRequest, cancelProfileUpdateRequest } from "@/app/actions/hrm-profile-requests";
-import { REQUESTABLE_FIELDS } from "@/app/actions/hrm-profile-fields";
+import RequestUpdateForm from "./RequestUpdateForm";
+import CancelRequestButton from "./CancelRequestButton";
 import { SubmitButton } from "@/app/components/SubmitButton";
 
 const STATUS_BADGE: Record<string, string> = {
@@ -131,9 +131,7 @@ export default async function PortalProfilePage() {
                   <span className="text-xs text-zinc-400 mx-1.5">→</span>
                   <span className="text-xs text-zinc-900">{r.requestedValue}</span>
                 </div>
-                <form action={cancelProfileUpdateRequest.bind(null, r.id)}>
-                  <button type="submit" className="text-[10px] text-red-400 hover:text-red-600 shrink-0">Cancel</button>
-                </form>
+                <CancelRequestButton id={r.id} />
               </div>
             ))}
           </div>
@@ -223,37 +221,7 @@ export default async function PortalProfilePage() {
             <div className="col-span-2"><Field label="IBAN" value={employee.iban} /></div>
           </Card>
 
-          {/* Request Update Form */}
-          <div className="rounded-2xl border border-zinc-200 bg-white p-6">
-            <h2 className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-4">Request Info Update</h2>
-            <form action={submitProfileUpdateRequest} className="space-y-3">
-              <div>
-                <label className="block text-[10px] font-semibold text-zinc-400 uppercase tracking-wide mb-1">Field to Update</label>
-                <select name="fieldKey" required className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#29c0d5]/40">
-                  <option value="">Select a field...</option>
-                  {REQUESTABLE_FIELDS.map(f => (
-                    <option key={f.key} value={f.key}>{f.label}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-[10px] font-semibold text-zinc-400 uppercase tracking-wide mb-1">New Value</label>
-                <input
-                  name="requestedValue"
-                  required
-                  placeholder="Enter the updated value"
-                  className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#29c0d5]/40"
-                />
-              </div>
-              <SubmitButton
-                className="w-full rounded-lg py-2 text-sm font-medium text-white"
-                style={{ background: "linear-gradient(135deg, #29c0d5 0%, #503d98 100%)" }}
-                pendingText="Submitting..."
-              >
-                Submit Request
-              </SubmitButton>
-            </form>
-          </div>
+          <RequestUpdateForm />
 
           {/* Change password */}
           <div className="rounded-2xl border border-zinc-200 bg-white p-6">
