@@ -62,7 +62,7 @@ export async function syncZKAttendance() {
   const empIds = [...new Set([...dayMap.values()].map((d) => d.empId))];
   const existing = await prisma.hRMAttendance.findMany({
     where: { employeeId: { in: empIds }, isManual: false },
-    select: { id: true, employeeId: true, date: true, checkIn: true, checkOut: true },
+    select: { id: true, employeeId: true, date: true, checkIn: true, checkOut: true, status: true },
   });
   const existingMap = new Map<string, typeof existing[0]>();
   for (const rec of existing) {
