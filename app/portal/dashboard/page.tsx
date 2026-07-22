@@ -171,10 +171,10 @@ export default async function PortalDashboard() {
         <AttendanceCheckIn
           hasCheckedIn={!!todayRecord?.checkIn}
           hasCheckedOut={!!todayRecord?.checkOut}
-          checkInTime={null}
-          checkOutTime={null}
+          checkInTime={todayRecord?.checkIn ? new Date(todayRecord.checkIn).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null}
+          checkOutTime={todayRecord?.checkOut ? new Date(todayRecord.checkOut).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null}
           status={todayRecord?.status ?? null}
-          workingHours={null}
+          workingHours={whStr}
         />
       </div>
 
