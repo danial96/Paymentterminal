@@ -20,7 +20,7 @@ export default async function PortalLayout({ children }: { children: React.React
   const emp = await prisma.hRMEmployee.findUnique({ where: { id: empDbId }, select: { employeeId: true } });
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden" style={{ fontFamily: "var(--font-outfit), sans-serif", color: "#000" }}>
       <PortalSidebar
         user={{
           name: session.user.name ?? "",
