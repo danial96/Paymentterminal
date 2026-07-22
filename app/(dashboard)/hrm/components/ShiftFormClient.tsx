@@ -14,16 +14,24 @@ export function ShiftFormClient() {
         <label className="block text-xs font-medium text-zinc-700 mb-1">Shift Name *</label>
         <input name="name" required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs font-medium text-zinc-700 mb-1">Start Time *</label>
-          <input name="startTime" type="time" defaultValue="09:00" required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
+      {shiftType !== "REMOTE" && (
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-medium text-zinc-700 mb-1">Start Time *</label>
+            <input name="startTime" type="time" defaultValue="09:00" required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-zinc-700 mb-1">End Time *</label>
+            <input name="endTime" type="time" defaultValue="18:00" required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
+          </div>
         </div>
-        <div>
-          <label className="block text-xs font-medium text-zinc-700 mb-1">End Time *</label>
-          <input name="endTime" type="time" defaultValue="18:00" required className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
-        </div>
-      </div>
+      )}
+      {shiftType === "REMOTE" && (
+        <input type="hidden" name="startTime" value="00:00" />
+      )}
+      {shiftType === "REMOTE" && (
+        <input type="hidden" name="endTime" value="00:00" />
+      )}
       <div>
         <label className="block text-xs font-medium text-zinc-700 mb-1">Break (minutes)</label>
         <input name="breakMinutes" type="number" defaultValue="60" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
