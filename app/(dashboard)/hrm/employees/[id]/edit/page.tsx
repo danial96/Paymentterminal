@@ -61,10 +61,6 @@ export default async function EditEmployeePage({ params }: { params: Promise<{ i
               <input name="cnic" defaultValue={employee.cnic ?? ""} className={inp} />
             </div>
             <div>
-              <label className={lbl}>Passport Number</label>
-              <input name="passportNumber" defaultValue={employee.passportNumber ?? ""} className={inp} />
-            </div>
-            <div>
               <label className={lbl}>Date of Birth</label>
               <input name="dateOfBirth" type="date" defaultValue={fmt(employee.dateOfBirth)} className={inp} />
             </div>
