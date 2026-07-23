@@ -60,8 +60,9 @@ export async function syncZKAttendance() {
 
   // Fetch all existing attendance records for these employee+date combos in one query
   const empIds = [...new Set([...dayMap.values()].map((d) => d.empId))];
+  // Fetch ALL records (manual + biometric) so ZK checkout can update manual check-in records too
   const existing = await prisma.hRMAttendance.findMany({
-    where: { employeeId: { in: empIds }, isManual: false },
+    where: { employeeId: { in: empIds } },
     select: { id: true, employeeId: true, date: true, checkIn: true, checkOut: true, status: true },
   });
   const existingMap = new Map<string, typeof existing[0]>();

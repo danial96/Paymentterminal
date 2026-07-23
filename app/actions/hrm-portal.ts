@@ -14,6 +14,13 @@ async function requireEmployee() {
   };
 }
 
+// Store PKT time "as UTC" — consistent with ZK machine convention
+// ZK sends bare local-time strings; new Date() treats them as UTC, so PKT value = stored "UTC" value.
+// Portal uses actual UTC clock, so we add +5h to match the ZK convention.
+function pktNow() {
+  return new Date(Date.now() + 5 * 3600000);
+}
+
 export async function portalApplyLeave(formData: FormData) {
   const { employeeId } = await requireEmployee();
   const leaveTypeId = Number(formData.get("leaveTypeId"));
@@ -41,7 +48,6 @@ export async function portalApplyLeave(formData: FormData) {
 
 export async function portalCancelLeave(id: number) {
   const { employeeId } = await requireEmployee();
-  // Ensure the leave belongs to this employee
   const leave = await prisma.hRMLeave.findUnique({ where: { id } });
   if (!leave || leave.employeeId !== employeeId) return;
   if (leave.status !== "PENDING") return;
@@ -53,7 +59,7 @@ export async function portalCancelLeave(id: number) {
 export async function portalCheckIn() {
   const { employeeId } = await requireEmployee();
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0); // UTC midnight — matches ZK date convention
 
   const existing = await prisma.hRMAttendance.findUnique({
     where: { employeeId_date: { employeeId, date: today } },
@@ -63,7 +69,7 @@ export async function portalCheckIn() {
     if (!existing.checkIn) {
       await prisma.hRMAttendance.update({
         where: { id: existing.id },
-        data: { checkIn: new Date(), isManual: true, notes: "Manual check-in via employee portal" },
+        data: { checkIn: pktNow(), isManual: true, notes: "Manual check-in via employee portal" },
       });
     }
     revalidatePath("/portal/dashboard");
@@ -71,9 +77,19 @@ export async function portalCheckIn() {
     return;
   }
 
-  const now = new Date();
+  // Fetch employee shift for accurate late threshold
+  const emp = await prisma.hRMEmployee.findUnique({
+    where: { id: employeeId },
+    select: { shift: { select: { startTime: true } } },
+  });
+  const shiftStart = emp?.shift?.startTime ?? "14:00"; // default 2 PM PKT
+  const [shiftH, shiftM] = shiftStart.split(":").map(Number);
+
+  const now = pktNow();
+  // Late threshold: shift start + 30 min grace, in PKT-as-UTC
   const lateThreshold = new Date(today);
-  lateThreshold.setHours(9, 15, 0, 0);
+  lateThreshold.setUTCHours(shiftH - 5, shiftM + 30, 0, 0);
+
   const isLate = now > lateThreshold;
   const lateMinutes = isLate ? Math.floor((now.getTime() - lateThreshold.getTime()) / 60000) : 0;
 
@@ -102,7 +118,9 @@ export async function portalCheckOut() {
   });
   if (!record || !record.checkIn) return;
 
-  const now = new Date();
+  // Use pktNow() so working hours calculation is consistent regardless of
+  // whether check-in came from ZK machine (PKT-as-UTC) or portal (also PKT-as-UTC now)
+  const now = pktNow();
   const breakMins = record.breakStart && record.breakEnd
     ? (record.breakEnd.getTime() - record.breakStart.getTime()) / 60000
     : 0;
@@ -137,16 +155,4 @@ export async function portalChangePassword(formData: FormData) {
     data: { portalPassword: hashed },
   });
   revalidatePath("/portal/profile");
-}
-
-export async function portalSubmitComplaint(formData: FormData) {
-  const { employeeId } = await requireEmployee();
-  const title = String(formData.get("title") ?? "").trim();
-  const description = String(formData.get("description") ?? "").trim();
-  const category = String(formData.get("category") ?? "").trim() || null;
-  if (!title || !description) throw new Error("Title and description are required");
-  await (prisma as any).hRMComplaint.create({
-    data: { employeeId, title, description, category },
-  });
-  revalidatePath("/portal/complaints");
 }

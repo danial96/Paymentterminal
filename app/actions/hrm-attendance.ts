@@ -11,6 +11,11 @@ function todayDate() {
   return d;
 }
 
+// Store PKT time "as UTC" — consistent with ZK machine convention
+function pktNow() {
+  return new Date(Date.now() + 5 * 3600000);
+}
+
 export async function checkIn(employeeId: number) {
   await requireUser();
   const today = todayDate();
@@ -21,16 +26,23 @@ export async function checkIn(employeeId: number) {
     if (!existing.checkIn) {
       await prisma.hRMAttendance.update({
         where: { id: existing.id },
-        data: { checkIn: new Date(), status: "PRESENT" },
+        data: { checkIn: pktNow(), status: "PRESENT" },
       });
     }
     return;
   }
 
-  // Check if late (assume 9:00 AM start)
-  const now = new Date();
+  // Fetch employee shift for accurate late threshold
+  const emp = await prisma.hRMEmployee.findUnique({
+    where: { id: employeeId },
+    select: { shift: { select: { startTime: true } } },
+  });
+  const shiftStart = emp?.shift?.startTime ?? "14:00"; // default 2 PM PKT
+  const [shiftH, shiftM] = shiftStart.split(":").map(Number);
+
+  const now = pktNow();
   const lateThreshold = new Date(today);
-  lateThreshold.setHours(9, 15, 0, 0);
+  lateThreshold.setUTCHours(shiftH - 5, shiftM + 30, 0, 0);
   const isLate = now > lateThreshold;
   const lateMinutes = isLate ? Math.floor((now.getTime() - lateThreshold.getTime()) / 60000) : 0;
 
@@ -55,7 +67,7 @@ export async function checkOut(employeeId: number) {
   });
   if (!record || !record.checkIn) return;
 
-  const now = new Date();
+  const now = pktNow();
   const checkInTime = record.checkIn;
   const breakMins = record.breakStart && record.breakEnd
     ? (record.breakEnd.getTime() - record.breakStart.getTime()) / 60000
