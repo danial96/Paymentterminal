@@ -229,15 +229,19 @@ export default async function AttendancePage({
                 {sorted.map((emp) => {
                   const att = attendanceMap.get(emp.id);
 
-                  // Early check-in / overtime detection — compare in PKT (UTC+5) to avoid negative-hour bugs
+                  // Early check-in / overtime detection — compare in PKT (UTC+5), handles overnight shifts
                   const shiftStart = emp.shift?.startTime ?? "14:00";
                   const shiftEnd   = emp.shift?.endTime   ?? "23:00";
                   const [sH, sM] = shiftStart.split(":").map(Number);
                   const [eH, eM] = shiftEnd.split(":").map(Number);
-                  const toMinutes = (h: number, m: number) => h * 60 + m;
+                  const startMins = sH * 60 + sM;
+                  const endMins   = eH * 60 + eM;
+                  // Overnight shift: end < start (e.g. 15:00→00:00), treat end as next-day (+1440)
+                  const effectiveEndMins = endMins < startMins ? endMins + 1440 : endMins;
                   const toPktMins = (d: Date) => { const pkt = new Date(d.getTime() + 5 * 3600000); return pkt.getUTCHours() * 60 + pkt.getUTCMinutes(); };
-                  const isEarlyIn = att?.checkIn  && toPktMins(new Date(att.checkIn))  < toMinutes(sH, sM);
-                  const isLateOut = att?.checkOut && toPktMins(new Date(att.checkOut)) > toMinutes(eH, eM);
+                  const toEffectivePktMins = (d: Date) => { const m = toPktMins(d); return m < startMins ? m + 1440 : m; };
+                  const isEarlyIn = att?.checkIn  && toPktMins(new Date(att.checkIn))  < startMins;
+                  const isLateOut = att?.checkOut && toEffectivePktMins(new Date(att.checkOut)) > effectiveEndMins;
 
                   return (
                     <tr key={emp.id} className="hover:bg-zinc-50">
