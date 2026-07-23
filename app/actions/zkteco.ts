@@ -86,24 +86,23 @@ export async function syncZKAttendance() {
   for (const [key, entry] of dayMap) {
     const rec = existingMap.get(key);
 
-    // Shift-based thresholds — all times are PKT (UTC+5), converted to UTC by subtracting 5h
+    // Shift-based thresholds — shift times are PKT; convert to UTC offset in minutes from day start
     const shift = empShiftMap.get(entry.empId) ?? DEFAULT_SHIFT;
     const [shiftH, shiftM] = shift.startTime.split(":").map(Number);
     const [endH, endM] = shift.endTime.split(":").map(Number);
+    const startUtcMins = (shiftH - 5) * 60 + shiftM;           // PKT→UTC: subtract 5h
+    const endUtcMins   = (endH   - 5) * 60 + endM;
+    // Overnight shift: end ≤ start in PKT (e.g. 15:00→00:00), end is next day → add 1440 min
+    const effectiveEndUtcMins = endUtcMins <= startUtcMins ? endUtcMins + 1440 : endUtcMins;
 
     // LATE threshold: shift start + 30 min grace
-    const lateThreshold = new Date(entry.date);
-    lateThreshold.setUTCHours(shiftH - 5, shiftM + 30, 0, 0);
+    const lateThreshold = new Date(entry.date.getTime() + (startUtcMins + 30) * 60000);
 
     // HALF_DAY threshold: shift start + 4 hours
-    const halfDayThreshold = new Date(entry.date);
-    halfDayThreshold.setUTCHours(shiftH - 5, shiftM, 0, 0);
-    halfDayThreshold.setUTCMinutes(halfDayThreshold.getUTCMinutes() + 4 * 60);
+    const halfDayThreshold = new Date(entry.date.getTime() + (startUtcMins + 4 * 60) * 60000);
 
-    // EARLY_LEAVE threshold: shift end - 30 min grace (handles midnight overflow via setUTCMinutes)
-    const earlyLeaveThreshold = new Date(entry.date);
-    earlyLeaveThreshold.setUTCHours(endH - 5, endM, 0, 0);
-    earlyLeaveThreshold.setUTCMinutes(earlyLeaveThreshold.getUTCMinutes() - 30);
+    // EARLY_LEAVE threshold: shift end - 30 min grace
+    const earlyLeaveThreshold = new Date(entry.date.getTime() + (effectiveEndUtcMins - 30) * 60000);
 
     // Use punch type strictly: type=0 → check-in, type=1 → check-out
     const checkIn = entry.checkIns.length > 0
