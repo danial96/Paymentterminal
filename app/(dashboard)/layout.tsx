@@ -39,6 +39,12 @@ export default async function DashboardLayout({
     if (trashCount > 0) badges["/admin/trash"] = trashCount;
   }
 
+  const lastSync = await (prisma as any).zKSyncLog.findFirst({ orderBy: { syncedAt: "desc" }, select: { syncedAt: true } });
+  const lastSyncStr = lastSync?.syncedAt ? (() => {
+    const pkt = new Date(new Date(lastSync.syncedAt).getTime() + 5 * 3600000);
+    return `${String(pkt.getUTCDate()).padStart(2,"0")}/${String(pkt.getUTCMonth()+1).padStart(2,"0")} ${String(pkt.getUTCHours()).padStart(2,"0")}:${String(pkt.getUTCMinutes()).padStart(2,"0")}`;
+  })() : null;
+
   const navLinks = hrmOnly ? [] : [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/clients", label: "Clients" },
@@ -77,6 +83,12 @@ export default async function DashboardLayout({
             <span>IKIA TECH</span>
           </div>
           <div className="flex items-center gap-3">
+            {lastSyncStr && (
+              <span className="hidden sm:flex items-center gap-1 text-[11px]" style={{ color: "var(--text-secondary)" }}>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3 opacity-60"><path fillRule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14Zm.75-10.25a.75.75 0 0 0-1.5 0v3.5c0 .199.079.39.22.53l2 2a.75.75 0 1 0 1.06-1.06L8.75 8.19V4.75Z" clipRule="evenodd"/></svg>
+                Synced {lastSyncStr}
+              </span>
+            )}
             {showZkSync && <ZKSyncButton />}
             <TopbarUserMenu user={{ name: user.name ?? sessionUser.name ?? "", role: (user.role ?? sessionUser.role) as string }} isAdmin={isAdmin} />
           </div>

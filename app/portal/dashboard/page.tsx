@@ -31,7 +31,7 @@ export default async function PortalDashboard() {
   const monthStart = new Date(Date.UTC(todayStart.getUTCFullYear(), todayStart.getUTCMonth(), 1));
   const now = pktNow; // used for birthday/anniversary date comparisons
 
-  const [employee, attendance, todayRecord, leaves, balances, notices, payslipRequests, upcomingHolidays, allEmployees, myWishesReceived, myWishesSent, myAnnivWishesReceived, myAnnivWishesSent, lastSync] = await Promise.all([
+  const [employee, attendance, todayRecord, leaves, balances, notices, payslipRequests, upcomingHolidays, allEmployees, myWishesReceived, myWishesSent, myAnnivWishesReceived, myAnnivWishesSent] = await Promise.all([
     prisma.hRMEmployee.findUnique({
       where: { id: empId },
       include: { department: true, designation: true },
@@ -88,11 +88,6 @@ export default async function PortalDashboard() {
     (prisma as any).hRMAnniversaryWish.findMany({
       where: { fromId: empId, year: now.getFullYear() },
       select: { toId: true },
-    }),
-    // Last ZK machine sync time
-    (prisma as any).zKSyncLog.findFirst({
-      orderBy: { syncedAt: "desc" },
-      select: { syncedAt: true },
     }),
   ]);
 
@@ -297,19 +292,6 @@ export default async function PortalDashboard() {
             </div>
           ))}
         </div>
-        {lastSync?.syncedAt && (() => {
-          const pkt = new Date(new Date(lastSync.syncedAt).getTime() + 5 * 3600000);
-          const hh = String(pkt.getUTCHours()).padStart(2, "0");
-          const mm = String(pkt.getUTCMinutes()).padStart(2, "0");
-          const dd = String(pkt.getUTCDate()).padStart(2, "0");
-          const mo = String(pkt.getUTCMonth() + 1).padStart(2, "0");
-          return (
-            <p className="mt-2 text-[11px] text-zinc-400 text-right">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="inline w-3 h-3 mr-1 -mt-0.5"><path fillRule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14Zm.75-10.25a.75.75 0 0 0-1.5 0v3.5c0 .199.079.39.22.53l2 2a.75.75 0 1 0 1.06-1.06L8.75 8.19V4.75Z" clipRule="evenodd"/></svg>
-              Last sync: {dd}/{mo} {hh}:{mm} PKT
-            </p>
-          );
-        })()}
       </div>
 
       {/* ── Main content grid (left: attendance + leaves | right: sidebar) */}
