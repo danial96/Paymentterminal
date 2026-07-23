@@ -2,8 +2,6 @@ import { requireUser } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import ManualMarkForm from "./ManualMarkForm";
-import { MachineSyncButton } from "../employees/MachineSyncButton";
-import { getLastZKSync } from "@/app/actions/zkteco";
 import AttendanceFilters from "./AttendanceFilters";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -43,7 +41,7 @@ export default async function AttendancePage({
   const fromDate = new Date(fromStr + "T00:00:00.000Z");
   const toDate = new Date(toStr + "T00:00:00.000Z");
 
-  const [allEmployees, departments, attendanceRecords, lastSync] = await Promise.all([
+  const [allEmployees, departments, attendanceRecords] = await Promise.all([
     prisma.hRMEmployee.findMany({
       where: { deletedAt: null, status: "ACTIVE" },
       include: { department: true, shift: true },
@@ -56,7 +54,6 @@ export default async function AttendancePage({
       },
       orderBy: isRange ? [{ date: "asc" }, { checkIn: "asc" }] : undefined,
     }),
-    getLastZKSync(),
   ]);
 
   // Filter employees by dept and/or specific employee selection
@@ -109,8 +106,7 @@ export default async function AttendancePage({
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="text-xl font-bold text-zinc-900">Attendance</h1>
         <div className="flex items-center gap-3">
-          <MachineSyncButton lastSync={lastSync ? { syncedAt: lastSync.syncedAt, source: lastSync.source, enrolled: lastSync.enrolled } : null} />
-          <p className="text-sm text-zinc-500">
+<p className="text-sm text-zinc-500">
             {isRange
               ? `${new Date(fromStr).toLocaleDateString("en-GB", { day: "numeric", month: "short" })} – ${new Date(toStr).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
               : new Date(fromStr).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
