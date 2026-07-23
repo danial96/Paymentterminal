@@ -278,17 +278,17 @@ export default async function PortalDashboard() {
         <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-3">{MONTHS[now.getMonth()]} {now.getFullYear()} Summary</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {[
-            { label: "Present", value: presentCount, color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100", iconEl: <FontAwesomeIcon icon={faCheck} className="text-emerald-500 h-3.5 w-3.5" /> },
-            { label: "Absent", value: absentCount, color: "text-red-500", bg: "bg-red-50", border: "border-red-100", iconEl: <FontAwesomeIcon icon={faXmark} className="text-red-400 h-3.5 w-3.5" /> },
-            { label: "Late", value: lateCount, color: "text-yellow-600", bg: "bg-yellow-50", border: "border-yellow-100", iconEl: <FontAwesomeIcon icon={faClock} className="text-yellow-500 h-3.5 w-3.5" /> },
-            { label: "On Leave", value: onLeaveCount, color: "text-blue-500", bg: "bg-blue-50", border: "border-blue-100", iconEl: <FontAwesomeIcon icon={faUmbrellaBeach} className="text-blue-400 h-3.5 w-3.5" /> },
-          ].map(({ label, value, color, bg, border, iconEl }) => (
-            <div key={label} className={`rounded-xl border ${border} ${bg} p-4`}>
+            { label: "Present", value: presentCount, iconEl: <FontAwesomeIcon icon={faCheck} className="text-zinc-400 h-3.5 w-3.5" /> },
+            { label: "Absent",  value: absentCount,  iconEl: <FontAwesomeIcon icon={faXmark} className="text-zinc-400 h-3.5 w-3.5" /> },
+            { label: "Late",    value: lateCount,    iconEl: <FontAwesomeIcon icon={faClock} className="text-zinc-400 h-3.5 w-3.5" /> },
+            { label: "On Leave",value: onLeaveCount, iconEl: <FontAwesomeIcon icon={faUmbrellaBeach} className="text-zinc-400 h-3.5 w-3.5" /> },
+          ].map(({ label, value, iconEl }) => (
+            <div key={label} className="rounded-xl border border-zinc-100 bg-white p-4">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-zinc-500">{label}</p>
+                <p className="text-xs text-zinc-400">{label}</p>
                 {iconEl}
               </div>
-              <p className={`text-2xl font-bold ${color}`}>{value}</p>
+              <p className="text-2xl font-bold text-zinc-800">{value}</p>
             </div>
           ))}
         </div>
