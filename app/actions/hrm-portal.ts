@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { pktNow, todayWorkDate } from "@/lib/attendance-utils";
+import { todayWorkDate } from "@/lib/attendance-utils";
 
 async function requireEmployee() {
   const session = await auth();
@@ -26,15 +26,7 @@ export async function portalApplyLeave(formData: FormData) {
   const reason = formData.get("reason") ? String(formData.get("reason")) : null;
 
   await prisma.hRMLeave.create({
-    data: {
-      employeeId,
-      leaveTypeId,
-      startDate,
-      endDate,
-      days,
-      reason,
-      status: "PENDING",
-    },
+    data: { employeeId, leaveTypeId, startDate, endDate, days, reason, status: "PENDING" },
   });
   revalidatePath("/portal/leaves");
   redirect("/portal/leaves");
@@ -52,19 +44,18 @@ export async function portalCancelLeave(id: number) {
 
 export async function portalCheckIn() {
   const { employeeId } = await requireEmployee();
-  // Use PKT work day date: before 3 AM PKT counts as previous day
-  const today = todayWorkDate();
+  const today = todayWorkDate(); // PKT work day (3 AM boundary)
 
   const existing = await prisma.hRMAttendance.findUnique({
     where: { employeeId_date: { employeeId, date: today } },
   });
 
   if (existing) {
-    // Already has a record — if no checkIn yet, add it; otherwise ignore (second tap = no-op)
+    // Already has a record — add checkIn if missing, otherwise ignore (second tap = no-op)
     if (!existing.checkIn) {
       await prisma.hRMAttendance.update({
         where: { id: existing.id },
-        data: { checkIn: pktNow(), isManual: true, notes: "Manual check-in via employee portal" },
+        data: { checkIn: new Date(), isManual: true, notes: "Manual check-in via employee portal" },
       });
     }
     revalidatePath("/portal/dashboard");
@@ -80,8 +71,8 @@ export async function portalCheckIn() {
   const shiftStart = emp?.shift?.startTime ?? "14:00"; // default 2 PM PKT
   const [shiftH, shiftM] = shiftStart.split(":").map(Number);
 
-  const now = pktNow();
-  // Late threshold: shift start + 30 min grace, expressed in PKT-as-UTC
+  const now = new Date(); // actual UTC
+  // Late threshold: shift start + 30 min grace, converted PKT→UTC (subtract 5h)
   const lateThreshold = new Date(today);
   lateThreshold.setUTCHours(shiftH - 5, shiftM + 30, 0, 0);
 
@@ -105,7 +96,7 @@ export async function portalCheckIn() {
 
 export async function portalCheckOut() {
   const { employeeId } = await requireEmployee();
-  // Use PKT work day date so a 1 AM checkout finds the previous day's check-in record
+  // Work day date: checkout at 1-2 AM PKT still belongs to previous day's record
   const today = todayWorkDate();
 
   const record = await prisma.hRMAttendance.findUnique({
@@ -113,9 +104,7 @@ export async function portalCheckOut() {
   });
   if (!record || !record.checkIn) return;
 
-  // pktNow() keeps the same PKT-as-UTC convention as the check-in time,
-  // so working hours calculation is always consistent
-  const now = pktNow();
+  const now = new Date(); // actual UTC — consistent with ZK records
   const breakMins = record.breakStart && record.breakEnd
     ? (record.breakEnd.getTime() - record.breakStart.getTime()) / 60000
     : 0;

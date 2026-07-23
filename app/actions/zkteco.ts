@@ -5,6 +5,7 @@ import { getZKAttendanceLogs, getZKUsers, getZKFingerStatus, startFingerprintEnr
 import { prisma } from "@/lib/prisma";
 import { workDayDate, todayWorkDate } from "@/lib/attendance-utils";
 
+
 export async function debugZKLogs() {
   await requireAdmin();
   const logs = await getZKAttendanceLogs();
@@ -49,9 +50,9 @@ export async function syncZKAttendance() {
     const key = `${empId}_${dateOnly.getTime()}`;
     if (!dayMap.has(key)) dayMap.set(key, { empId, date: dateOnly, checkIns: [], checkOuts: [] });
     const entry = dayMap.get(key)!;
-    // state = in/out direction on this machine: 0=check-out, 1=check-in (empirically confirmed)
-    // type = verification method (fingerprint=1) — NOT the punch direction
-    if (log.state === 0) {
+    // Empirically confirmed: state=0 = check-IN, state=1 = check-OUT
+    // (verified by physical checkout test: machine recorded state=1)
+    if (log.state === 1) {
       entry.checkOuts.push(ts);
     } else {
       entry.checkIns.push(ts);

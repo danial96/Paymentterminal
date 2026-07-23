@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/scope";
-import { pktNow, todayWorkDate } from "@/lib/attendance-utils";
+import { todayWorkDate } from "@/lib/attendance-utils";
 
 export async function checkIn(employeeId: number) {
   await requireUser();
@@ -16,7 +16,7 @@ export async function checkIn(employeeId: number) {
     if (!existing.checkIn) {
       await prisma.hRMAttendance.update({
         where: { id: existing.id },
-        data: { checkIn: pktNow(), status: "PRESENT" },
+        data: { checkIn: new Date(), status: "PRESENT" },
       });
     }
     return;
@@ -30,7 +30,7 @@ export async function checkIn(employeeId: number) {
   const shiftStart = emp?.shift?.startTime ?? "14:00"; // default 2 PM PKT
   const [shiftH, shiftM] = shiftStart.split(":").map(Number);
 
-  const now = pktNow();
+  const now = new Date();
   const lateThreshold = new Date(today);
   lateThreshold.setUTCHours(shiftH - 5, shiftM + 30, 0, 0);
   const isLate = now > lateThreshold;
@@ -57,7 +57,7 @@ export async function checkOut(employeeId: number) {
   });
   if (!record || !record.checkIn) return;
 
-  const now = pktNow();
+  const now = new Date();
   const checkInTime = record.checkIn;
   const breakMins = record.breakStart && record.breakEnd
     ? (record.breakEnd.getTime() - record.breakStart.getTime()) / 60000
