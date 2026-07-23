@@ -149,6 +149,9 @@ export async function syncZKAttendance() {
       const checkInDate = rec.checkIn ? new Date(rec.checkIn) : null;
       const validCheckout = checkInDate && checkOut > checkInDate ? checkOut : null;
       if (!validCheckout) { skipped++; continue; }
+      // Ignore punches within 60 min of check-in — likely accidental/check-in direction tap
+      const minsSinceCheckIn = (validCheckout.getTime() - checkInDate!.getTime()) / 60000;
+      if (minsSinceCheckIn < 60) { skipped++; continue; }
       const workMs = validCheckout.getTime() - checkInDate!.getTime();
       const wh = Math.round((workMs / 3600000) * 100) / 100;
       // Update status to EARLY_LEAVE if PRESENT and left early
