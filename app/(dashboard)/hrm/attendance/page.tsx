@@ -46,7 +46,7 @@ export default async function AttendancePage({
   const [allEmployees, departments, attendanceRecords, lastSync] = await Promise.all([
     prisma.hRMEmployee.findMany({
       where: { deletedAt: null, status: "ACTIVE" },
-      include: { department: true },
+      include: { department: true, shift: true },
       orderBy: { firstName: "asc" },
     }),
     prisma.hRMDepartment.findMany({ where: { isActive: true }, orderBy: { name: "asc" } }),
@@ -228,6 +228,18 @@ export default async function AttendancePage({
                 )}
                 {sorted.map((emp) => {
                   const att = attendanceMap.get(emp.id);
+
+                  // Early check-in / overtime detection (shift times are PKT → UTC = shift - 5h)
+                  const shiftStart = emp.shift?.startTime ?? "14:00";
+                  const shiftEnd   = emp.shift?.endTime   ?? "23:00";
+                  const [sH, sM] = shiftStart.split(":").map(Number);
+                  const [eH, eM] = shiftEnd.split(":").map(Number);
+                  const attDate = att?.date ? new Date(att.date) : null;
+                  const shiftStartUtc = attDate ? new Date(Date.UTC(attDate.getUTCFullYear(), attDate.getUTCMonth(), attDate.getUTCDate(), sH - 5, sM)) : null;
+                  const shiftEndUtc   = attDate ? new Date(Date.UTC(attDate.getUTCFullYear(), attDate.getUTCMonth(), attDate.getUTCDate(), eH - 5, eM)) : null;
+                  const isEarlyIn  = att?.checkIn  && shiftStartUtc && new Date(att.checkIn)  < shiftStartUtc;
+                  const isLateOut  = att?.checkOut && shiftEndUtc   && new Date(att.checkOut) > shiftEndUtc;
+
                   return (
                     <tr key={emp.id} className="hover:bg-zinc-50">
                       <td className="px-4 py-3">
@@ -242,10 +254,16 @@ export default async function AttendancePage({
                         </div>
                       </td>
                       <td className="px-4 py-3 text-zinc-500 text-xs">{emp.department?.name ?? "—"}</td>
-                      <td className="px-4 py-3 text-xs font-mono">{att?.checkIn ? fmtTime(att.checkIn) : "—"}</td>
-                      <td className="px-4 py-3 text-xs font-mono">{att?.checkOut ? fmtTime(att.checkOut) : "—"}</td>
+                      <td className="px-4 py-3 text-xs font-mono">
+                        {att?.checkIn ? fmtTime(att.checkIn) : "—"}
+                        {isEarlyIn && <span className="ml-1 rounded-full bg-sky-100 px-1.5 py-0.5 text-[9px] font-semibold text-sky-700">Early</span>}
+                      </td>
+                      <td className="px-4 py-3 text-xs font-mono">
+                        {att?.checkOut ? fmtTime(att.checkOut) : "—"}
+                        {isLateOut && <span className="ml-1 rounded-full bg-violet-100 px-1.5 py-0.5 text-[9px] font-semibold text-violet-700">Overtime</span>}
+                      </td>
                       <td className="px-4 py-3 text-xs">{att?.workingHours ? fmtHours(att.workingHours) : "—"}</td>
-                      <td className="px-4 py-3 text-xs text-zinc-500">{att?.lateMinutes ? `${att.lateMinutes}min` : "—"}</td>
+                      <td className="px-4 py-3 text-xs text-zinc-500">{att?.lateMinutes ? `${Math.floor(att.lateMinutes / 60)}:${String(att.lateMinutes % 60).padStart(2, "0")}` : "—"}</td>
                       <td className="px-4 py-3">
                         {att ? (
                           <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${STATUS_COLORS[att.status] ?? "bg-zinc-100 text-zinc-500"}`}>
