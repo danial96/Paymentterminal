@@ -144,6 +144,18 @@ export async function portalCheckOut() {
   revalidatePath("/hrm/attendance");
 }
 
+export async function portalSubmitComplaint(formData: FormData) {
+  const { employeeId } = await requireEmployee();
+  const title = String(formData.get("title") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+  const category = formData.get("category") ? String(formData.get("category")) : null;
+  if (!title || !description) return;
+  await (prisma as any).hRMComplaint.create({
+    data: { employeeId, title, description, category, status: "PENDING" },
+  });
+  revalidatePath("/portal/complaints");
+}
+
 export async function portalChangePassword(formData: FormData) {
   const { employeeId } = await requireEmployee();
   const newPassword = String(formData.get("newPassword") ?? "");
