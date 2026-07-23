@@ -3,6 +3,7 @@
 import { requireAdmin, requireUser } from "@/lib/scope";
 import { getZKAttendanceLogs, getZKUsers, getZKFingerStatus, startFingerprintEnrollment, pushUserToZK, deleteZKUser } from "@/lib/zkteco";
 import { prisma } from "@/lib/prisma";
+import { workDayDate, todayWorkDate } from "@/lib/attendance-utils";
 
 export async function debugZKLogs() {
   await requireAdmin();
@@ -43,7 +44,8 @@ export async function syncZKAttendance() {
     const empId = empMap.get(log.user_id);
     if (!empId) continue;
     const ts = new Date(log.record_time);
-    const dateOnly = new Date(Date.UTC(ts.getUTCFullYear(), ts.getUTCMonth(), ts.getUTCDate()));
+    // Work day changes at 3 AM PKT: punches before 3 AM belong to the previous calendar day
+    const dateOnly = workDayDate(ts);
     const key = `${empId}_${dateOnly.getTime()}`;
     if (!dayMap.has(key)) dayMap.set(key, { empId, date: dateOnly, checkIns: [], checkOuts: [] });
     const entry = dayMap.get(key)!;
@@ -166,6 +168,21 @@ export async function syncZKAttendance() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await Promise.all(toUpdate.map((u) => prisma.hRMAttendance.update({ where: { id: u.id }, data: { checkOut: u.checkOut, workingHours: u.workingHours, overtimeHours: u.overtimeHours, ...(u.status ? { status: u.status } : {}) } as any })));
     if (enrollIds.size) await prisma.hRMEmployee.updateMany({ where: { id: { in: [...enrollIds] }, fingerprintEnrolled: false }, data: { fingerprintEnrolled: true } });
+
+    // Flag missed checkouts: records with checkIn but no checkOut from a previous work day
+    // (3 AM PKT = new work day starts; anyone without checkout after that is "missed")
+    const todayWork = todayWorkDate();
+    await prisma.hRMAttendance.updateMany({
+      where: {
+        employeeId: { in: empIds },
+        date: { lt: todayWork },
+        checkIn: { not: null },
+        checkOut: null,
+        notes: { not: { contains: "Missed checkout" } },
+      },
+      data: { notes: "Missed checkout — auto flagged at next sync" },
+    });
+
     const { revalidatePath } = await import("next/cache");
     revalidatePath("/portal/dashboard");
     revalidatePath("/portal/attendance");

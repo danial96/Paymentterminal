@@ -23,10 +23,13 @@ export default async function PortalDashboard() {
   const session = await auth();
   const empId = Number((session?.user as any)?.employeeId);
 
-  const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  // Compute PKT "now" and work day date (day changes at 3 AM PKT)
+  const pktNow = new Date(Date.now() + 5 * 3600000);
+  const todayStart = new Date(Date.UTC(pktNow.getUTCFullYear(), pktNow.getUTCMonth(), pktNow.getUTCDate()));
+  if (pktNow.getUTCHours() < 3) todayStart.setUTCDate(todayStart.getUTCDate() - 1);
   const todayEnd = new Date(todayStart.getTime() + 86400000 - 1);
+  const monthStart = new Date(Date.UTC(todayStart.getUTCFullYear(), todayStart.getUTCMonth(), 1));
+  const now = pktNow; // used for birthday/anniversary date comparisons
 
   const [employee, attendance, todayRecord, leaves, balances, notices, payslipRequests, upcomingHolidays, allEmployees, myWishesReceived, myWishesSent, myAnnivWishesReceived, myAnnivWishesSent] = await Promise.all([
     prisma.hRMEmployee.findUnique({

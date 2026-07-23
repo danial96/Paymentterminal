@@ -4,21 +4,11 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/scope";
-
-function todayDate() {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-// Store PKT time "as UTC" — consistent with ZK machine convention
-function pktNow() {
-  return new Date(Date.now() + 5 * 3600000);
-}
+import { pktNow, todayWorkDate } from "@/lib/attendance-utils";
 
 export async function checkIn(employeeId: number) {
   await requireUser();
-  const today = todayDate();
+  const today = todayWorkDate();
   const existing = await prisma.hRMAttendance.findUnique({
     where: { employeeId_date: { employeeId, date: today } },
   });
@@ -61,7 +51,7 @@ export async function checkIn(employeeId: number) {
 
 export async function checkOut(employeeId: number) {
   await requireUser();
-  const today = todayDate();
+  const today = todayWorkDate();
   const record = await prisma.hRMAttendance.findUnique({
     where: { employeeId_date: { employeeId, date: today } },
   });
@@ -90,7 +80,7 @@ export async function checkOut(employeeId: number) {
 
 export async function breakStart(employeeId: number) {
   await requireUser();
-  const today = todayDate();
+  const today = todayWorkDate();
   const record = await prisma.hRMAttendance.findUnique({
     where: { employeeId_date: { employeeId, date: today } },
   });
@@ -104,7 +94,7 @@ export async function breakStart(employeeId: number) {
 
 export async function breakEnd(employeeId: number) {
   await requireUser();
-  const today = todayDate();
+  const today = todayWorkDate();
   const record = await prisma.hRMAttendance.findUnique({
     where: { employeeId_date: { employeeId, date: today } },
   });
