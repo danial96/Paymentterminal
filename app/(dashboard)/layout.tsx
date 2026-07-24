@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { requireUser, userHasPermission, isHrmOnly } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import NavSidebar from "./NavSidebar";
