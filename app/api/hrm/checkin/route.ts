@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+function pktNow() {
+  // DB stores naive PKT datetimes; Vercel runs UTC so add 5h
+  return new Date(Date.now() + 5 * 60 * 60 * 1000);
+}
+
 export async function POST() {
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -11,9 +16,10 @@ export async function POST() {
   });
   if (!employee) return NextResponse.json({ error: "No employee record" }, { status: 404 });
 
-  const today = new Date();
+  const now = pktNow();
+
+  const today = new Date(now);
   today.setHours(0, 0, 0, 0);
-  const now = new Date();
 
   const lateThreshold = new Date(now);
   lateThreshold.setHours(9, 15, 0, 0);
