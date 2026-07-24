@@ -65,9 +65,13 @@ export default function PayrollClient({ employees, payrolls, requests, filterMon
     e.preventDefault();
     const fd = new FormData(formRef.current!);
     startGenerate(async () => {
-      await generatePayroll(fd);
+      const result = await generatePayroll(fd);
       setShowModal(false);
-      router.refresh();
+      if (result?.id) {
+        router.push(`/hrm/payroll/${result.id}`);
+      } else {
+        router.refresh();
+      }
     });
   }
 
@@ -292,15 +296,15 @@ function PayrollRow({ p, onRefresh }: { p: Payroll; onRefresh: () => void }) {
       <td className="px-4 py-3">
         <div className="flex items-center justify-end gap-1.5 flex-wrap">
           {/* PDF / Print */}
+          <a href={`/hrm/payroll/${p.id}`}
+            className="rounded-md border border-zinc-200 px-2 py-1 text-[11px] text-zinc-600 hover:bg-zinc-50 flex items-center gap-1">
+            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            View
+          </a>
           <a href={`/hrm/payroll/${p.id}/pdf?logo=1`} target="_blank"
             className="rounded-md border border-zinc-200 px-2 py-1 text-[11px] text-zinc-600 hover:bg-zinc-50 flex items-center gap-1">
-            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-            PDF
-          </a>
-          <a href={`/hrm/payroll/${p.id}`} target="_blank"
-            className="rounded-md border border-zinc-200 px-2 py-1 text-[11px] text-zinc-600 hover:bg-zinc-50 flex items-center gap-1">
             <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-            Print
+            Print / PDF
           </a>
           {/* Status actions */}
           {p.status === "DRAFT" && (

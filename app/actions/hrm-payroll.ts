@@ -128,6 +128,7 @@ export async function generatePayroll(formData: FormData) {
   }
 
   revalidatePath("/hrm/payroll");
+  return { id: payroll.id };
 }
 
 export async function approvePayroll(id: number) {
