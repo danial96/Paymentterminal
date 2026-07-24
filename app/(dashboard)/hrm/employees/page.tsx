@@ -137,7 +137,7 @@ export default async function EmployeesPage({
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     <Link href={`/hrm/employees/${emp.id}`} className="text-zinc-700 hover:text-zinc-800 text-xs font-medium">View</Link>
-                    <Link href={`/hrm/payroll/generate?emp=${emp.id}`} className="text-zinc-700 hover:text-zinc-800 text-xs font-medium">Payslip</Link>
+                    <Link href={`/hrm/payroll?emp=${emp.id}`} className="text-zinc-700 hover:text-zinc-800 text-xs font-medium">Payslip</Link>
                   </div>
                 </td>
               </tr>

@@ -28,7 +28,7 @@ export default async function DashboardLayout({
       (prisma as any).hRMProfileUpdateRequest.count({ where: { status: "PENDING" } }),
     ]);
     if (pendingLeaves > 0) badges["/hrm/leaves"] = pendingLeaves;
-    if (pendingPayslips > 0) badges["/hrm/payroll/requests"] = pendingPayslips;
+    if (pendingPayslips > 0) badges["/hrm/payroll"] = pendingPayslips;
     if (pendingBankLetters > 0) badges["/hrm/bank-letters"] = pendingBankLetters;
     if (pendingProfileReqs > 0) badges["/hrm/profile-requests"] = pendingProfileReqs;
   }
