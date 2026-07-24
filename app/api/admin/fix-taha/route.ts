@@ -17,7 +17,6 @@ export async function POST() {
     return NextResponse.json({ error: "Record not found or missing checkOut" }, { status: 404 });
   }
 
-  // Was stored as UTC (18:26), correct PKT = +5h → 23:26
   const fixedCheckOut = new Date(new Date(rec.checkOut).getTime() + 5 * 60 * 60 * 1000);
   const workingHours  = Math.max(0, (fixedCheckOut.getTime() - new Date(rec.checkIn).getTime()) / 3600000);
   const overtimeHours = Math.max(0, workingHours - 8);
@@ -32,5 +31,24 @@ export async function POST() {
     employee: `${rec.employee.firstName} ${rec.employee.lastName}`,
     fixedCheckOut: fixedCheckOut.toISOString(),
     workingHours: workingHours.toFixed(2),
+  });
+}
+
+export async function DELETE() {
+  await requireUser();
+
+  const [payrollItems, payrolls, payslipRequests] = await Promise.all([
+    prisma.hRMPayrollItem.deleteMany({}),
+    prisma.hRMPayroll.deleteMany({}),
+    prisma.hRMPayslipRequest.deleteMany({}),
+  ]);
+
+  return NextResponse.json({
+    ok: true,
+    deleted: {
+      payrollItems: payrollItems.count,
+      payrolls: payrolls.count,
+      payslipRequests: payslipRequests.count,
+    },
   });
 }
