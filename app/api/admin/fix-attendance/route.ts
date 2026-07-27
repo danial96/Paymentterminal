@@ -29,37 +29,35 @@ export async function POST() {
 
   const results: Record<string, unknown> = {};
 
-  // IKIA1026 (Anas) — set checkIn to 1:59 PM PKT, source biometric
+  // IKIA1026 (Anas) — 1:59 PM PKT stored as naive PKT, biometric
   const anas = await prisma.hRMEmployee.findFirst({ where: { employeeId: "IKIA1026" } });
   if (anas) {
     const checkIn = new Date(today);
-    checkIn.setHours(13, 59, 0, 0); // 1:59 PM PKT
-    const rec = await prisma.hRMAttendance.findFirst({
-      where: { employeeId: anas.id, date: { gte: today } },
-    });
+    checkIn.setHours(13, 59, 0, 0); // 1:59 PM as naive PKT datetime
+    const rec = await prisma.hRMAttendance.findFirst({ where: { employeeId: anas.id, date: { gte: today } } });
     if (rec) {
       await prisma.hRMAttendance.update({
         where: { id: rec.id },
         data: { checkIn, isManual: false, status: "PRESENT", lateMinutes: null },
       });
-      results["IKIA1026"] = "checkIn → 01:59 PM, source → Biometric";
+      results["IKIA1026"] = "checkIn → 01:59 PM PKT, source → Biometric, status → PRESENT";
     } else {
       results["IKIA1026"] = "no record found";
     }
   }
 
-  // IKIA1023 (Zain) — keep existing time, set source to biometric
+  // IKIA1023 (Zain) — 3:47 PM PKT stored as naive PKT, biometric, LATE (17 min past 3:30 PM threshold)
   const zain = await prisma.hRMEmployee.findFirst({ where: { employeeId: "IKIA1023" } });
   if (zain) {
-    const rec = await prisma.hRMAttendance.findFirst({
-      where: { employeeId: zain.id, date: { gte: today } },
-    });
+    const checkIn = new Date(today);
+    checkIn.setHours(15, 47, 41, 0); // 3:47 PM as naive PKT datetime
+    const rec = await prisma.hRMAttendance.findFirst({ where: { employeeId: zain.id, date: { gte: today } } });
     if (rec) {
       await prisma.hRMAttendance.update({
         where: { id: rec.id },
-        data: { isManual: false },
+        data: { checkIn, isManual: false, status: "LATE", lateMinutes: 17 },
       });
-      results["IKIA1023"] = `source → Biometric (checkIn kept as: ${rec.checkIn})`;
+      results["IKIA1023"] = "checkIn → 03:47 PM PKT, source → Biometric, status → LATE (17 min)";
     } else {
       results["IKIA1023"] = "no record found";
     }
