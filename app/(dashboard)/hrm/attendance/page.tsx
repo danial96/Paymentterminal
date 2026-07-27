@@ -16,7 +16,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 function fmtTime(d: Date) {
-  return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Karachi" });
+  return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
 }
 function fmtHours(h: unknown) {
   const n = Number(h);

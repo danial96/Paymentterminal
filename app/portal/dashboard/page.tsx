@@ -308,8 +308,8 @@ export default async function PortalDashboard() {
             </div>
             <div className="flex items-stretch gap-3 mb-4 flex-wrap">
               {[
-                { label: "Check In", value: todayRecord?.checkIn ? new Date(todayRecord.checkIn).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Karachi" }) : null },
-                { label: "Check Out", value: todayRecord?.checkOut ? new Date(todayRecord.checkOut).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Karachi" }) : null },
+                { label: "Check In", value: todayRecord?.checkIn ? new Date(todayRecord.checkIn).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null },
+                { label: "Check Out", value: todayRecord?.checkOut ? new Date(todayRecord.checkOut).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null },
                 { label: "Hours", value: whStr },
               ].map(({ label, value }) => (
                 <div key={label} className="flex-1 min-w-[90px] rounded-xl bg-zinc-50 border border-zinc-100 px-4 py-3">
@@ -332,8 +332,8 @@ export default async function PortalDashboard() {
             <AttendanceCheckIn
               hasCheckedIn={!!todayRecord?.checkIn}
               hasCheckedOut={!!todayRecord?.checkOut}
-              checkInTime={todayRecord?.checkIn ? new Date(todayRecord.checkIn).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Karachi" }) : null}
-              checkOutTime={todayRecord?.checkOut ? new Date(todayRecord.checkOut).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Karachi" }) : null}
+              checkInTime={todayRecord?.checkIn ? new Date(todayRecord.checkIn).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null}
+              checkOutTime={todayRecord?.checkOut ? new Date(todayRecord.checkOut).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : null}
               status={todayRecord?.status ?? null}
               workingHours={whStr}
             />
