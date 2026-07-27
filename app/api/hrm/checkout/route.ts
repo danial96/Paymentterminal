@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-function pktNow() {
-  // DB stores naive PKT datetimes; Vercel runs UTC so add 5h
-  return new Date(Date.now() + 5 * 60 * 60 * 1000);
-}
+import { todayWorkDate } from "@/lib/attendance-utils";
 
 export async function POST() {
   const session = await auth();
@@ -16,10 +12,8 @@ export async function POST() {
   });
   if (!employee) return NextResponse.json({ error: "No employee record" }, { status: 404 });
 
-  const now = pktNow();
-
-  const today = new Date(now);
-  today.setHours(0, 0, 0, 0);
+  const now = new Date(); // actual UTC — consistent with ZK sync and portal action
+  const today = todayWorkDate();
 
   const existing = await prisma.hRMAttendance.findUnique({
     where: { employeeId_date: { employeeId: employee.id, date: today } },
