@@ -50,12 +50,15 @@ export async function portalCheckIn() {
     where: { employeeId_date: { employeeId, date: today } },
   });
 
+  // PKT now: DB stores naive PKT datetimes, Vercel runs UTC so add 5h
+  const now = new Date(Date.now() + 5 * 60 * 60 * 1000);
+
   if (existing) {
     // Already has a record — add checkIn if missing, otherwise ignore (second tap = no-op)
     if (!existing.checkIn) {
       await prisma.hRMAttendance.update({
         where: { id: existing.id },
-        data: { checkIn: new Date(), isManual: true, notes: "Manual check-in via employee portal" },
+        data: { checkIn: now, isManual: true, notes: "Manual check-in via employee portal" },
       });
     }
     revalidatePath("/portal/dashboard");
@@ -71,13 +74,12 @@ export async function portalCheckIn() {
   const shiftStart = emp?.shift?.startTime ?? "14:00"; // default 2 PM PKT
   const [shiftH, shiftM] = shiftStart.split(":").map(Number);
 
-  const now = new Date(); // actual UTC
-  // Late threshold: shift start + 30 min grace, converted PKT→UTC (subtract 5h)
-  const lateThreshold = new Date(today);
-  lateThreshold.setUTCHours(shiftH - 5, shiftM + 30, 0, 0);
+  // Late threshold in PKT: shift start + 30 min grace
+  const lateThresholdPkt = new Date(today);
+  lateThresholdPkt.setHours(shiftH, shiftM + 30, 0, 0);
 
-  const isLate = now > lateThreshold;
-  const lateMinutes = isLate ? Math.floor((now.getTime() - lateThreshold.getTime()) / 60000) : 0;
+  const isLate = now > lateThresholdPkt;
+  const lateMinutes = isLate ? Math.floor((now.getTime() - lateThresholdPkt.getTime()) / 60000) : 0;
 
   await prisma.hRMAttendance.create({
     data: {
@@ -104,7 +106,7 @@ export async function portalCheckOut() {
   });
   if (!record || !record.checkIn) return;
 
-  const now = new Date(); // actual UTC — consistent with ZK records
+  const now = new Date(Date.now() + 5 * 60 * 60 * 1000); // PKT naive datetime
   const breakMins = record.breakStart && record.breakEnd
     ? (record.breakEnd.getTime() - record.breakStart.getTime()) / 60000
     : 0;
