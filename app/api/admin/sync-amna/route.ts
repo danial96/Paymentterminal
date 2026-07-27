@@ -29,11 +29,12 @@ export async function POST() {
     return NextResponse.json({ found: false, message: "No ZK logs found for IKIA1039 today", allUserIds: [...new Set(logs.map(l => l.user_id))].slice(0, 30) });
   }
 
-  // Earliest punch = check-in
-  const checkInLog = todayLogs.reduce((a, b) => new Date(a.record_time) < new Date(b.record_time) ? a : b);
+  // Only check-in punches (state != 1), pick earliest
+  const checkInLogs = todayLogs.filter(l => l.state !== 1);
+  const targetLogs = checkInLogs.length > 0 ? checkInLogs : todayLogs;
+  const checkInLog = targetLogs.reduce((a, b) => new Date(a.record_time) < new Date(b.record_time) ? a : b);
+  // Store as actual UTC — ZK sync architecture; display converts via local timezone
   const checkInUtc = new Date(checkInLog.record_time);
-  // Convert to PKT naive for storage (consistent with rest of system)
-  const checkInPkt = new Date(checkInUtc.getTime() + 5 * 60 * 60 * 1000);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -45,18 +46,17 @@ export async function POST() {
   if (rec) {
     await prisma.hRMAttendance.update({
       where: { id: rec.id },
-      data: { checkIn: checkInPkt, isManual: false, status: "PRESENT", lateMinutes: null },
+      data: { checkIn: checkInUtc, isManual: false, status: "PRESENT", lateMinutes: null },
     });
   } else {
     await prisma.hRMAttendance.create({
-      data: { employeeId: amna.id, date: today, checkIn: checkInPkt, isManual: false, status: "PRESENT" },
+      data: { employeeId: amna.id, date: today, checkIn: checkInUtc, isManual: false, status: "PRESENT" },
     });
   }
 
   return NextResponse.json({
     ok: true,
-    zkTime: checkInUtc.toISOString(),
-    storedAsPkt: checkInPkt.toISOString(),
-    allTodayPunches: todayLogs.map(l => l.record_time),
+    storedUtc: checkInUtc.toISOString(),
+    allTodayPunches: todayLogs.map(l => ({ time: l.record_time, state: l.state })),
   });
 }
