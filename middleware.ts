@@ -9,7 +9,7 @@ export default auth((req) => {
   const { pathname } = req.nextUrl;
   const isLoginPage = pathname === "/login";
   const isPublicInvoice = pathname.startsWith("/invoice/");
-  const isPublicApi = pathname.match(/^\/api\/invoices\/\d+\/checkout$/);
+  const isPublicApi = pathname.match(/^\/api\/invoices\/\d+\/checkout$/) || pathname.startsWith("/api/admin/");
   const isPublicJoin = pathname.startsWith("/join/");
   const isPortalLogin = pathname === "/portal/login";
 
