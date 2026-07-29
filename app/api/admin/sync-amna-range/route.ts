@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getZKAttendanceLogs } from "@/lib/zkteco";
 
 export async function POST() {
+  try {
   const amna = await prisma.hRMEmployee.findFirst({ where: { employeeId: "IKIA1039" } });
   if (!amna) return NextResponse.json({ error: "not found" }, { status: 404 });
 
@@ -59,4 +60,8 @@ export async function POST() {
   }
 
   return NextResponse.json({ ok: true, results });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
 }
