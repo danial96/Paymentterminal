@@ -61,7 +61,6 @@ export async function POST() {
 
   return NextResponse.json({ ok: true, results });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    return NextResponse.json({ error: JSON.stringify(err, Object.getOwnPropertyNames(err as object)) }, { status: 500 });
   }
 }
