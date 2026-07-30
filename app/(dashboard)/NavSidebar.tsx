@@ -95,7 +95,6 @@ export default function NavSidebar({
   badges?: Record<string, number>;
 }) {
   const pathname = usePathname();
-  const [crmOpen, setCrmOpen] = useState(pathname.startsWith("/dashboard") || pathname.startsWith("/clients") || pathname.startsWith("/sellers") || pathname.startsWith("/monthly-sales") || pathname.startsWith("/renewals") || pathname.startsWith("/invoices") || pathname.startsWith("/admin/stripe-accounts") || pathname.startsWith("/admin/bank-accounts") || pathname === "/dashboard");
   const [paymentOpen, setPaymentOpen] = useState(pathname.startsWith("/admin/stripe-accounts") || pathname.startsWith("/invoices") || pathname.startsWith("/admin/bank-accounts"));
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -123,114 +122,88 @@ export default function NavSidebar({
 
       {/* Nav */}
       <nav className="sidebar-scroll flex flex-1 flex-col gap-0.5 px-2 py-3 text-sm overflow-y-auto min-h-0">
-        {/* CRM Section */}
-        {(
-          <div className="mt-0">
+        {/* Main nav links */}
+        {navLinks.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            onClick={() => setMobileOpen(false)}
+            className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
+              isActive(link.href)
+                ? "text-white font-medium shadow-sm brand-active"
+                : "text-white/60 hover:bg-white/10 hover:text-white"
+            }`}
+          >
+            <span className={isActive(link.href) ? "text-white" : "text-white/50"}>
+              {NAV_ICONS[link.href]}
+            </span>
+            {link.label}
+          </Link>
+        ))}
+
+        {/* Payment Terminal */}
+        {(isAdmin || hasInvoicesPermission) && (
+          <div className="mt-1">
             <button
-              onClick={() => setCrmOpen((o) => !o)}
+              onClick={() => setPaymentOpen((o) => !o)}
               className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 transition-all ${
-                crmOpen ? "bg-white/10 text-white" : "text-white/60 hover:bg-white/10 hover:text-white"
+                paymentOpen ? "bg-white/10 text-white" : "text-white/60 hover:bg-white/10 hover:text-white"
               }`}
             >
               <span className="text-white/50">
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>
               </span>
-              <span className="flex-1 text-left text-sm">CRM</span>
+              <span className="flex-1 text-left text-sm">Payment Terminal</span>
               <svg
-                className={`h-3.5 w-3.5 text-white/30 transition-transform ${crmOpen ? "rotate-180" : ""}`}
+                className={`h-3.5 w-3.5 text-white/30 transition-transform ${paymentOpen ? "rotate-180" : ""}`}
                 fill="none" stroke="currentColor" viewBox="0 0 24 24"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-
-            {crmOpen && (
+            {paymentOpen && (
               <div className="ml-4 mt-0.5 flex flex-col gap-0.5 border-l border-white/10 pl-3">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-all ${
-                      isActive(link.href)
-                        ? "text-white font-medium brand-active"
-                        : "text-white/50 hover:bg-white/10 hover:text-white"
-                    }`}
-                  >
-                    <span className={`shrink-0 ${isActive(link.href) ? "text-white" : "text-white/50"}`}>
-                      {NAV_ICONS[link.href]}
-                    </span>
-                    {link.label}
-                  </Link>
-                ))}
-
-                {/* Payment Terminal inside CRM */}
-                {(isAdmin || hasInvoicesPermission) && (
-                  <div className="mt-1">
-                    <button
-                      onClick={() => setPaymentOpen((o) => !o)}
-                      className={`flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-all ${
-                        paymentOpen ? "bg-white/10 text-white" : "text-white/50 hover:bg-white/10 hover:text-white"
+                <Link
+                  href="/invoices"
+                  onClick={() => setMobileOpen(false)}
+                  className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-all ${
+                    isActive("/invoices") ? "brand-active text-white font-medium" : "text-white/50 hover:bg-white/10 hover:text-white"
+                  }`}
+                >
+                  <svg className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Invoices
+                </Link>
+                {isAdmin && (
+                  <>
+                    <Link
+                      href="/admin/stripe-accounts"
+                      onClick={() => setMobileOpen(false)}
+                      className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-all ${
+                        isActive("/admin/stripe-accounts") ? "brand-active text-white font-medium" : "text-white/50 hover:bg-white/10 hover:text-white"
                       }`}
                     >
-                      <svg className="h-3.5 w-3.5 shrink-0 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                      <svg className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                       </svg>
-                      <span className="flex-1 text-left">Payment Terminal</span>
-                      <svg
-                        className={`h-3 w-3 text-white/30 transition-transform ${paymentOpen ? "rotate-180" : ""}`}
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      Stripe Accounts
+                    </Link>
+                    <Link
+                      href="/admin/bank-accounts"
+                      onClick={() => setMobileOpen(false)}
+                      className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-all ${
+                        isActive("/admin/bank-accounts") ? "brand-active text-white font-medium" : "text-white/50 hover:bg-white/10 hover:text-white"
+                      }`}
+                    >
+                      <svg className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
                       </svg>
-                    </button>
-                    {paymentOpen && (
-                      <div className="ml-4 mt-0.5 flex flex-col gap-0.5 border-l border-white/10 pl-3">
-                        <Link
-                          href="/invoices"
-                          onClick={() => setMobileOpen(false)}
-                          className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-all ${
-                            isActive("/invoices") ? "brand-active text-white font-medium" : "text-white/50 hover:bg-white/10 hover:text-white"
-                          }`}
-                        >
-                          <svg className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                          Invoices
-                        </Link>
-                        {isAdmin && (
-                          <>
-                            <Link
-                              href="/admin/stripe-accounts"
-                              onClick={() => setMobileOpen(false)}
-                              className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-all ${
-                                isActive("/admin/stripe-accounts") ? "brand-active text-white font-medium" : "text-white/50 hover:bg-white/10 hover:text-white"
-                              }`}
-                            >
-                              <svg className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                              </svg>
-                              Stripe Accounts
-                            </Link>
-                            <Link
-                              href="/admin/bank-accounts"
-                              onClick={() => setMobileOpen(false)}
-                              className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-all ${
-                                isActive("/admin/bank-accounts") ? "brand-active text-white font-medium" : "text-white/50 hover:bg-white/10 hover:text-white"
-                              }`}
-                            >
-                              <svg className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-                              </svg>
-                              Bank Accounts
-                            </Link>
-                          </>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                      Bank Accounts
+                    </Link>
+                  </>
                 )}
               </div>
             )}
