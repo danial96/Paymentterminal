@@ -60,14 +60,16 @@ export default async function ClientsPage({
   const frontSellerList = profiles.filter((p) => p.isFrontSeller).map((p) => p.name).sort();
   const pmList = Array.from(new Set(clients.flatMap((c) => [c.pmName]).filter(Boolean) as string[])).sort();
   // remaining filter applied client-side in ClientsTable
-  const initialClients = filters.remaining
-    ? clients.filter((c) => {
-        const svcs = (c as { services?: { totalAmount: unknown; payments: { amount: unknown }[] }[] }).services ?? [];
-        const total = svcs.reduce((s, sv) => s + Number(sv.totalAmount), 0);
-        const paid = svcs.reduce((s, sv) => s + sv.payments.reduce((ps, p) => ps + Number(p.amount), 0), 0);
-        return filters.remaining === "has" ? total - paid > 0 : total - paid <= 0;
-      })
-    : clients;
+  const initialClients = JSON.parse(JSON.stringify(
+    filters.remaining
+      ? clients.filter((c) => {
+          const svcs = (c as { services?: { totalAmount: unknown; payments: { amount: unknown }[] }[] }).services ?? [];
+          const total = svcs.reduce((s, sv) => s + Number(sv.totalAmount), 0);
+          const paid = svcs.reduce((s, sv) => s + sv.payments.reduce((ps, p) => ps + Number(p.amount), 0), 0);
+          return filters.remaining === "has" ? total - paid > 0 : total - paid <= 0;
+        })
+      : clients
+  ));
 
   return (
     <div className="flex flex-col gap-4">
