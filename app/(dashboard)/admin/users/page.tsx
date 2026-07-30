@@ -51,22 +51,12 @@ export default async function UsersPage() {
                 <option value="upseller">Upseller</option>
                 <option value="project_manager">Project Manager</option>
                 <option value="production_department">Production Department</option>
-                <option value="hr_manager">HR Manager</option>
-                <option value="hr_staff">HR Staff</option>
                 <option value="admin">Admin</option>
               </select>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-zinc-700">HRM Access <span className="text-zinc-400 font-normal">(optional)</span></label>
-              <select name="hrmRole" className="w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400 bg-white">
-                <option value="">No HRM Access</option>
-                <option value="hr_manager">HR Manager</option>
-                <option value="hr_staff">HR Staff</option>
-              </select>
-            </div>
             <div className="flex items-end pb-2">
               <div className="flex items-center gap-2">
                 <input type="checkbox" name="isUpseller" id="isUpseller" className="h-4 w-4 rounded border-zinc-300" />
@@ -95,7 +85,6 @@ export default async function UsersPage() {
               <th className="px-4 py-3 font-medium">User</th>
               <th className="px-4 py-3 font-medium">Role</th>
               <th className="px-4 py-3 font-medium text-center">Upseller</th>
-              <th className="px-4 py-3 font-medium">HRM Role</th>
               <th className="px-4 py-3 font-medium">Permissions</th>
               <th className="px-4 py-3"></th>
             </tr>

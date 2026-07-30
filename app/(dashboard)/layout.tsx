@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { requireUser, userHasPermission, isHrmOnly } from "@/lib/scope";
+import { requireUser, userHasPermission } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import NavSidebar from "./NavSidebar";
 import TopbarUserMenu from "./TopbarUserMenu";
@@ -13,27 +13,11 @@ export default async function DashboardLayout({
   const sessionUser = await requireUser();
   const user = await prisma.user.findUnique({
     where: { id: Number(sessionUser.id) },
-    select: { name: true, role: true, permissions: true, hrmRole: true },
+    select: { name: true, role: true, permissions: true },
   }) ?? sessionUser;
   const isAdmin = user.role === "admin";
-  const hrmOnly = isHrmOnly(user);
-
-  const hasHrm = isAdmin || userHasPermission(user, "hrm");
-
   // Badge counts
   const badges: Record<string, number> = {};
-  if (hasHrm) {
-    const [pendingLeaves, pendingPayslips, pendingBankLetters, pendingProfileReqs] = await Promise.all([
-      prisma.hRMLeave.count({ where: { status: "PENDING" } }),
-      prisma.hRMPayslipRequest.count({ where: { status: "PENDING" } }),
-      prisma.hRMBankLetterRequest.count({ where: { status: "PENDING" } }),
-      (prisma as any).hRMProfileUpdateRequest.count({ where: { status: "PENDING" } }),
-    ]);
-    if (pendingLeaves > 0) badges["/hrm/leaves"] = pendingLeaves;
-    if (pendingPayslips > 0) badges["/hrm/payroll"] = pendingPayslips;
-    if (pendingBankLetters > 0) badges["/hrm/bank-letters"] = pendingBankLetters;
-    if (pendingProfileReqs > 0) badges["/hrm/profile-requests"] = pendingProfileReqs;
-  }
   if (isAdmin) {
     const trashCount = await prisma.client.count({ where: { deletedAt: { not: null } } });
     if (trashCount > 0) badges["/admin/trash"] = trashCount;
@@ -45,7 +29,7 @@ export default async function DashboardLayout({
     return `${String(pkt.getUTCDate()).padStart(2,"0")}/${String(pkt.getUTCMonth()+1).padStart(2,"0")} ${String(pkt.getUTCHours()).padStart(2,"0")}:${String(pkt.getUTCMinutes()).padStart(2,"0")}`;
   })() : null;
 
-  const navLinks = hrmOnly ? [] : [
+  const navLinks = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/clients", label: "Clients" },
     ...(userHasPermission(user, "sellers")       ? [{ href: "/sellers",       label: "Sellers" }]       : []),
@@ -68,9 +52,7 @@ export default async function DashboardLayout({
         navLinks={navLinks}
         adminLinks={adminLinks}
         isAdmin={isAdmin}
-        hasInvoicesPermission={!hrmOnly && (isAdmin || userHasPermission(user, "invoices"))}
-        hasHrmPermission={hasHrm}
-        hrmOnly={hrmOnly}
+        hasInvoicesPermission={isAdmin || userHasPermission(user, "invoices")}
         badges={badges}
       />
       <div className="flex flex-1 flex-col min-w-0">

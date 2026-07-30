@@ -57,14 +57,13 @@ const userSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
   password: z.string().min(6),
-  role: z.enum(["admin", "project_manager", "front_seller", "upseller", "production_department", "hr_manager", "hr_staff"]),
+  role: z.enum(["admin", "project_manager", "front_seller", "upseller", "production_department"]),
 });
 
 export async function createUser(formData: FormData) {
   await requireAdmin();
   const parsed = userSchema.parse(Object.fromEntries(formData));
   const isUpseller = formData.get("isUpseller") === "on";
-  const hrmRole = (formData.get("hrmRole") as string) || null;
 
   await prisma.user.create({
     data: {
@@ -73,7 +72,6 @@ export async function createUser(formData: FormData) {
       password: await bcrypt.hash(parsed.password, 10),
       role: parsed.role,
       isUpseller,
-      hrmRole: hrmRole || null,
     },
   });
 
@@ -96,9 +94,8 @@ export async function updateUser(id: number, formData: FormData) {
   await requireAdmin();
   const name = String(formData.get("name") ?? "").trim();
   const role = String(formData.get("role") ?? "") as "admin" | "project_manager" | "front_seller" | "upseller" | "production_department";
-  const hrmRole = String(formData.get("hrmRole") ?? "").trim() || null;
   if (!name) return;
-  await prisma.user.update({ where: { id }, data: { name, role, hrmRole } });
+  await prisma.user.update({ where: { id }, data: { name, role } });
   revalidatePath("/admin/users");
 }
 
