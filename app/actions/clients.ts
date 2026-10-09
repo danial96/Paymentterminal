@@ -155,8 +155,26 @@ export async function searchClients(filters: ClientFilters, page = 1) {
       frontSeller: true,
       projectManager: true,
       services: {
-        where: { deletedAt: null },
+        where: {
+          deletedAt: null,
+          // When date/month filters are active, only include matching services
+          // so Paid/Remaining columns reflect only the filtered period.
+          ...(dateFrom || dateTo ? {
+            saleDate: {
+              ...(dateFrom ? { gte: new Date(dateFrom) } : {}),
+              ...(dateTo ? { lte: new Date(dateTo + "T23:59:59") } : {}),
+            },
+          } : {}),
+          ...(months && months.length > 0 ? {
+            OR: months.map((m) => {
+              const [y, mo] = m.split("-").map(Number);
+              return { saleDate: { gte: new Date(Date.UTC(y, mo - 1, 1)), lt: new Date(Date.UTC(y, mo, 1)) } };
+            }),
+          } : {}),
+        },
         select: {
+          id: true,
+          description: true,
           serviceType: { select: { name: true, isRecurring: true } },
           durationYears: true,
           soldByName: true,

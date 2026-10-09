@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { requirePermission } from "@/lib/scope";
+import { requirePermission, invoiceScopeWhere } from "@/lib/scope";
 import Link from "next/link";
 import DeleteInvoiceButton from "./DeleteInvoiceButton";
+import InvoiceStatusButton from "./InvoiceStatusButton";
 
 const STATUS_STYLES = {
   draft:     "bg-zinc-100 text-zinc-600",
@@ -12,10 +13,13 @@ const STATUS_STYLES = {
 
 export default async function InvoicesPage() {
   const user = await requirePermission("invoices");
+  const isAdminUser = user.role === "admin" || user.role === "super-admin";
   const invoices = await prisma.invoice.findMany({
+    where: invoiceScopeWhere(user),
     orderBy: { createdAt: "desc" },
     include: {
       stripeAccount: { select: { name: true } },
+      createdBy: { select: { name: true } },
     },
   });
 
@@ -77,6 +81,7 @@ export default async function InvoicesPage() {
                 <th className="px-4 py-2.5 border-r border-zinc-200">Amount</th>
                 <th className="px-4 py-2.5 border-r border-zinc-200">Due Date</th>
                 <th className="px-4 py-2.5 border-r border-zinc-200">Status</th>
+                {isAdminUser && <th className="px-4 py-2.5 border-r border-zinc-200">Created By</th>}
                 <th className="px-4 py-2.5 border-r border-zinc-200">Date</th>
                 <th className="px-4 py-2.5">Actions</th>
               </tr>
@@ -130,20 +135,28 @@ export default async function InvoicesPage() {
                       {inv.status}
                     </span>
                   </td>
+                  {isAdminUser && (
+                    <td className="px-4 py-2.5 border-r border-zinc-100 text-xs text-zinc-500">
+                      {inv.createdBy?.name ?? "—"}
+                    </td>
+                  )}
                   <td className="px-4 py-2.5 border-r border-zinc-100 text-xs text-zinc-400">
                     {new Date(inv.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
                   </td>
                   <td className="px-4 py-2.5">
-                    <div className="flex items-center gap-1.5">
-                      {inv.status !== "paid" && (
-                        <Link href={`/invoices/${inv.id}/edit`} className="inline-flex items-center gap-1 rounded-md border border-zinc-200 px-2.5 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-50 hover:border-zinc-300 transition-colors">
-                          <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                          Edit
-                        </Link>
-                      )}
-                      {(inv.status !== "paid" || user.role === "admin") && (
-                        <DeleteInvoiceButton id={inv.id} />
-                      )}
+                    <div className="flex flex-col gap-1.5">
+                      <InvoiceStatusButton id={inv.id} status={inv.status} />
+                      <div className="flex items-center gap-1.5">
+                        {inv.status !== "paid" && (
+                          <Link href={`/invoices/${inv.id}/edit`} className="inline-flex items-center gap-1 rounded-md border border-zinc-200 px-2.5 py-1 text-xs font-medium text-zinc-600 hover:bg-zinc-50 hover:border-zinc-300 transition-colors">
+                            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                            Edit
+                          </Link>
+                        )}
+                        {(inv.status !== "paid" || user.role === "admin") && (
+                          <DeleteInvoiceButton id={inv.id} />
+                        )}
+                      </div>
                     </div>
                   </td>
                 </tr>

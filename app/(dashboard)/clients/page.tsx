@@ -7,6 +7,7 @@ import { formatDate } from "@/lib/format";
 import { requireCrmAccess, clientScopeWhere } from "@/lib/scope";
 import MonthFilter from "./MonthFilter";
 import ClientsTable from "./ClientsTable";
+import Breadcrumb from "@/app/(dashboard)/components/Breadcrumb";
 import Link from "next/link";
 
 function daysUntil(date: Date) {
@@ -72,22 +73,28 @@ export default async function ClientsPage({
   ));
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-zinc-900">Clients</h1>
-        <div className="flex gap-2">
-          <a
-            href={`/api/clients/export${filters.q ? `?q=${encodeURIComponent(filters.q)}` : ""}`}
-            className="rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-700 hover:bg-zinc-100"
-          >
-            Export CSV
-          </a>
-          <Link
-            href="/clients/new"
-            className="btn-brand rounded-md px-3 py-2 text-sm font-medium text-white"
-          >
-            Add Client
-          </Link>
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-1">
+        <Breadcrumb items={[{ label: "Dashboard", href: "/dashboard" }, { label: "Clients" }]} />
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-zinc-900">Clients</h1>
+            <p className="mt-0.5 text-sm text-zinc-500">{totalCount} client{totalCount !== 1 ? "s" : ""} found</p>
+          </div>
+          <div className="flex gap-2">
+            <a
+              href={`/api/clients/export${filters.q ? `?q=${encodeURIComponent(filters.q)}` : ""}`}
+              className="rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50 transition-colors"
+            >
+              Export CSV
+            </a>
+            <Link
+              href="/clients/new"
+              className="btn-brand rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm"
+            >
+              + Add Client
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -197,51 +204,66 @@ export default async function ClientsPage({
       />
 
       {/* Renewals section */}
-      <div className="mt-6">
-        <h2 className="mb-3 text-base font-semibold text-zinc-900">Renewals</h2>
-        <div className="rounded-lg border border-zinc-200 bg-white">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-zinc-200 text-left text-xs uppercase text-zinc-500">
-                <th className="px-4 py-2">Client</th>
-                <th className="px-4 py-2">Service</th>
-                <th className="px-4 py-2">Amount</th>
-                <th className="px-4 py-2">Purchase Date</th>
-                <th className="px-4 py-2">End Date</th>
-                <th className="px-4 py-2">Status</th>
+      <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm">
+        <div className="flex items-center justify-between border-b border-zinc-100 px-5 py-3.5">
+          <h2 className="text-sm font-semibold text-zinc-900">Renewals</h2>
+          <Link href="/renewals" className="text-xs font-medium text-cyan-600 hover:underline">View all &rarr;</Link>
+        </div>
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-zinc-100 bg-zinc-50 text-left text-xs font-semibold uppercase tracking-wide text-zinc-400">
+              <th className="px-5 py-3">Client</th>
+              <th className="px-5 py-3">Service</th>
+              <th className="px-5 py-3">Description</th>
+              <th className="px-5 py-3 text-right">Amount</th>
+              <th className="px-5 py-3">Purchase Date</th>
+              <th className="px-5 py-3">End Date</th>
+              <th className="px-5 py-3">Status</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-zinc-50">
+            {renewals.length === 0 && (
+              <tr>
+                <td colSpan={7} className="px-5 py-8 text-center text-zinc-400">
+                  No renewals on record yet
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {renewals.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-4 py-4 text-center text-zinc-400">
-                    No renewals on record yet
+            )}
+            {renewals.map((r) => {
+              const days = r.endDate ? daysUntil(r.endDate) : 0;
+              const isOverdue = days < 0;
+              const badgeCls = isOverdue
+                ? "bg-rose-100 text-rose-700"
+                : days <= 7 ? "bg-red-100 text-red-700"
+                : days <= 30 ? "bg-amber-100 text-amber-700"
+                : "bg-emerald-50 text-emerald-700";
+              return (
+                <tr key={r.id} className={`transition-colors hover:bg-zinc-50 ${isOverdue ? "bg-rose-50/30" : ""}`}>
+                  <td className="px-5 py-3">
+                    <Link href={`/clients/${r.clientId}`} className="font-medium text-zinc-900 hover:text-cyan-700 hover:underline">
+                      {r.client.name}
+                    </Link>
+                  </td>
+                  <td className="px-5 py-3 text-zinc-600 text-xs">{r.serviceType.name}</td>
+                  <td className="px-5 py-3 text-zinc-500 text-xs max-w-[220px]">
+                    {r.description ? (
+                      <span className="line-clamp-2">{r.description}</span>
+                    ) : <span className="text-zinc-300">—</span>}
+                  </td>
+                  <td className="px-5 py-3 text-right font-medium text-zinc-800">£{Number(r.totalAmount).toFixed(2)}</td>
+                  <td className="px-5 py-3 text-zinc-500">{formatDate(r.saleDate)}</td>
+                  <td className="px-5 py-3 text-zinc-500">{formatDate(r.endDate)}</td>
+                  <td className="px-5 py-3">
+                    <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${badgeCls}`}>
+                      {isOverdue ? "Overdue" : `${days}d`}
+                    </span>
                   </td>
                 </tr>
-              )}
-              {renewals.map((r) => {
-                const days = r.endDate ? daysUntil(r.endDate) : 0;
-                return (
-                  <tr key={r.id} className="border-b border-zinc-100 last:border-0 hover:bg-zinc-50">
-                    <td className="px-4 py-2">
-                      <Link href={`/clients/${r.clientId}`} className="text-zinc-900 hover:underline">
-                        {r.client.name}
-                      </Link>
-                    </td>
-                    <td className="px-4 py-2 text-zinc-600">{r.description || r.serviceType.name}</td>
-                    <td className="px-4 py-2 text-zinc-600">£{Number(r.totalAmount).toFixed(2)}</td>
-                    <td className="px-4 py-2 text-zinc-600">{formatDate(r.saleDate)}</td>
-                    <td className="px-4 py-2 text-zinc-600">{formatDate(r.endDate)}</td>
-                    <td className="px-4 py-2">
-                      <span className={`rounded-full px-2 py-0.5 text-xs ${renewalBadge(days)}`}>
-                        {days < 0 ? "Overdue" : `${days} days`}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+              );
+            })}
+          </tbody>
+        </table>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic";
 
-import { requireUser, userHasPermission } from "@/lib/scope";
+import { requireUser, userHasPermission, isSeller } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import NavSidebar from "./NavSidebar";
 import TopbarUserMenu from "./TopbarUserMenu";
@@ -16,6 +16,7 @@ export default async function DashboardLayout({
     select: { name: true, role: true, permissions: true },
   }) ?? sessionUser;
   const isAdmin = user.role === "admin";
+  const isSellerUser = isSeller(user);
   // Badge counts
   const badges: Record<string, number> = {};
   if (isAdmin) {
@@ -32,14 +33,17 @@ export default async function DashboardLayout({
   const navLinks = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/clients", label: "Clients" },
-    ...(userHasPermission(user, "sellers")       ? [{ href: "/sellers",       label: "Sellers" }]       : []),
+    // Sellers always see Renewals; others need permission
+    ...(isSellerUser || userHasPermission(user, "renewals") ? [{ href: "/renewals", label: "Renewals" }] : []),
+    // Sellers/Monthly Sales only for admin or users with permission
+    ...(userHasPermission(user, "sellers") ? [{ href: "/sellers", label: "Sellers" }] : []),
     ...(userHasPermission(user, "monthly_sales") ? [{ href: "/monthly-sales", label: "Monthly Sales" }] : []),
-    ...(userHasPermission(user, "renewals")      ? [{ href: "/renewals",      label: "Renewals" }]      : []),
+    // Admins already get Brands under the admin links
+    ...(!isAdmin && userHasPermission(user, "brands") ? [{ href: "/brands", label: "Brands" }] : []),
   ];
 
   const adminLinks = [
     { href: "/admin/users", label: "Users" },
-    { href: "/admin/brands", label: "Brands" },
     { href: "/admin/service-types", label: "Service Types" },
     { href: "/admin/sync", label: "Sync" },
     { href: "/admin/trash", label: "Trash" },

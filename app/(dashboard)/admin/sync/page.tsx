@@ -1,6 +1,7 @@
 ﻿import { prisma } from "@/lib/prisma";
 import { triggerSync } from "@/app/actions/sync";
 import { formatDateTime } from "@/lib/format";
+import ResetButton from "./ResetButton";
 
 export default async function SyncPage() {
   let lastLog = null;
@@ -16,14 +17,17 @@ export default async function SyncPage() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold text-zinc-900">Google Sheet Sync</h1>
-        <form action={triggerSync}>
-          <button
-            type="submit"
-            className="btn-brand rounded-md px-4 py-2 text-sm font-medium text-white"
-          >
-            Sync Now
-          </button>
-        </form>
+        <div className="flex items-center gap-3">
+          <ResetButton />
+          <form action={triggerSync}>
+            <button
+              type="submit"
+              className="btn-brand rounded-md px-4 py-2 text-sm font-medium text-white"
+            >
+              Sync Now
+            </button>
+          </form>
+        </div>
       </div>
 
       {dbError && (

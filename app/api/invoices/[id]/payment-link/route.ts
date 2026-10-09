@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { invoiceScopeWhere } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import Stripe from "stripe";
 
@@ -11,8 +12,8 @@ export async function POST(
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const invoice = await prisma.invoice.findUnique({
-    where: { id: Number(id) },
+  const invoice = await prisma.invoice.findFirst({
+    where: { id: Number(id), ...invoiceScopeWhere(session.user) },
     include: { stripeAccount: { select: { mode: true, secretKeyTest: true, secretKeyLive: true, name: true } } },
   });
 

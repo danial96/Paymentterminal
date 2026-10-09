@@ -8,6 +8,7 @@ const ALL_PERMISSIONS = [
   { key: "sellers",       label: "Sellers" },
   { key: "monthly_sales", label: "Monthly Sales" },
   { key: "renewals",      label: "Renewals" },
+  { key: "brands",        label: "Brands" },
 ];
 
 const ROLE_LABELS: Record<string, string> = {

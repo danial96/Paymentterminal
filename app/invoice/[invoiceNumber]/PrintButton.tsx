@@ -17,12 +17,8 @@ export default function PrintButton({
     );
     if (w) {
       w.addEventListener("load", () => {
-        const original = w.document.title;
-        w.document.title = `${clientName} - ${invoiceNumber}`;
-        setTimeout(() => {
-          w.print();
-          w.document.title = original;
-        }, 300);
+        w.document.title = `${clientName} ${invoiceNumber}`;
+        setTimeout(() => w.print(), 300);
       });
     }
   }

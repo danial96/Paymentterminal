@@ -2,9 +2,26 @@ import { prisma } from "@/lib/prisma";
 import { upsertSellerProfile } from "@/app/actions/sellers";
 import Link from "next/link";
 import ManageSellersTable from "./ManageSellersTable";
+import { requireAdmin } from "@/lib/scope";
 
-export default async function ManageSellersPage() {
-  const [rawSellers, rawUpsellers, profiles] = await Promise.all([
+export default async function ManageSellersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ month?: string }>;
+}) {
+  await requireAdmin();
+  const { month } = await searchParams;
+
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const selectedMonth = month ?? currentMonth;
+
+  // Previous month for fallback
+  const [year, mon] = selectedMonth.split("-").map(Number);
+  const prevDate = new Date(year, mon - 2, 1);
+  const prevMonth = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, "0")}`;
+
+  const [rawSellers, rawUpsellers, profiles, currentTargets, prevTargets] = await Promise.all([
     prisma.clientService.findMany({
       where: { soldByName: { not: null } },
       select: { soldByName: true },
@@ -16,9 +33,13 @@ export default async function ManageSellersPage() {
       distinct: ["upsellerName"],
     }),
     prisma.sellerProfile.findMany(),
+    prisma.sellerMonthlyTarget.findMany({ where: { month: selectedMonth } }),
+    prisma.sellerMonthlyTarget.findMany({ where: { month: prevMonth } }),
   ]);
 
   const profileMap = new Map(profiles.map((p) => [p.name, p]));
+  const currentTargetMap = new Map(currentTargets.map((t) => [t.sellerName, t]));
+  const prevTargetMap = new Map(prevTargets.map((t) => [t.sellerName, t]));
 
   const allNames = Array.from(
     new Set([
@@ -30,15 +51,26 @@ export default async function ManageSellersPage() {
 
   const rows = allNames.map((name) => {
     const p = profileMap.get(name);
-    // fallback to monthlyTarget if role-specific target not set yet
-    const legacy = p?.monthlyTarget ? Number(p.monthlyTarget) : null;
+    // For targets: use current month record → fallback to previous month record → null
+    const ct = currentTargetMap.get(name);
+    const pt = prevTargetMap.get(name);
+    const frontTarget = ct?.frontTarget != null
+      ? Number(ct.frontTarget)
+      : pt?.frontTarget != null
+      ? Number(pt.frontTarget)
+      : null;
+    const upsellTarget = ct?.upsellTarget != null
+      ? Number(ct.upsellTarget)
+      : pt?.upsellTarget != null
+      ? Number(pt.upsellTarget)
+      : null;
     return {
       name,
       isActive: p?.isActive ?? true,
       isFrontSeller: p?.isFrontSeller ?? false,
       isUpseller: p?.isUpseller ?? false,
-      frontTarget: p?.frontTarget != null ? Number(p.frontTarget) : legacy,
-      upsellTarget: p?.upsellTarget != null ? Number(p.upsellTarget) : legacy,
+      frontTarget,
+      upsellTarget,
     };
   });
 
@@ -73,7 +105,12 @@ export default async function ManageSellersPage() {
         </button>
       </form>
 
-      <ManageSellersTable key={rows.length} initialRows={rows} />
+      <ManageSellersTable
+        key={`${selectedMonth}-${rows.length}`}
+        initialRows={rows}
+        selectedMonth={selectedMonth}
+        currentMonth={currentMonth}
+      />
     </div>
   );
 }

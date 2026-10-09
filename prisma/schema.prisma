@@ -30,6 +30,14 @@ enum ServiceStatus {
   cancelled
 }
 
+enum ClientStatus {
+  new
+  active
+  follow_up
+  completed
+  lost
+}
+
 enum ServiceCategory {
   website
   hosting
@@ -54,6 +62,7 @@ model User {
   managedClients  Client[]        @relation("ProjectManager")
   upsoldServices  ClientService[] @relation("Upseller")
   soldServices    ClientService[] @relation("SoldBy")
+  createdInvoices Invoice[]       @relation("InvoiceCreator")
   hrmEmployee     HRMEmployee?
 }
 
@@ -85,6 +94,7 @@ model Client {
   phone             String?
   medium            String?
   notes             String?   @db.Text
+  status            ClientStatus @default(new)
   deletedAt         DateTime?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
@@ -164,6 +174,18 @@ model SellerProfile {
   createdAt      DateTime @default(now())
 }
 
+model SellerMonthlyTarget {
+  id           Int      @id @default(autoincrement())
+  sellerName   String
+  month        String   // "YYYY-MM"
+  frontTarget  Decimal? @db.Decimal(10, 2)
+  upsellTarget Decimal? @db.Decimal(10, 2)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([sellerName, month])
+}
+
 enum StripeMode {
   test
   live
@@ -186,6 +208,8 @@ model StripeAccount {
 model Invoice {
   id                   Int           @id @default(autoincrement())
   invoiceNumber        String        @unique
+  createdById          Int?
+  createdBy            User?         @relation("InvoiceCreator", fields: [createdById], references: [id])
   clientId             Int?
   clientName           String
   clientCompany        String?
@@ -202,7 +226,9 @@ model Invoice {
   taxPercent           Decimal?      @db.Decimal(5, 2)
   taxAmount            Decimal?      @db.Decimal(10, 2)
   total                Decimal       @db.Decimal(10, 2)
+  notesLabel           String?       @default("Notes")
   notes                String?       @db.Text
+  termsLabel           String?       @default("Terms & Conditions")
   terms                String?       @db.Text
   dueDate              DateTime?
   status               InvoiceStatus @default(draft)

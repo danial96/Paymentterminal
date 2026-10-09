@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { requirePermission } from "@/lib/scope";
+import { requirePermission, invoiceScopeWhere } from "@/lib/scope";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import InvoiceActions from "./InvoiceActions";
@@ -14,8 +14,8 @@ const STATUS_STYLES: Record<string, string> = {
 export default async function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requirePermission("invoices");
   const { id } = await params;
-  const invoice = await prisma.invoice.findUnique({
-    where: { id: Number(id) },
+  const invoice = await prisma.invoice.findFirst({
+    where: { id: Number(id), ...invoiceScopeWhere(user) },
     include: {
       stripeAccount: { select: { name: true, id: true } },
     },

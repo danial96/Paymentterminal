@@ -1,9 +1,11 @@
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/scope";
 import { createBrand, deleteBrand } from "@/app/actions/admin";
 import BrandLogoUpload from "./BrandLogoUpload";
 import BrandDetailsEditor from "./BrandDetailsEditor";
 
 export default async function BrandsPage() {
+  await requirePermission("brands");
   const brands = await prisma.brand.findMany({ orderBy: { name: "asc" } });
 
   return (

@@ -23,7 +23,9 @@ type Invoice = {
   currency: string;
   discountAmount: number | null;
   taxPercent: number | null;
+  notesLabel: string | null;
   notes: string | null;
+  termsLabel: string | null;
   terms: string | null;
   dueDate: string | null;
   paymentMethod: string;
@@ -90,6 +92,7 @@ export default function EditInvoiceForm({
   }
 
   function addItem() { setItems((prev) => [...prev, { description: "", quantity: 1, unitPrice: 0 }]); }
+  function duplicateItem(i: number) { setItems((prev) => { const copy = [...prev]; copy.splice(i + 1, 0, { ...prev[i] }); return copy; }); }
   function removeItem(i: number) { setItems((prev) => prev.filter((_, idx) => idx !== i)); }
 
   const filteredClients = clientSearch.length > 0
@@ -187,13 +190,25 @@ export default function EditInvoiceForm({
                   className="col-span-2 rounded-md border border-zinc-300 px-2 py-2 text-sm text-center focus:outline-none focus:ring-2 focus:ring-zinc-400" />
                 <div className="col-span-3 relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-sm">{sym}</span>
-                  <input type="number" min="0" step="0.01" value={item.unitPrice} onChange={(e) => updateItem(i, "unitPrice", e.target.value)}
+                  <input type="text" inputMode="decimal"
+                    value={item.unitPrice === 0 ? "" : item.unitPrice.toLocaleString("en-GB")}
+                    placeholder="0"
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/,/g, "");
+                      updateItem(i, "unitPrice", raw === "" ? "0" : raw);
+                    }}
                     className="w-full rounded-md border border-zinc-300 pl-6 pr-3 py-2 text-sm text-right focus:outline-none focus:ring-2 focus:ring-zinc-400" />
                 </div>
-                <button type="button" onClick={() => removeItem(i)} disabled={items.length === 1}
-                  className="col-span-1 flex items-center justify-center text-zinc-300 hover:text-red-500 disabled:opacity-20 transition-colors">
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
+                <div className="col-span-1 flex items-center justify-center gap-1">
+                  <button type="button" onClick={() => duplicateItem(i)} title="Duplicate"
+                    className="text-zinc-300 hover:text-zinc-600 transition-colors">
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                  </button>
+                  <button type="button" onClick={() => removeItem(i)} disabled={items.length === 1}
+                    className="text-zinc-300 hover:text-red-500 disabled:opacity-20 transition-colors">
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
+                </div>
               </div>
             ))}
             <button type="button" onClick={addItem}
@@ -204,7 +219,7 @@ export default function EditInvoiceForm({
             <div className="mt-4 border-t border-zinc-100 pt-4 flex flex-col items-end gap-1">
               <div className="flex items-center gap-4 text-sm">
                 <span className="text-zinc-500">Subtotal</span>
-                <span className="font-medium w-24 text-right">{sym}{subtotal.toFixed(2)}</span>
+                <span className="font-medium w-24 text-right">{sym}{subtotal.toLocaleString("en-GB", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
               </div>
               <div className="flex items-center gap-4 text-sm">
                 <label className="text-zinc-500 flex items-center gap-2">
@@ -213,7 +228,7 @@ export default function EditInvoiceForm({
                     onChange={(e) => setDiscountAmount(Number(e.target.value))}
                     className="w-20 rounded border border-zinc-300 px-2 py-1 text-xs text-center focus:outline-none focus:ring-1 focus:ring-zinc-400" />
                 </label>
-                <span className="font-medium w-24 text-right text-zinc-600">-{sym}{discountAmount.toFixed(2)}</span>
+                <span className="font-medium w-24 text-right text-zinc-600">-{sym}{discountAmount.toLocaleString("en-GB", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
               </div>
               <div className="flex items-center gap-4 text-sm">
                 <label className="text-zinc-500 flex items-center gap-2">
@@ -223,11 +238,11 @@ export default function EditInvoiceForm({
                     className="w-16 rounded border border-zinc-300 px-2 py-1 text-xs text-center focus:outline-none focus:ring-1 focus:ring-zinc-400" />
                   %
                 </label>
-                <span className="font-medium w-24 text-right text-zinc-500">{sym}{taxAmount.toFixed(2)}</span>
+                <span className="font-medium w-24 text-right text-zinc-500">{sym}{taxAmount.toLocaleString("en-GB", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
               </div>
               <div className="flex items-center gap-4 text-sm border-t border-zinc-200 pt-2 mt-1">
                 <span className="font-semibold text-zinc-800">Total</span>
-                <span className="font-bold text-lg text-zinc-900 w-24 text-right">{sym}{total.toFixed(2)}</span>
+                <span className="font-bold text-lg text-zinc-900 w-24 text-right">{sym}{total.toLocaleString("en-GB", {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
               </div>
             </div>
           </div>
@@ -239,13 +254,13 @@ export default function EditInvoiceForm({
               Notes & Terms
             </h2>
             <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-zinc-500">Notes (visible to client)</label>
-                <textarea name="notes" rows={3} defaultValue={invoice.notes ?? ""} placeholder="Thank you for your business..." className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400 resize-none" />
+              <div className="flex flex-col gap-1.5">
+                <input name="notesLabel" defaultValue={invoice.notesLabel ?? "Notes"} className="rounded border border-zinc-200 px-2 py-1 text-xs font-semibold text-zinc-700 w-full focus:outline-none focus:border-cyan-400" />
+                <textarea name="notes" rows={4} defaultValue={invoice.notes ?? ""} placeholder={"e.g. Payment Schedule\n£500 - Due on signing"} className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400 resize-y" />
               </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-zinc-500">Terms & Conditions</label>
-                <textarea name="terms" rows={3} defaultValue={invoice.terms ?? ""} placeholder="Payment due within 7 days..." className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400 resize-none" />
+              <div className="flex flex-col gap-1.5">
+                <input name="termsLabel" defaultValue={invoice.termsLabel ?? "Terms & Conditions"} className="rounded border border-zinc-200 px-2 py-1 text-xs font-semibold text-zinc-700 w-full focus:outline-none focus:border-cyan-400" />
+                <textarea name="terms" rows={4} defaultValue={invoice.terms ?? ""} placeholder="Payment due within 7 days..." className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400 resize-y" />
               </div>
             </div>
           </div>
@@ -286,6 +301,7 @@ export default function EditInvoiceForm({
                   { value: "minimal", label: "Minimal" },
                   { value: "corporate", label: "Corporate" },
                   { value: "professional", label: "Professional" },
+                  { value: "original", label: "Original" },
                 ].map((t) => (
                   <button
                     key={t.value}
@@ -356,14 +372,6 @@ export default function EditInvoiceForm({
                     <label className="text-xs font-medium text-zinc-500">Sort Code</label>
                     <input name="bankSortCode" value={bankFields.sortCode} onChange={e => setBankFields(f => ({ ...f, sortCode: e.target.value }))} placeholder="00-00-00" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
                   </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-zinc-500">IBAN <span className="text-zinc-400 font-normal">(optional)</span></label>
-                  <input name="bankIban" value={bankFields.iban} onChange={e => setBankFields(f => ({ ...f, iban: e.target.value }))} placeholder="GB00 XXXX 0000 0000 0000 00" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-medium text-zinc-500">SWIFT / BIC <span className="text-zinc-400 font-normal">(optional)</span></label>
-                  <input name="bankSwift" value={bankFields.swift} onChange={e => setBankFields(f => ({ ...f, swift: e.target.value }))} placeholder="BARCGB22" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
                 </div>
               </div>
             )}

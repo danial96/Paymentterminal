@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { currentUserHasPermission } from "@/lib/scope";
 import { prisma } from "@/lib/prisma";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 
 async function checkAdmin() {
-  const session = await auth();
-  if (!session?.user || session.user.role !== "admin") return false;
-  return true;
+  return currentUserHasPermission("brands");
 }
 
 export async function POST(

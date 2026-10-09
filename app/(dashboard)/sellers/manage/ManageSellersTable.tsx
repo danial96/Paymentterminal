@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { toggleSellerActive, toggleSellerRole, upsertSellerProfile, deleteSellerProfile } from "@/app/actions/sellers";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toggleSellerActive, toggleSellerRole, upsertSellerProfile, deleteSellerProfile, upsertMonthlyTarget } from "@/app/actions/sellers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faTrash, faFloppyDisk } from "@fortawesome/free-solid-svg-icons";
 
@@ -72,7 +73,16 @@ function buildTargets(rows: SellerRow[]) {
   return init;
 }
 
-export default function ManageSellersTable({ initialRows }: { initialRows: SellerRow[] }) {
+export default function ManageSellersTable({
+  initialRows,
+  selectedMonth,
+  currentMonth,
+}: {
+  initialRows: SellerRow[];
+  selectedMonth: string;
+  currentMonth: string;
+}) {
+  const router = useRouter();
   const [targets, setTargets] = useState<Record<string, { front: string; upsell: string }>>(() =>
     buildTargets(initialRows)
   );
@@ -83,6 +93,13 @@ export default function ManageSellersTable({ initialRows }: { initialRows: Selle
   const [togglePending, setTogglePending] = useState<string | null>(null);
   const [rows, setRows] = useState<SellerRow[]>(initialRows);
   const [deletingRow, setDeletingRow] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState<"all" | "active" | "inactive">("active");
+
+  const visibleRows = rows.filter((r) => {
+    if (activeFilter === "active") return r.isActive;
+    if (activeFilter === "inactive") return !r.isActive;
+    return true;
+  });
 
   function markSaved(name: string) {
     setSavedRows((prev) => new Set(prev).add(name));
@@ -95,10 +112,14 @@ export default function ManageSellersTable({ initialRows }: { initialRows: Selle
     const fd = new FormData();
     fd.set("name", name);
     const t = targets[name];
-    if (t.front) fd.set("frontTarget", t.front);
-    if (t.upsell) fd.set("upsellTarget", t.upsell);
-    await upsertSellerProfile(fd);
-    // keep the typed values in state so they remain visible after save
+    const row = rows.find((r) => r.name === name)!;
+    // Only save target for the role the seller actually has — ignore disabled inputs
+    const frontVal = row.isFrontSeller && t.front ? parseFloat(t.front) : null;
+    const upsellVal = row.isUpseller && t.upsell ? parseFloat(t.upsell) : null;
+    await Promise.all([
+      upsertSellerProfile(fd),
+      upsertMonthlyTarget(name, selectedMonth, frontVal, upsellVal),
+    ]);
     setTargets((prev) => ({ ...prev, [name]: { front: t.front, upsell: t.upsell } }));
     setSavingRow(null);
     markSaved(name);
@@ -112,13 +133,15 @@ export default function ManageSellersTable({ initialRows }: { initialRows: Selle
         const fd = new FormData();
         fd.set("name", r.name);
         const t = targets[r.name];
-        if (t?.front) fd.set("frontTarget", t.front);
-        if (t?.upsell) fd.set("upsellTarget", t.upsell);
-        return upsertSellerProfile(fd);
+        const frontVal = r.isFrontSeller && t?.front ? parseFloat(t.front) : null;
+        const upsellVal = r.isUpseller && t?.upsell ? parseFloat(t.upsell) : null;
+        return Promise.all([
+          upsertSellerProfile(fd),
+          upsertMonthlyTarget(r.name, selectedMonth, frontVal, upsellVal),
+        ]);
       })
     );
     setSavingAll(false);
-    // mark all saved
     const all = new Set(rows.map((r) => r.name));
     setSavedRows(all);
     setTimeout(() => setSavedRows(new Set()), 2000);
@@ -152,11 +175,42 @@ export default function ManageSellersTable({ initialRows }: { initialRows: Selle
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Active / Non-Active filter tabs */}
+      <div className="flex gap-2">
+        {(["all", "active", "inactive"] as const).map((f) => (
+          <button
+            key={f}
+            onClick={() => setActiveFilter(f)}
+            className={`rounded-lg px-4 py-2 text-xs font-semibold transition-all ${
+              activeFilter === f
+                ? f === "active"
+                  ? "bg-emerald-600 text-white shadow-sm"
+                  : f === "inactive"
+                  ? "bg-rose-500 text-white shadow-sm"
+                  : "bg-zinc-900 text-white shadow-sm"
+                : "bg-white text-zinc-500 ring-1 ring-zinc-200 hover:ring-zinc-400"
+            }`}
+          >
+            {f === "all" ? "All" : f === "active" ? "Active" : "Non-Active"}
+            <span className="ml-1.5 rounded-full bg-white/20 px-1.5 py-0.5 text-[10px]">
+              {f === "all" ? rows.length : f === "active" ? rows.filter(r => r.isActive).length : rows.filter(r => !r.isActive).length}
+            </span>
+          </button>
+        ))}
+      </div>
+
       {/* Save All bar */}
       <div className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white px-5 py-3">
-        <p className="text-sm text-zinc-500">
-          Edit targets below, then save individually or all at once.
-        </p>
+        <div className="flex items-center gap-3">
+          <p className="text-sm text-zinc-500">Targets for month:</p>
+          <input
+            type="month"
+            defaultValue={selectedMonth}
+            max={currentMonth}
+            onChange={(e) => e.target.value && router.push(`/sellers/manage?month=${e.target.value}`)}
+            className="rounded-lg border border-zinc-200 px-3 py-1.5 text-sm text-zinc-700 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+          />
+        </div>
         <button
           onClick={saveAll}
           disabled={savingAll || !!savingRow}
@@ -171,7 +225,7 @@ export default function ManageSellersTable({ initialRows }: { initialRows: Selle
           <thead>
             <tr className="border-b border-zinc-100 bg-zinc-50 text-left text-xs font-semibold uppercase tracking-wide text-zinc-400">
               <th className="border-r border-zinc-200 px-5 py-3">Seller</th>
-              <th className="border-r border-zinc-200 px-5 py-3 text-center">Show</th>
+              <th className="border-r border-zinc-200 px-5 py-3 text-center">Active</th>
               <th className="border-r border-zinc-200 px-5 py-3 text-center">Front Seller</th>
               <th className="border-r border-zinc-200 px-5 py-3 text-center">Upseller</th>
               <th className="border-r border-zinc-200 px-5 py-3 text-center">Front Target</th>
@@ -181,7 +235,7 @@ export default function ManageSellersTable({ initialRows }: { initialRows: Selle
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-100">
-            {rows.map((row) => {
+            {visibleRows.map((row) => {
               const { name, isActive, isFrontSeller, isUpseller } = row;
               const t = targets[name] ?? { front: "", upsell: "" };
               const isSaving = savingRow === name;

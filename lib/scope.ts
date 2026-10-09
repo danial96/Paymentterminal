@@ -13,23 +13,12 @@ export async function requireAdmin() {
   return user;
 }
 
-export type AppPermission = "invoices" | "sellers" | "monthly_sales" | "renewals" | "hrm";
+export type AppPermission = "invoices" | "sellers" | "monthly_sales" | "renewals" | "brands";
 
 export function userHasPermission(user: { role: string; permissions?: unknown }, perm: AppPermission): boolean {
   if (user.role === "admin" || user.role === "super-admin") return true;
   const perms = Array.isArray(user.permissions) ? user.permissions : [];
   return perms.includes(perm);
-}
-
-/** Returns true if user is HRM-only — has hrmRole but no CRM role/permissions */
-export function isHrmOnly(user: { role: string; hrmRole?: string | null; permissions?: unknown }): boolean {
-  if (user.role === "admin" || user.role === "super-admin") return false;
-  if (!user.hrmRole) return false;
-  const perms = Array.isArray(user.permissions) ? (user.permissions as string[]) : [];
-  const crmPerms: AppPermission[] = ["invoices", "sellers", "monthly_sales", "renewals"];
-  const hasCrmPerm = crmPerms.some((p) => perms.includes(p));
-  const isCrmRole = ["project_manager", "upseller", "production_department"].includes(user.role);
-  return !hasCrmPerm && !isCrmRole;
 }
 
 export async function requirePermission(perm: AppPermission) {
@@ -44,17 +33,27 @@ export async function requirePermission(perm: AppPermission) {
   return sessionUser;
 }
 
-/** Blocks HRM-only users from accessing CRM pages */
-export async function requireCrmAccess() {
-  const sessionUser = await requireUser();
-  if (sessionUser.role === "admin" || sessionUser.role === "super-admin") return sessionUser;
+/** Non-throwing check for API routes / server actions: admin or user granted the permission in the DB. */
+export async function currentUserHasPermission(perm: AppPermission): Promise<boolean> {
+  const session = await auth();
+  if (!session?.user) return false;
+  if (session.user.role === "admin" || session.user.role === "super-admin") return true;
   const { prisma } = await import("@/lib/prisma");
   const dbUser = await prisma.user.findUnique({
-    where: { id: Number(sessionUser.id) },
-    select: { permissions: true, role: true, hrmRole: true },
+    where: { id: Number(session.user.id) },
+    select: { permissions: true, role: true },
   });
-  if (dbUser && isHrmOnly(dbUser)) redirect("/hrm");
-  return sessionUser;
+  return !!dbUser && userHasPermission(dbUser, perm);
+}
+
+/** Admins see every invoice; everyone else only the ones they created. */
+export function invoiceScopeWhere(user: { id: string; role: string }) {
+  if (user.role === "admin" || user.role === "super-admin") return {};
+  return { createdById: Number(user.id) };
+}
+
+export async function requireCrmAccess() {
+  return requireUser();
 }
 
 /** Prisma `where` clause fragment scoping clients to what the current role is allowed to see. */
@@ -63,5 +62,15 @@ export function clientScopeWhere(user: { id: string; role: string }) {
   if (user.role === "project_manager") {
     return { projectManagerId: Number(user.id) };
   }
+  if (user.role === "upseller") {
+    // Upsellers' clients are linked via services, not directly on the client row
+    return { services: { some: { upsellerId: Number(user.id), deletedAt: null } } };
+  }
+  // front_seller and any other seller roles
   return { frontSellerId: Number(user.id) };
+}
+
+/** Returns true if the user is a seller (front or upsell) */
+export function isSeller(user: { role: string }) {
+  return user.role === "front_seller" || user.role === "upseller";
 }

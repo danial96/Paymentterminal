@@ -48,11 +48,21 @@ export async function POST(
 
   const origin = req.headers.get("origin") ?? req.headers.get("referer")?.split("/invoice")[0] ?? "http://localhost:3000";
 
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: totalAmount,
-    currency: invoice.currency,
-    metadata: { invoiceId: invoice.id.toString(), invoiceNumber: invoice.invoiceNumber },
-  });
+  if (totalAmount <= 0) {
+    return NextResponse.json({ error: "Invoice total must be greater than zero to process a payment" }, { status: 400 });
+  }
+
+  let paymentIntent;
+  try {
+    paymentIntent = await stripe.paymentIntents.create({
+      amount: totalAmount,
+      currency: invoice.currency,
+      metadata: { invoiceId: invoice.id.toString(), invoiceNumber: invoice.invoiceNumber },
+    });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Stripe error";
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
 
   // Mark as sent
   if (invoice.status === "draft") {

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "chmod -R 755 . 2>/dev/null || true && prisma generate && next build",
+    "build": "chmod -R 755 . 2>/dev/null || true && prisma generate && next build --webpack",
     "start": "next start",
     "lint": "eslint"
   },

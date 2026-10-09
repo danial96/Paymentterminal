@@ -1,15 +1,15 @@
 import { prisma } from "@/lib/prisma";
-import { requirePermission } from "@/lib/scope";
+import { requirePermission, invoiceScopeWhere } from "@/lib/scope";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import EditInvoiceForm from "./EditInvoiceForm";
 
 export default async function EditInvoicePage({ params }: { params: Promise<{ id: string }> }) {
-  await requirePermission("invoices");
+  const user = await requirePermission("invoices");
   const { id } = await params;
 
   const [invoice, clients, stripeAccounts, brands, bankAccounts] = await Promise.all([
-    prisma.invoice.findUnique({ where: { id: Number(id) } }),
+    prisma.invoice.findFirst({ where: { id: Number(id), ...invoiceScopeWhere(user) } }),
     prisma.client.findMany({ where: { deletedAt: null }, orderBy: { name: "asc" }, select: { id: true, name: true, email: true, phone: true } }),
     prisma.stripeAccount.findMany({ where: { isActive: true }, orderBy: { name: "asc" }, select: { id: true, name: true, brandId: true } }),
     prisma.brand.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
@@ -34,9 +34,12 @@ export default async function EditInvoicePage({ params }: { params: Promise<{ id
     currency: invoice.currency,
     discountAmount: (invoice as { discountAmount?: { toNumber?: () => number } | null }).discountAmount ? Number((invoice as { discountAmount: { toNumber?: () => number } }).discountAmount) : null,
     taxPercent: invoice.taxPercent ? Number(invoice.taxPercent) : null,
+    notesLabel: invoice.notesLabel ?? null,
     notes: invoice.notes ?? null,
+    termsLabel: invoice.termsLabel ?? null,
     terms: invoice.terms ?? null,
     dueDate: invoice.dueDate ? invoice.dueDate.toISOString().split("T")[0] : null,
+    template: (invoice as { template?: string }).template ?? "modern",
     paymentMethod: (invoice as { paymentMethod?: string }).paymentMethod ?? "stripe",
     showBankName: (invoice as { showBankName?: boolean }).showBankName !== false,
     bankName: (invoice as { bankName?: string | null }).bankName ?? null,

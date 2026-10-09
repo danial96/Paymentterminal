@@ -80,8 +80,15 @@ function splitInstallment(serviceName: string): { base: string; installment: "pa
  * which shifts every row number below them, silently reattaching payments to the
  * wrong client on the next sync if row number were used as the identity.
  */
-function serviceKey(sheetId: string, clientId: number, baseServiceName: string) {
-  const hash = createHash("sha1").update(baseServiceName.toLowerCase().trim()).digest("hex").slice(0, 16);
+function serviceKey(sheetId: string, clientId: number, baseServiceName: string, saleDate?: Date) {
+  // Include year-month so same service bought twice in different months gets distinct keys.
+  // Legacy keys (without date) are kept for records synced before this change — we
+  // append the month suffix only when a saleDate is supplied.
+  const base = baseServiceName.toLowerCase().trim();
+  const dateSuffix = saleDate
+    ? `:${saleDate.getUTCFullYear()}-${String(saleDate.getUTCMonth() + 1).padStart(2, "0")}`
+    : "";
+  const hash = createHash("sha1").update(base + dateSuffix).digest("hex").slice(0, 16);
   return `sheet:${sheetId}:client${clientId}:svc:${hash}`;
 }
 
@@ -147,10 +154,15 @@ function resolveServiceType(
   return allTypes.find((t) => t.category === "other") ?? null;
 }
 
+const C5_FALLBACK = "C5";
+
 export async function runSheetSync() {
   const sheetId = process.env.GOOGLE_SHEET_ID ?? "unknown";
   const rows = await fetchDealRows();
   const allServiceTypes = await prisma.serviceType.findMany();
+
+  // Pre-fetch the C5 fallback user once so we can assign its ID when needed.
+  const c5User = await findUserByName(C5_FALLBACK);
 
   let clientsCreated = 0;
   let clientsUpdated = 0;
@@ -158,17 +170,22 @@ export async function runSheetSync() {
   const warnings: string[] = [];
 
   for (const row of rows) {
-    if (!row.clientName.trim()) continue; // skip blank rows
+    if (!row.clientName.trim()) continue;
 
     const saleDate = parseDate(row.date) ?? new Date();
     const amountPaid = parseAmount(row.amountPaid);
     const remaining = parseAmount(row.remainingAmount);
     const totalAmount = amountPaid + remaining;
 
+    // Use "C5" as fallback when agent / upseller / PM is blank in the sheet.
+    const effectiveAgent   = row.agentName.trim() || C5_FALLBACK;
+    const effectiveUpseller = row.upseller.trim() || C5_FALLBACK;
+    const effectivePm      = row.pm.trim()       || C5_FALLBACK;
+
     const [agent, upseller, pm] = await Promise.all([
-      findUserByName(row.agentName),
-      findUserByName(row.upseller),
-      findUserByName(row.pm),
+      row.agentName.trim() ? findUserByName(row.agentName) : Promise.resolve(c5User),
+      row.upseller.trim()  ? findUserByName(row.upseller)  : Promise.resolve(c5User),
+      row.pm.trim()        ? findUserByName(row.pm)        : Promise.resolve(c5User),
     ]);
 
     if (row.agentName.trim() && !agent) {
@@ -213,7 +230,7 @@ export async function runSheetSync() {
       notes: row.notes.trim() || null,
       medium: row.medium.trim() || null,
       projectManagerId: pm?.id ?? null,
-      pmName: row.pm.trim() || null,
+      pmName: effectivePm,
     };
 
     if (client) {
@@ -232,7 +249,7 @@ export async function runSheetSync() {
     if (row.service.trim()) {
       const rawService = row.service.trim();
       const { base: serviceName, installment } = splitInstallment(rawService);
-      const svcKey = serviceKey(sheetId, client.id, serviceName);
+      const svcKey = serviceKey(sheetId, client.id, serviceName, saleDate);
       const paymentExternalRef = paymentKey(svcKey, installment ?? "main");
 
       // A "(Remaining)" row is a second payment on an already-recorded deal,
@@ -246,13 +263,13 @@ export async function runSheetSync() {
         if (existingService) {
           // Also keep service metadata in sync — soldByName may be null if the
           // service was first created before agent attribution was added to the schema.
-          // Use row.agentName directly (the agentName variable is declared later in scope).
           await prisma.clientService.update({
             where: { id: existingService.id },
             data: {
               soldById: agent?.id ?? null,
-              soldByName: row.agentName.trim() || null,
+              soldByName: effectiveAgent,
               upsellerId: upseller?.id ?? null,
+              upsellerName: effectiveUpseller,
             },
           });
           if (amountPaid > 0) {
@@ -295,16 +312,15 @@ export async function runSheetSync() {
 
       const isNewAccount = isNewAccountDeal(rawService);
 
-      const agentName = row.agentName.trim() || null;
-
       const clientService = await prisma.clientService.upsert({
         where: { externalRef: svcKey },
         update: {
           clientId: client.id,
           serviceTypeId: serviceType.id,
           upsellerId: upseller?.id ?? null,
+          upsellerName: effectiveUpseller,
           soldById: agent?.id ?? null,
-          soldByName: agentName,
+          soldByName: effectiveAgent,
           description: serviceName,
           totalAmount,
           saleDate,
@@ -317,8 +333,9 @@ export async function runSheetSync() {
           clientId: client.id,
           serviceTypeId: serviceType.id,
           upsellerId: upseller?.id ?? null,
+          upsellerName: effectiveUpseller,
           soldById: agent?.id ?? null,
-          soldByName: agentName,
+          soldByName: effectiveAgent,
           description: serviceName,
           totalAmount,
           saleDate,

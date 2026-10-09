@@ -22,12 +22,47 @@ type BankAccount = {
 
 const EMPTY = { label: "", bankName: "", accountName: "", accountNumber: "", sortCode: "", iban: "", swift: "" };
 
+type FormState = typeof EMPTY;
+
+function FormFields({ form, setForm }: { form: FormState; setForm: React.Dispatch<React.SetStateAction<FormState>> }) {
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      <div className="flex flex-col gap-1 col-span-2">
+        <label className="text-xs font-medium text-zinc-500">Label *</label>
+        <input value={form.label} onChange={e => setForm(f => ({ ...f, label: e.target.value }))} placeholder="e.g. Main GBP Account" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
+      </div>
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-zinc-500">Bank Name</label>
+        <input value={form.bankName} onChange={e => setForm(f => ({ ...f, bankName: e.target.value }))} placeholder="e.g. Barclays" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
+      </div>
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-zinc-500">Account Name</label>
+        <input value={form.accountName} onChange={e => setForm(f => ({ ...f, accountName: e.target.value }))} placeholder="e.g. IKIA TECH" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
+      </div>
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-zinc-500">Account Number</label>
+        <input value={form.accountNumber} onChange={e => setForm(f => ({ ...f, accountNumber: e.target.value }))} placeholder="12345678" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
+      </div>
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-zinc-500">Sort Code</label>
+        <input value={form.sortCode} onChange={e => setForm(f => ({ ...f, sortCode: e.target.value }))} placeholder="00-00-00" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
+      </div>
+    </div>
+  );
+}
+
 export default function BankAccountsPage() {
   const [accounts, setAccounts] = useState<BankAccount[]>([]);
   const [editing, setEditing] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(EMPTY);
   const [isPending, startTransition] = useTransition();
+  const [toast, setToast] = useState<string | null>(null);
+
+  function showToast(msg: string) {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
+  }
 
   function load() {
     getBankAccounts().then(setAccounts);
@@ -46,12 +81,19 @@ export default function BankAccountsPage() {
     startTransition(async () => {
       await saveBankAccount(editing, form);
       setShowForm(false);
+      setEditing(null);
       load();
+      showToast(editing ? "Account updated successfully" : "Account saved successfully");
     });
   }
 
   return (
     <div className="flex flex-col gap-6">
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50 rounded-lg bg-zinc-900 px-4 py-3 text-sm text-white shadow-lg">
+          {toast}
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold text-zinc-900">Bank Accounts</h1>
         <button onClick={openAdd}
@@ -65,40 +107,11 @@ export default function BankAccountsPage() {
         Saved bank accounts auto-fill when creating Bank Transfer invoices.
       </p>
 
-      {/* Form */}
-      {showForm && (
+      {/* Add New Form — only shown when adding, not editing */}
+      {showForm && editing === null && (
         <div className="rounded-lg border border-zinc-200 bg-white p-5 flex flex-col gap-4">
-          <h2 className="text-sm font-semibold text-zinc-800">{editing ? "Edit Account" : "New Bank Account"}</h2>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1 col-span-2">
-              <label className="text-xs font-medium text-zinc-500">Label *</label>
-              <input value={form.label} onChange={e => setForm(f => ({ ...f, label: e.target.value }))} placeholder="e.g. Main GBP Account" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-zinc-500">Bank Name</label>
-              <input value={form.bankName} onChange={e => setForm(f => ({ ...f, bankName: e.target.value }))} placeholder="e.g. Barclays" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-zinc-500">Account Name</label>
-              <input value={form.accountName} onChange={e => setForm(f => ({ ...f, accountName: e.target.value }))} placeholder="e.g. IKIA TECH" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-zinc-500">Account Number</label>
-              <input value={form.accountNumber} onChange={e => setForm(f => ({ ...f, accountNumber: e.target.value }))} placeholder="12345678" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-zinc-500">Sort Code</label>
-              <input value={form.sortCode} onChange={e => setForm(f => ({ ...f, sortCode: e.target.value }))} placeholder="00-00-00" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-zinc-500">IBAN <span className="text-zinc-400 font-normal">(optional)</span></label>
-              <input value={form.iban} onChange={e => setForm(f => ({ ...f, iban: e.target.value }))} placeholder="GB00 XXXX 0000 0000 0000 00" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-zinc-500">SWIFT / BIC <span className="text-zinc-400 font-normal">(optional)</span></label>
-              <input value={form.swift} onChange={e => setForm(f => ({ ...f, swift: e.target.value }))} placeholder="BARCGB22" className="rounded-md border border-zinc-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-400" />
-            </div>
-          </div>
+          <h2 className="text-sm font-semibold text-zinc-800">New Bank Account</h2>
+          <FormFields form={form} setForm={setForm} />
           <div className="flex gap-2 justify-end">
             <button onClick={() => setShowForm(false)} className="rounded-md border border-zinc-300 px-4 py-2 text-sm text-zinc-600 hover:bg-zinc-50">Cancel</button>
             <button onClick={handleSave} disabled={isPending || !form.label}
@@ -115,6 +128,19 @@ export default function BankAccountsPage() {
       )}
       <div className="flex flex-col gap-3">
         {accounts.map(a => (
+          editing === a.id ? (
+            <div key={a.id} className="rounded-lg border border-zinc-300 bg-white p-5 flex flex-col gap-4">
+              <h2 className="text-sm font-semibold text-zinc-800">Edit Account</h2>
+              <FormFields form={form} setForm={setForm} />
+              <div className="flex gap-2 justify-end">
+                <button onClick={() => { setShowForm(false); setEditing(null); }} className="rounded-md border border-zinc-300 px-4 py-2 text-sm text-zinc-600 hover:bg-zinc-50">Cancel</button>
+                <button onClick={handleSave} disabled={isPending || !form.label}
+                  className="btn-brand rounded-md px-4 py-2 text-sm font-medium text-white disabled:opacity-50">
+                  {isPending ? "Saving..." : "Save"}
+                </button>
+              </div>
+            </div>
+          ) : (
           <div key={a.id} className="rounded-lg border border-zinc-200 bg-white p-5 flex items-start justify-between gap-4">
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
@@ -126,8 +152,6 @@ export default function BankAccountsPage() {
                 {a.accountName && <span>{a.accountName}</span>}
                 {a.accountNumber && <span>Acc: {a.accountNumber}</span>}
                 {a.sortCode && <span>Sort: {a.sortCode}</span>}
-                {a.iban && <span>IBAN: {a.iban}</span>}
-                {a.swift && <span>SWIFT: {a.swift}</span>}
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -140,6 +164,7 @@ export default function BankAccountsPage() {
                 className="text-xs text-red-400 hover:text-red-600 font-medium">Delete</button>
             </div>
           </div>
+          )
         ))}
       </div>
     </div>

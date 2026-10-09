@@ -12,7 +12,6 @@ export async function getRenewals(scope: ReturnType<typeof clientScopeWhere>, li
     where: {
       client: scope,
       endDate: { not: null },
-      serviceType: { isRecurring: true },
       status: "active",
     },
     include: { client: true, serviceType: true },

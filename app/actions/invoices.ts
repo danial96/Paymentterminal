@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { requireAdmin, requireUser } from "@/lib/scope";
+import { requireAdmin, requireUser, invoiceScopeWhere } from "@/lib/scope";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -47,7 +47,7 @@ function generateInvoiceNumber() {
 }
 
 export async function createInvoice(formData: FormData) {
-  await requireUser();
+  const user = await requireUser();
 
   const itemsRaw = formData.get("items") as string;
   const items = JSON.parse(itemsRaw);
@@ -63,6 +63,7 @@ export async function createInvoice(formData: FormData) {
   const invoice = await prisma.invoice.create({
     data: {
       invoiceNumber: generateInvoiceNumber(),
+      createdById: Number(user.id),
       clientId: formData.get("clientId") ? Number(formData.get("clientId")) : null,
       clientName: formData.get("clientName") as string,
       clientCompany: (formData.get("clientCompany") as string) || null,
@@ -78,7 +79,9 @@ export async function createInvoice(formData: FormData) {
       taxPercent: taxPercent || null,
       taxAmount: taxAmount || null,
       total,
+      notesLabel: (formData.get("notesLabel") as string) || "Notes",
       notes: (formData.get("notes") as string) || null,
+      termsLabel: (formData.get("termsLabel") as string) || "Terms & Conditions",
       terms: (formData.get("terms") as string) || null,
       dueDate: dueDateRaw ? new Date(dueDateRaw) : null,
       paymentMethod: (formData.get("paymentMethod") as string) || "stripe",
@@ -99,7 +102,9 @@ export async function createInvoice(formData: FormData) {
 }
 
 export async function updateInvoiceStatus(id: number, status: "draft" | "sent" | "paid" | "cancelled") {
-  await requireUser();
+  const user = await requireUser();
+  const owned = await prisma.invoice.count({ where: { id, ...invoiceScopeWhere(user) } });
+  if (!owned) throw new Error("Invoice not found");
   await prisma.invoice.update({
     where: { id },
     data: {
@@ -113,7 +118,9 @@ export async function updateInvoiceStatus(id: number, status: "draft" | "sent" |
 }
 
 export async function updateInvoice(id: number, formData: FormData) {
-  await requireUser();
+  const user = await requireUser();
+  const owned = await prisma.invoice.count({ where: { id, ...invoiceScopeWhere(user) } });
+  if (!owned) throw new Error("Invoice not found");
 
   const itemsRaw = formData.get("items") as string;
   const items = JSON.parse(itemsRaw);
@@ -144,7 +151,9 @@ export async function updateInvoice(id: number, formData: FormData) {
       taxPercent: taxPercent || null,
       taxAmount: taxAmount || null,
       total,
+      notesLabel: (formData.get("notesLabel") as string) || "Notes",
       notes: (formData.get("notes") as string) || null,
+      termsLabel: (formData.get("termsLabel") as string) || "Terms & Conditions",
       terms: (formData.get("terms") as string) || null,
       dueDate: dueDateRaw ? new Date(dueDateRaw) : null,
       paymentMethod: (formData.get("paymentMethod") as string) || "stripe",

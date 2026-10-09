@@ -37,6 +37,11 @@ const NAV_ICONS: Record<string, React.ReactNode> = {
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
     </svg>
   ),
+  "/brands": (
+    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+    </svg>
+  ),
   "/admin/brands": (
     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
@@ -95,7 +100,8 @@ export default function NavSidebar({
   badges?: Record<string, number>;
 }) {
   const pathname = usePathname();
-  const [paymentOpen, setPaymentOpen] = useState(pathname.startsWith("/admin/stripe-accounts") || pathname.startsWith("/invoices") || pathname.startsWith("/admin/bank-accounts"));
+  const [paymentOpen, setPaymentOpen] = useState(pathname.startsWith("/admin/stripe-accounts") || pathname.startsWith("/invoices") || pathname.startsWith("/admin/bank-accounts") || pathname.startsWith("/admin/brands") || pathname.startsWith("/brands"));
+  const [sellersOpen, setSellersOpen] = useState(pathname.startsWith("/sellers") || pathname.startsWith("/monthly-sales"));
   const [mobileOpen, setMobileOpen] = useState(false);
 
   function isActive(href: string) {
@@ -123,23 +129,76 @@ export default function NavSidebar({
       {/* Nav */}
       <nav className="sidebar-scroll flex flex-1 flex-col gap-0.5 px-2 py-3 text-sm overflow-y-auto min-h-0">
         {/* Main nav links */}
-        {navLinks.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            onClick={() => setMobileOpen(false)}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
-              isActive(link.href)
-                ? "text-white font-medium shadow-sm brand-active"
-                : "text-white/60 hover:bg-white/10 hover:text-white"
-            }`}
-          >
-            <span className={isActive(link.href) ? "text-white" : "text-white/50"}>
-              {NAV_ICONS[link.href]}
-            </span>
-            {link.label}
-          </Link>
-        ))}
+        {navLinks.map((link) => {
+          // Sellers gets a collapsible submenu
+          if (link.href === "/sellers") {
+            return (
+              <div key="/sellers" className="mt-0.5">
+                <button
+                  onClick={() => setSellersOpen((o) => !o)}
+                  className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 transition-all ${
+                    sellersOpen || pathname.startsWith("/sellers") || pathname.startsWith("/monthly-sales")
+                      ? "bg-white/10 text-white"
+                      : "text-white/60 hover:bg-white/10 hover:text-white"
+                  }`}
+                >
+                  <span className="text-white/50">{NAV_ICONS["/sellers"]}</span>
+                  <span className="flex-1 text-left text-sm">Sellers</span>
+                  <svg
+                    className={`h-3.5 w-3.5 text-white/30 transition-transform ${sellersOpen ? "rotate-180" : ""}`}
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {sellersOpen && (
+                  <div className="ml-4 mt-0.5 flex flex-col gap-0.5 border-l border-white/10 pl-3">
+                    {[
+                      { href: "/sellers", label: "All Sellers", exact: true },
+                      { href: "/sellers/manage", label: "Manage Sellers" },
+                      { href: "/monthly-sales", label: "Monthly Report" },
+                    ].map((sub) => {
+                      const active = sub.exact
+                        ? pathname === "/sellers"
+                        : pathname.startsWith(sub.href);
+                      return (
+                        <Link
+                          key={sub.href}
+                          href={sub.href}
+                          onClick={() => setMobileOpen(false)}
+                          className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-all ${
+                            active ? "brand-active text-white font-medium" : "text-white/50 hover:bg-white/10 hover:text-white"
+                          }`}
+                        >
+                          {sub.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          }
+          // Monthly Sales is now under Sellers — skip it in main nav
+          if (link.href === "/monthly-sales") return null;
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={() => setMobileOpen(false)}
+              className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
+                isActive(link.href)
+                  ? "text-white font-medium shadow-sm brand-active"
+                  : "text-white/60 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              <span className={isActive(link.href) ? "text-white" : "text-white/50"}>
+                {NAV_ICONS[link.href]}
+              </span>
+              {link.label}
+            </Link>
+          );
+        })}
 
         {/* Payment Terminal */}
         {(isAdmin || hasInvoicesPermission) && (
@@ -179,6 +238,18 @@ export default function NavSidebar({
                 </Link>
                 {isAdmin && (
                   <>
+                    <Link
+                      href="/admin/brands"
+                      onClick={() => setMobileOpen(false)}
+                      className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-all ${
+                        isActive("/admin/brands") ? "brand-active text-white font-medium" : "text-white/50 hover:bg-white/10 hover:text-white"
+                      }`}
+                    >
+                      <svg className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                      </svg>
+                      Brands
+                    </Link>
                     <Link
                       href="/admin/stripe-accounts"
                       onClick={() => setMobileOpen(false)}

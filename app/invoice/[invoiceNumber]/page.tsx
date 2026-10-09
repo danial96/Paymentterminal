@@ -80,7 +80,7 @@ function modernStyles(a: string, p: boolean) {
   .fn{font-size:11px;color:rgba(255,255,255,.35);font-family:monospace}
   .inv-print-btn{position:fixed;bottom:28px;right:28px;display:inline-flex;align-items:center;gap:8px;background:#1e2330;color:#fff;font-size:14px;font-weight:700;padding:13px 24px;border-radius:10px;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.18);z-index:999;transition:opacity .15s;font-family:inherit}
   .inv-print-btn:hover{opacity:.85}
-  @media print{@page{margin:0;size:A4}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{background:#fff}.w{background:#fff;padding:0}.card{box-shadow:none;border-radius:0;display:flex;flex-direction:column;min-height:297mm}.foot{margin-top:auto}.inv-print-btn{display:none!important}}
+  @media print{@page{margin:0;size:A4}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{background:#fff}.w{background:#fff;padding:0}.card{box-shadow:none;border-radius:0;display:flex;flex-direction:column;min-height:297mm}.foot{margin-top:auto}.inv-print-btn{display:none!important}.hd{padding:18px 32px 14px}.mc{padding:7px 32px}.ab{padding:14px 32px}.tw{padding:16px 32px 0}.totals{padding:12px 32px 16px}.notes{padding:0 32px 16px}.bank{margin:0 32px 18px}.nb{padding:10px 12px}.bc{padding:9px 14px}.bref{padding:7px 14px}.foot{padding:8px 32px}tbody td{padding:8px 10px}thead th{padding:6px 10px}.tr{padding:6px 0}.tbox{padding:0}}
   @media(max-width:600px){.w{padding:0 0 80px}.card{border-radius:0}.hd{padding:20px;flex-direction:column}.hd-r{text-align:left}.meta{flex-wrap:wrap}.mc{flex:0 0 50%;padding:10px 20px}.addrs{grid-template-columns:1fr}.ab{padding:18px 20px}.ab:first-child{border-right:none;border-bottom:1px solid #f0f1f4}.tw{padding:20px 20px 0}.totals{padding:16px 20px 20px}.tbox{width:100%}.notes{grid-template-columns:1fr;padding:0 20px 20px}.bank{margin:0 20px 24px}.bg{grid-template-columns:1fr}.bc{border-right:none!important}.pay{padding:20px}.foot{padding:12px 20px}}
   `;
 }
@@ -102,14 +102,15 @@ function classicStyles(a: string, p: boolean) {
   .paid-banner{background:#16a34a;padding:14px 44px;text-align:center;font-size:18px;font-weight:bold;color:#fff;font-family:sans-serif;letter-spacing:3px;text-transform:uppercase}
   .status-strip{padding:7px 44px;font-size:11px;font-weight:bold;letter-spacing:1.5px;text-transform:uppercase;text-align:center;font-family:sans-serif}
   .s-sent{background:#eff6ff;color:#3b82f6}.s-paid{background:#16a34a;color:#fff;font-size:16px;padding:12px;letter-spacing:4px}.s-cancelled{background:#fef2f2;color:#ef4444}.s-draft{background:#f5f6f8;color:#9ca3af}
-  .meta{display:flex;border-top:2px solid #eee;border-bottom:2px solid #eee}
-  .mc{flex:1;padding:14px 44px;border-right:1px solid #eee;text-align:center}
-  .mc:last-child{border-right:none}
+  .meta{display:none}
   .ml{font-size:9px;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;color:#999;margin-bottom:4px;font-family:sans-serif}
   .mv{font-size:14px;font-weight:bold;color:#222}
-  .addrs{display:grid;grid-template-columns:1fr 1fr;border-bottom:2px solid #eee}
+  .addrs{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:2px solid #eee;border-bottom:2px solid #eee}
   .ab{padding:22px 44px}
-  .ab:first-child{border-right:1px solid #eee}
+  .ab:not(:last-child){border-right:1px solid #eee}
+  .ab-meta{padding:16px 44px;display:flex;flex-direction:column;gap:2px}
+  .mc{padding:7px 0;border-bottom:1px solid #eee}
+  .mc:last-child{border-bottom:none}
   .al{font-size:9px;font-weight:bold;text-transform:uppercase;letter-spacing:2px;color:${a};margin-bottom:10px;font-family:sans-serif}
   .an{font-size:16px;font-weight:bold;color:#222;line-height:1.3}
   .as{font-size:13px;color:#555;margin-top:3px}
@@ -145,8 +146,7 @@ function classicStyles(a: string, p: boolean) {
   .bc:last-of-type{border-bottom:none}
   .bclbl{font-size:9px;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;color:#bbb;margin-bottom:4px;font-family:sans-serif}
   .bcv{font-size:15px;font-weight:bold;color:#222;font-family:monospace;letter-spacing:1px}
-  .bref{padding:10px 20px;background:#f8f8f8;text-align:center;font-size:12px;color:#888;border-top:1px solid #eee;font-family:sans-serif}
-  .bref strong{color:${a};font-weight:bold}
+  .bref{display:none}
   .pay{padding:24px 44px 36px;display:flex;flex-direction:column;align-items:center;gap:10px;border-top:2px solid #eee}
   .paid-badge{display:inline-flex;align-items:center;gap:10px;background:#dcfce7;color:#16a34a;font-size:15px;font-weight:bold;padding:14px 32px;font-family:sans-serif;border:2px solid #bbf7d0}
   .foot{overflow:hidden}
@@ -221,8 +221,7 @@ function minimalStyles(a: string, p: boolean) {
   .bc:last-of-type{border-bottom:none}
   .bclbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#bbb;min-width:130px;flex-shrink:0}
   .bcv{font-size:13px;font-weight:500;color:#222;font-family:monospace}
-  .bref{padding:10px 0;font-size:11px;color:#aaa;border-top:1px solid #e5e5e5}
-  .bref strong{color:#444;font-weight:600}
+  .bref{display:none}
   .pay{padding:24px 52px 36px;display:flex;flex-direction:column;align-items:center;gap:10px;border-top:1px solid #e5e5e5}
   .paid-badge{display:inline-flex;align-items:center;gap:10px;color:#16a34a;font-size:14px;font-weight:500;padding:12px 24px;border:1px solid #bbf7d0;background:#f0fdf4}
   .foot{padding:16px 52px;border-top:1px solid #e5e5e5;display:flex;align-items:center;justify-content:center;gap:10px}
@@ -299,22 +298,22 @@ function corporateStyles(a: string, p: boolean) {
   .bot-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#999;margin-bottom:6px}
   .bot-val{font-size:13px;font-weight:600;color:#1a1e2e;margin-bottom:2px}
   .bot-sub{font-size:12px;color:#888}
-  .notes{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 32px 24px}
+  .notes{display:grid;grid-template-columns:1fr;gap:14px;padding:0 32px 24px}
   .nb{background:#f7f8fa;padding:14px 16px}
   .nl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:#999;margin-bottom:6px}
   .nt{font-size:12.5px;color:#666;line-height:1.65;white-space:pre-wrap}
-  /* bank — 2-col grid */
-  .bank{margin:0 32px 24px;border:1px solid #e5e7eb}
-  .bh{background:#1a1e2e;padding:10px 20px}
-  .bht{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#fff}
-  .bg{display:grid;grid-template-columns:1fr 1fr}
-  .bc{padding:12px 20px;border-bottom:1px solid #f0f1f4;border-right:1px solid #f0f1f4}
-  .bc:nth-child(even){border-right:none}
-  .bc:nth-last-child(-n+2){border-bottom:none}
-  .bcf{grid-column:1/-1;border-right:none}
-  .bclbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#bbb;margin-bottom:4px}
-  .bcv{font-size:13.5px;font-weight:700;color:#1a1e2e;font-family:monospace}
-  .bref{padding:10px 20px;background:#f7f8fa;text-align:center;font-size:12px;color:#999;border-top:1px solid #e5e7eb}
+  /* bank — clean row layout */
+  .bank{margin:0 32px 24px;border-radius:6px;overflow:hidden;border:1px solid #e5e7eb}
+  .bh{background:${a};padding:11px 22px;display:flex;align-items:center;gap:8px}
+  .bh::before{content:'';display:inline-block;width:14px;height:14px;background:rgba(255,255,255,.25);border-radius:50%}
+  .bht{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#fff}
+  .bg{display:flex;flex-direction:column}
+  .bc{display:flex;align-items:center;padding:11px 22px;border-bottom:1px solid #f0f1f4;background:#fff}
+  .bc:last-child{border-bottom:none}
+  .bcf{width:100%}
+  .bclbl{font-size:11px;font-weight:600;color:#999;width:160px;flex-shrink:0}
+  .bcv{font-size:13px;font-weight:700;color:#1a1e2e;font-family:monospace}
+  .bref{padding:10px 22px;background:#f7f8fa;text-align:center;font-size:12px;color:#999;border-top:1px solid #eee}
   .bref strong{color:#1a1e2e;font-weight:700}
   .pay{padding:20px 32px 28px;display:flex;flex-direction:column;align-items:center;gap:10px;border-top:1px solid #eee}
   .paid-badge{display:inline-flex;align-items:center;gap:10px;background:#dcfce7;color:#16a34a;font-size:15px;font-weight:800;padding:14px 32px}
@@ -330,85 +329,87 @@ function corporateStyles(a: string, p: boolean) {
 }
 
 function professionalStyles(a: string, p: boolean) {
-  // Screenshot 1 inspired: company left, big INVOICE right, grey row headers, stamp in totals
   return `
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  body{background:${p?"#fff":"#dde0e5"}}
-  .w{font-family:Arial,Helvetica,sans-serif;background:${p?"#fff":"#dde0e5"};min-height:100vh;padding:${p?"0":"40px 16px 80px"};color:#333}
-  .pg{max-width:840px;margin:0 auto}
-  .card{background:#fff;box-shadow:0 1px 10px rgba(0,0,0,.08);overflow:hidden;position:relative}
-  /* PAID — rubber stamp in bottom-right of totals */
-  .paid-stamp-totals{display:inline-block;border:4px solid #16a34a;color:#16a34a;font-size:18px;font-weight:900;padding:6px 18px;letter-spacing:3px;text-transform:uppercase;transform:rotate(-8deg);margin-top:8px;font-family:Arial,sans-serif;border-radius:4px}
-  /* header */
-  .hd{padding:28px 40px 20px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:2px solid #e0e0e0}
-  .hd-left{}
-  .logo{max-height:52px;max-width:180px;object-fit:contain;display:block;margin-bottom:8px}
-  .logo-txt{font-size:16px;font-weight:bold;color:#333}
-  .co-addr{font-size:11.5px;color:#777;line-height:1.9;margin-top:4px}
+  body{background:${p?"#fff":"#d8dbe0"}}
+  .w{font-family:'Segoe UI',Arial,sans-serif;background:${p?"#fff":"#d8dbe0"};min-height:100vh;padding:${p?"0":"40px 16px 80px"};color:#333}
+  .pg{max-width:860px;margin:0 auto}
+  .card{background:#fff;box-shadow:${p?"none":"0 4px 24px rgba(0,0,0,.10)"};overflow:hidden;position:relative;border-radius:${p?"0":"2px"}}
+  /* PAID stamp */
+  .paid-stamp-totals{display:inline-block;border:3px solid #16a34a;color:#16a34a;font-size:16px;font-weight:900;padding:5px 16px;letter-spacing:3px;text-transform:uppercase;transform:rotate(-6deg);margin-top:8px;border-radius:3px}
+  /* header — accent bar top */
+  .hd-bar{height:6px;background:${a}}
+  .hd{padding:28px 44px 24px;display:flex;align-items:flex-start;justify-content:space-between}
+  .logo{max-height:58px;max-width:190px;object-fit:contain;display:block;margin-bottom:6px}
+  .logo-txt{font-size:18px;font-weight:800;color:#222;letter-spacing:.5px}
+  .co-addr{font-size:11.5px;color:#888;line-height:1.85;margin-top:5px}
   .hd-right{text-align:right}
-  .hd-title{font-size:38px;font-weight:900;color:${a};letter-spacing:2px;line-height:1}
-  /* inv# + date table top-right */
-  .inv-tbl{margin-top:12px;border:1px solid #ccc;border-collapse:collapse;margin-left:auto}
-  .inv-tbl th{background:${a};color:#fff;font-size:10px;font-weight:bold;padding:6px 18px;text-transform:uppercase;letter-spacing:1px;text-align:center;border:1px solid rgba(255,255,255,.2)}
-  .inv-tbl td{padding:7px 18px;font-size:13px;font-weight:bold;color:#333;text-align:center;border:1px solid #ccc;font-family:monospace}
+  .hd-title{font-size:42px;font-weight:900;color:${a};letter-spacing:3px;line-height:1;text-transform:uppercase}
+  /* inv meta table */
+  .inv-tbl{margin-top:14px;border-collapse:collapse;margin-left:auto;min-width:220px}
+  .inv-tbl tr{border-bottom:1px solid #eee}
+  .inv-tbl tr:last-child{border-bottom:none}
+  .inv-tbl td{padding:7px 14px;font-size:12.5px;color:#555}
+  .inv-tbl td:first-child{font-weight:600;color:#888;text-transform:uppercase;font-size:10px;letter-spacing:.8px;background:#f7f7f8;border-right:1px solid #eee;white-space:nowrap}
+  .inv-tbl td:last-child{font-weight:700;color:#222;font-family:monospace;font-size:13px}
+  /* divider */
+  .hd-divider{height:1px;background:#eee;margin:0 44px}
   /* TO section */
-  .to-section{margin:20px 40px 0;background:#e8eaf0;padding:10px 16px 4px}
-  .to-lbl{font-size:10px;font-weight:bold;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-  .to-name{font-size:14px;font-weight:bold;color:#222;margin-bottom:2px}
-  .to-detail{font-size:12.5px;color:#666;line-height:1.7;padding-bottom:8px}
-  .to-detail a{color:#666;text-decoration:none;pointer-events:none}
-  /* from */
-  .from-inline{font-size:11px;color:#888;padding:8px 40px;border-bottom:1px solid #eee;display:flex;gap:24px}
-  .from-inline strong{color:#555;font-weight:bold}
+  .to-section{padding:20px 44px;display:flex;gap:0}
+  .to-col{flex:1}
+  .to-lbl{font-size:9.5px;font-weight:700;color:${a};text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid ${a}}
+  .to-name{font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:3px}
+  .to-detail{font-size:12.5px;color:#666;line-height:1.75}
   /* table */
-  .tw{padding:20px 40px 0}
-  .tw-lbl{font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#fff;background:${a};padding:8px 0 8px 0;text-align:center;margin-bottom:0}
-  table{width:100%;border-collapse:collapse;border:1px solid #ccc}
-  thead tr{background:#e8eaf0}
-  thead th{padding:9px 12px;font-size:10px;font-weight:bold;color:#555;text-transform:uppercase;letter-spacing:1px;border:1px solid #ccc}
+  .tw{padding:0 44px}
+  table{width:100%;border-collapse:collapse}
+  thead tr{background:${a}}
+  thead th{padding:10px 14px;font-size:10px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1px}
   thead th:first-child{text-align:left}
   thead th:not(:first-child){text-align:right}
-  tbody tr{border-bottom:1px solid #e0e0e0}
-  tbody td{padding:11px 12px;font-size:13px;color:#444;border-right:1px solid #eee}
-  tbody td:first-child{color:#222}
+  tbody tr{border-bottom:1px solid #f0f0f0}
+  tbody tr:nth-child(even){background:#fafafa}
+  tbody td{padding:12px 14px;font-size:13px;color:#444}
+  tbody td:first-child{color:#1a1a1a;font-weight:500}
   tbody td:not(:first-child){text-align:right}
-  tbody td:last-child{font-weight:bold;border-right:1px solid #ccc}
+  tbody td:last-child{font-weight:700;color:#222}
   /* totals */
-  .totals{display:flex;justify-content:space-between;align-items:flex-end;padding:16px 40px 0}
-  .thank-you{font-style:italic;font-size:12.5px;color:#777;max-width:280px;line-height:1.6}
-  .tbox{width:260px;border:1px solid #ccc}
-  .tr{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;font-size:13px;border-bottom:1px solid #e0e0e0}
-  .tr:last-child{border-bottom:none;background:${a}}
-  .tr:last-child span{font-size:14px;font-weight:bold;color:#fff}
-  .tl{color:#777}.ta{font-weight:bold;color:#333}
-  .paid-in-full{text-align:right;padding:0 40px 4px;display:flex;justify-content:flex-end}
-  .notes{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:16px 40px}
-  .nb{border-top:2px solid ${a};padding-top:10px}
-  .nl{font-size:9px;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;color:${a};margin-bottom:6px}
+  .totals{display:flex;justify-content:flex-end;padding:20px 44px 0}
+  .tbox{width:270px}
+  .tr{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;font-size:13px;border-bottom:1px solid #f0f0f0}
+  .tr:last-child{border-bottom:none;background:${a};border-radius:3px;margin-top:4px;padding:11px 14px}
+  .tr:last-child span{font-size:14px;font-weight:800;color:#fff}
+  .tl{color:#777}.ta{font-weight:600;color:#333}
+  .paid-in-full{display:flex;justify-content:flex-end;padding:0 44px 4px}
+  /* notes / terms */
+  .notes{padding:20px 44px 0}
+  .nb{border-left:3px solid ${a};padding:10px 14px;background:#fafafa}
+  .nl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:${a};margin-bottom:5px}
   .nt{font-size:12.5px;color:#666;line-height:1.65;white-space:pre-wrap}
+  .thank-note{font-size:12px;color:#aaa;font-style:italic;padding:16px 44px 0}
   /* bank */
-  .bank{margin:0 40px 24px;border:2px solid #e8eaf0}
-  .bh{background:${a};padding:8px 16px}
-  .bht{font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:1.5px;color:#fff}
+  .bank{margin:20px 44px 0;border:1px solid #e8eaf0;border-radius:3px;overflow:hidden}
+  .bh{background:${a};padding:9px 18px}
+  .bht{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#fff}
   .bg{display:grid;grid-template-columns:1fr 1fr}
-  .bc{padding:12px 16px;border-bottom:1px solid #e0e0e0;border-right:1px solid #e0e0e0}
+  .bc{padding:12px 18px;border-bottom:1px solid #f0f0f0;border-right:1px solid #f0f0f0}
   .bc:nth-child(even){border-right:none}
   .bc:nth-last-child(-n+2){border-bottom:none}
   .bcf{grid-column:1/-1;border-right:none}
-  .bclbl{font-size:9px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#aaa;margin-bottom:4px}
-  .bcv{font-size:13px;font-weight:bold;color:#222;font-family:monospace}
-  .bref{padding:8px 16px;background:#f5f5f5;text-align:center;font-size:12px;color:#888;border-top:1px solid #e0e0e0}
-  .bref strong{color:#333;font-weight:bold}
-  .pay{padding:16px 40px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;border-top:2px solid #e8eaf0}
-  .paid-badge{display:inline-flex;align-items:center;gap:10px;background:#dcfce7;color:#16a34a;font-size:15px;font-weight:bold;padding:12px 28px;border:2px solid #bbf7d0}
+  .bclbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#aaa;margin-bottom:4px}
+  .bcv{font-size:13px;font-weight:700;color:#222;font-family:monospace}
+  .bref{padding:8px 18px;background:#f7f7f8;text-align:center;font-size:12px;color:#999;border-top:1px solid #eee}
+  .bref strong{color:#444;font-weight:700}
+  .pay{padding:20px 44px;display:flex;flex-direction:column;align-items:center;gap:10px;border-top:1px solid #eee}
+  .paid-badge{display:inline-flex;align-items:center;gap:10px;background:#dcfce7;color:#16a34a;font-size:14px;font-weight:700;padding:10px 24px;border:1.5px solid #bbf7d0;border-radius:3px}
   /* footer */
-  .foot{background:#f5f5f5;border-top:2px solid #e0e0e0;padding:12px 40px;display:flex;align-items:center;justify-content:space-between}
-  .fb{font-size:11px;font-weight:bold;color:#888}
-  .fn{font-size:11px;color:#bbb;font-family:monospace}
-  .inv-print-btn{position:fixed;bottom:28px;right:28px;display:inline-flex;align-items:center;gap:8px;background:#333;color:#fff;font-size:13px;font-weight:bold;padding:12px 22px;border-radius:4px;border:none;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.18);z-index:999;transition:opacity .15s;font-family:Arial,sans-serif}
+  .foot{background:#f7f8fa;border-top:1px solid #eee;padding:12px 44px;display:flex;align-items:center;justify-content:space-between;margin-top:28px}
+  .fb{font-size:11px;font-weight:700;color:#aaa}
+  .fn{font-size:11px;color:#ccc;font-family:monospace}
+  .inv-print-btn{position:fixed;bottom:28px;right:28px;display:inline-flex;align-items:center;gap:8px;background:${a};color:#fff;font-size:13px;font-weight:700;padding:12px 22px;border-radius:4px;border:none;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.18);z-index:999;transition:opacity .15s}
   .inv-print-btn:hover{opacity:.85}
   @media print{@page{margin:0;size:A4}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{background:#fff}.w{background:#fff;padding:0}.card{box-shadow:none;display:flex;flex-direction:column;min-height:297mm}.foot{margin-top:auto}.inv-print-btn{display:none!important}}
-  @media(max-width:600px){.w{padding:0 0 80px}.hd{flex-direction:column;padding:20px}.hd-right{text-align:left;margin-top:16px}.inv-tbl{margin-left:0}.to-section{margin:16px 20px 0}.from-inline{padding:8px 20px;flex-wrap:wrap;gap:10px}.tw{padding:16px 20px 0}.totals{flex-direction:column;padding:12px 20px 0;gap:12px}.tbox{width:100%}.paid-in-full{padding:0 20px 4px}.notes{grid-template-columns:1fr;padding:12px 20px}.bank{margin:0 20px 20px}.bg{grid-template-columns:1fr}.bc{border-right:none!important}.pay{padding:16px 20px}.foot{padding:10px 20px}}
+  @media(max-width:600px){.w{padding:0 0 80px}.hd{flex-direction:column;padding:20px}.hd-right{text-align:left;margin-top:16px}.inv-tbl{margin-left:0}.to-section{padding:16px 20px;flex-direction:column}.tw{padding:0 20px}.totals{padding:16px 20px 0}.tbox{width:100%}.paid-in-full{padding:0 20px 4px}.notes{padding:16px 20px 0}.bank{margin:16px 20px 0}.bg{grid-template-columns:1fr}.bc{border-right:none!important}.pay{padding:16px 20px}.foot{padding:10px 20px}.hd-divider{margin:0 20px}}
   `;
 }
 
@@ -497,6 +498,65 @@ function squareStyles(a: string, p: boolean) {
   `;
 }
 
+function originalStyles(p: boolean) {
+  return `
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:${p?"#fff":"#e8eaed"}}
+  .w{font-family:Arial,Helvetica,sans-serif;background:${p?"#fff":"#e8eaed"};min-height:100vh;padding:${p?"0":"40px 16px 80px"};color:#333}
+  .pg{max-width:800px;margin:0 auto}
+  .card{background:#fff;box-shadow:0 1px 8px rgba(0,0,0,.08);overflow:hidden;position:relative}
+  /* header */
+  .hd{padding:32px 40px 20px;display:flex;align-items:flex-start;justify-content:space-between;gap:24px}
+  .hd-left{flex:1;min-width:0}
+  .logo{max-height:60px;display:block;}
+  .logo-txt{font-size:18px;font-weight:900;color:#333;line-height:1.1;text-transform:uppercase}
+  .co-web{font-size:11.5px;color:#888;margin-top:3px}
+  .hd-right{text-align:right;flex-shrink:0}
+  .hd-title{font-size:46px;font-weight:400;color:#ccc;letter-spacing:1px;line-height:1}
+  .hd-num{font-size:14px;color:#555;margin-top:4px;letter-spacing:.5px}
+  /* bill-to + meta row */
+  .info-row{display:grid;grid-template-columns:1fr auto;gap:24px;padding:0 40px 20px;align-items:start}
+  .bill-lbl{font-size:11px;color:#999;margin-bottom:6px}
+  .bill-name{font-size:14px;font-weight:bold;color:#333}
+  .bill-detail{font-size:12.5px;color:#666;margin-top:2px}
+  .meta-tbl{border-collapse:collapse;min-width:220px}
+  .meta-tbl td{padding:5px 14px;font-size:12.5px;color:#555;text-align:right}
+  .meta-tbl td:first-child{text-align:left;color:#888}
+  .balance-row td{background:#f0f0f0;font-weight:bold;font-size:13px;color:#333;padding:8px 14px}
+  /* item table */
+  .tw{padding:0 40px}
+  table{width:100%;border-collapse:collapse}
+  thead tr{background:#3d3d3d}
+  thead th{padding:10px 12px;font-size:11px;font-weight:bold;color:#fff;text-transform:none}
+  thead th:first-child{text-align:left}
+  thead th:not(:first-child){text-align:right}
+  tbody tr{border-bottom:1px solid #f0f0f0}
+  tbody td{padding:12px 12px;font-size:13px;font-weight:bold;color:#333}
+  tbody td:not(:first-child){text-align:right;font-weight:bold}
+  /* totals */
+  .totals{display:flex;justify-content:flex-end;padding:16px 40px 20px}
+  .tbox{width:240px}
+  .tr{display:flex;justify-content:space-between;padding:5px 0;font-size:13px}
+  .tl{color:#888}.ta{color:#555}
+  .tr-total{display:flex;justify-content:space-between;padding:7px 0;font-size:14px;border-top:1px solid #ddd;margin-top:4px;color:#333}
+  /* notes */
+  .notes-section{padding:0 40px 20px}
+  .notes-lbl{font-size:11px;color:#999;margin-bottom:4px}
+  .notes-txt{font-size:12.5px;color:#555;line-height:1.6;white-space:pre-wrap}
+  /* bank */
+  .bank-section{padding:0 40px 32px}
+  .bank-lbl{font-size:11px;color:#999;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+  .bank-line{font-size:13px;color:#333;line-height:1.9}
+  .bank-field-lbl{color:#888;font-size:12px;min-width:130px;display:inline-block}
+  /* paid */
+  .paid-stamp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-28deg);font-size:90px;font-weight:900;color:rgba(22,163,74,.09);border:8px solid rgba(22,163,74,.09);border-radius:12px;padding:4px 28px;letter-spacing:12px;text-transform:uppercase;pointer-events:none;user-select:none;white-space:nowrap;z-index:10}
+  .inv-print-btn{position:fixed;bottom:28px;right:28px;display:inline-flex;align-items:center;gap:8px;background:#3d3d3d;color:#fff;font-size:14px;font-weight:bold;padding:13px 24px;border-radius:6px;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.18);z-index:999;transition:opacity .15s;font-family:Arial,sans-serif}
+  .inv-print-btn:hover{opacity:.85}
+  @media print{@page{size:A4;margin:0}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{background:#fff}.w{background:#fff;padding:0}.card{box-shadow:none;padding-top:100px}.inv-print-btn{display:none!important}.hd{position:fixed;top:0;left:0;right:0;height:100px;background:#fff;z-index:100;padding:12px 40px;display:flex;align-items:center;justify-content:space-between}.bank-section{padding-top:20px}}
+  @media(max-width:600px){.w{padding:0 0 80px}.hd{padding:20px;flex-direction:column}.info-row{grid-template-columns:1fr;padding:0 20px 16px}.tw{padding:0 20px}.totals{padding:12px 20px 16px}.tbox{width:100%}.notes-section,.bank-section{padding:0 20px 20px}}
+  `;
+}
+
 /* ─────────────────────────── PAGE ─────────────────────────── */
 
 export default async function PublicInvoicePage({
@@ -535,6 +595,8 @@ export default async function PublicInvoicePage({
     bankIban?: string | null;
     bankSwift?: string | null;
     clientCompany?: string | null;
+    notesLabel?: string | null;
+    termsLabel?: string | null;
   };
 
   const paidDate = invoice.paidAt
@@ -547,6 +609,7 @@ export default async function PublicInvoicePage({
     template === "corporate"     ? corporateStyles(accent, isPreview) :
     template === "professional"  ? professionalStyles(accent, isPreview) :
     template === "square"        ? squareStyles(accent, isPreview) :
+    template === "original"      ? originalStyles(isPreview) :
     modernStyles(accent, isPreview);
 
   const stripeSection = invoice.stripeAccountId && !isPaid && invoice.status !== "cancelled" ? (
@@ -595,7 +658,7 @@ export default async function PublicInvoicePage({
     if (inv.paymentMethod !== "bank_transfer") return invoice!.status !== "cancelled" ? stripeSection : null;
     return (
       <div className="bank">
-        <div className="bh"><span className="bht">Bank Transfer Details</span></div>
+        <div className="bh"><span className="bht">Bank Details</span></div>
         {bankGrid(opts?.centered, opts?.listStyle)}
         <div className="bref">Please use <strong>{invoice!.invoiceNumber}</strong> as your {opts?.refText ?? "payment reference"}</div>
       </div>
@@ -692,8 +755,8 @@ export default async function PublicInvoicePage({
           </div></div>
           {(invoice.notes || invoice.terms) && (
             <div className="notes">
-              {invoice.notes && <div className="nb"><div className="nl">Notes</div><div className="nt">{invoice.notes}</div></div>}
-              {invoice.terms && <div className="nb"><div className="nl">Terms</div><div className="nt">{invoice.terms}</div></div>}
+              {invoice.notes && <div className="nb"><div className="nl">{inv.notesLabel || "Notes"}</div><div className="nt">{invoice.notes}</div></div>}
+              {invoice.terms && <div className="nb"><div className="nl">{inv.termsLabel || "Terms"}</div><div className="nt">{invoice.terms}</div></div>}
             </div>
           )}
           {/* Modern: bank always visible; paid shown via diagonal watermark + status strip */}
@@ -724,13 +787,13 @@ export default async function PublicInvoicePage({
               {invoice.status === "cancelled" && <>✕ CANCELLED</>}
             </div>
           )}
-          <div className="meta">
-            <div className="mc"><div className="ml">Invoice Date</div><div className="mv">{dateStr}</div></div>
-            {dueDateStr && <div className="mc"><div className="ml">Due Date</div><div className="mv">{dueDateStr}</div></div>}
-            <div className="mc"><div className="ml">Total Due</div><div className="mv">{sym}{Number(invoice.total).toFixed(2)}</div></div>
-            <div className="mc"><div className="ml">Currency</div><div className="mv">{invoice.currency.toUpperCase()}</div></div>
-          </div>
           <div className="addrs">
+            <div className="ab-meta">
+              <div className="mc"><div className="ml">Invoice Date</div><div className="mv">{dateStr}</div></div>
+              {dueDateStr && <div className="mc"><div className="ml">Due Date</div><div className="mv">{dueDateStr}</div></div>}
+              <div className="mc"><div className="ml">Total Due</div><div className="mv">{sym}{Number(invoice.total).toFixed(2)}</div></div>
+              <div className="mc"><div className="ml">Currency</div><div className="mv">{invoice.currency.toUpperCase()}</div></div>
+            </div>
             <div className="ab">
               <div className="al">From</div>
               <div className="an">{brand?.name ?? "—"}</div>
@@ -762,8 +825,8 @@ export default async function PublicInvoicePage({
           </div></div>
           {(invoice.notes || invoice.terms) && (
             <div className="notes">
-              {invoice.notes && <div className="nb"><div className="nl">Notes</div><div className="nt">{invoice.notes}</div></div>}
-              {invoice.terms && <div className="nb"><div className="nl">Terms</div><div className="nt">{invoice.terms}</div></div>}
+              {invoice.notes && <div className="nb"><div className="nl">{inv.notesLabel || "Notes"}</div><div className="nt">{invoice.notes}</div></div>}
+              {invoice.terms && <div className="nb"><div className="nl">{inv.termsLabel || "Terms"}</div><div className="nt">{invoice.terms}</div></div>}
             </div>
           )}
           {/* Classic: bank always visible; paid shown via green banner at top */}
@@ -840,8 +903,8 @@ export default async function PublicInvoicePage({
           </div></div>
           {(invoice.notes || invoice.terms) && (
             <div className="notes">
-              {invoice.notes && <div className="nb"><div className="nl">Notes</div><div className="nt">{invoice.notes}</div></div>}
-              {invoice.terms && <div className="nb"><div className="nl">Terms</div><div className="nt">{invoice.terms}</div></div>}
+              {invoice.notes && <div className="nb"><div className="nl">{inv.notesLabel || "Notes"}</div><div className="nt">{invoice.notes}</div></div>}
+              {invoice.terms && <div className="nb"><div className="nl">{inv.termsLabel || "Terms"}</div><div className="nt">{invoice.terms}</div></div>}
             </div>
           )}
           {/* Minimal: bank always visible; paid shown via small tag in header */}
@@ -863,7 +926,6 @@ export default async function PublicInvoicePage({
           <div className="hd">
             <div className="hd-left">
               {brand?.logoUrl ? <img src={brand.logoUrl} alt={brand.name} className="logo" /> : <div className="logo-txt">{brand?.name ?? "—"}</div>}
-              {brand?.name && brand?.logoUrl && <div className="logo-sub">{brand.name}</div>}
             </div>
             <div className={`hd-right${isPaid ? " paid" : ""}`}>
               <div className="hd-title">{isPaid ? "PAID" : "INVOICE"}</div>
@@ -914,14 +976,14 @@ export default async function PublicInvoicePage({
             <div className="tr"><span>Total</span><span>{sym}{Number(invoice.total).toFixed(2)}</span></div>
           </div></div>
           {invoice.status === "cancelled" && <div style={{ textAlign: "center", padding: "8px", color: "#ef4444", fontWeight: "bold", fontSize: "12px" }}>CANCELLED</div>}
+          {/* Corporate: bank always visible; paid shown via corner ribbon + green header block */}
+          {bankSection({ listStyle: true })}
           {(invoice.notes || invoice.terms) && (
             <div className="notes">
-              {invoice.notes && <div className="nb"><div className="nl">Notes</div><div className="nt">{invoice.notes}</div></div>}
-              {invoice.terms && <div className="nb"><div className="nl">Terms</div><div className="nt">{invoice.terms}</div></div>}
+              {invoice.notes && <div className="nb"><div className="nl">{inv.notesLabel || "Notes"}</div><div className="nt">{invoice.notes}</div></div>}
+              {invoice.terms && <div className="nb"><div className="nl">{inv.termsLabel || "Terms"}</div><div className="nt">{invoice.terms}</div></div>}
             </div>
           )}
-          {/* Corporate: bank always visible; paid shown via corner ribbon + green header block */}
-          {bankSection()}
           <div className="foot">
             <span className="fb">{brand?.name ?? "—"}</span>
             {!isPreview && <PrintButton clientName={invoice.clientName} invoiceNumber={invoice.invoiceNumber} inside />}
@@ -938,6 +1000,7 @@ export default async function PublicInvoicePage({
       <div className="w">
         <style>{styles}</style>
         <div className="pg"><div className="card">
+          <div className="hd-bar" />
           <div className="hd">
             <div className="hd-left">
               {brand?.logoUrl ? <img src={brand.logoUrl} alt={brand.name} className="logo" /> : <div className="logo-txt">{brand?.name ?? "—"}</div>}
@@ -950,39 +1013,40 @@ export default async function PublicInvoicePage({
             <div className="hd-right">
               <div className="hd-title">INVOICE</div>
               <table className="inv-tbl">
-                <thead><tr><th>Invoice #</th><th>Date</th></tr></thead>
-                <tbody><tr><td>{invoice.invoiceNumber}</td><td>{dateStr}</td></tr></tbody>
+                <tbody>
+                  <tr><td>Invoice #</td><td>{invoice.invoiceNumber}</td></tr>
+                  <tr><td>Date</td><td>{dateStr}</td></tr>
+                  {dueDateStr && <tr><td>Due Date</td><td>{dueDateStr}</td></tr>}
+                </tbody>
               </table>
             </div>
           </div>
+          <div className="hd-divider" />
           <div className="to-section">
-            <div className="to-lbl">To</div>
-            {inv.clientCompany && <div className="to-name">{inv.clientCompany}</div>}
-            <div className={inv.clientCompany ? "to-detail" : "to-name"}>{invoice.clientName}</div>
-            <div className="to-detail">
-              {invoice.clientEmail && <div>{invoice.clientEmail}</div>}
-              {invoice.clientPhone && <div>{invoice.clientPhone}</div>}
-              {invoice.clientAddress && <div style={{ whiteSpace: "pre-wrap" }}>{invoice.clientAddress}</div>}
+            <div className="to-col">
+              <div className="to-lbl">Bill To</div>
+              {inv.clientCompany && <div className="to-name">{inv.clientCompany}</div>}
+              <div className={inv.clientCompany ? "to-detail" : "to-name"}>{invoice.clientName}</div>
+              <div className="to-detail">
+                {invoice.clientEmail && <div>{invoice.clientEmail}</div>}
+                {invoice.clientPhone && <div>{invoice.clientPhone}</div>}
+                {invoice.clientAddress && <div style={{ whiteSpace: "pre-wrap" }}>{invoice.clientAddress}</div>}
+              </div>
             </div>
           </div>
           {!isPaid && invoice.stripeAccountId && invoice.status !== "cancelled" && (
-            <div style={{ padding: "8px 40px 0", display: "flex", justifyContent: "flex-end" }}>
+            <div style={{ padding: "8px 44px 0", display: "flex", justifyContent: "flex-end" }}>
               <ScrollPayButton total={Number(invoice.total).toFixed(2)} sym={sym} />
             </div>
           )}
           <div className="tw">
-            <div className="tw-lbl" style={{ background: accent, padding: "8px", textAlign: "center", color: "#fff", fontSize: "10px", fontWeight: "bold", letterSpacing: "1px", textTransform: "uppercase" }}>Itemized Costs</div>
             <table><thead><tr><th>Description</th><th style={{ width: "80px" }}>Qty</th><th style={{ width: "120px" }}>Unit Price</th><th style={{ width: "120px" }}>Amount</th></tr></thead>
             <tbody>{itemRows()}</tbody></table>
           </div>
           <div className="totals">
-            <div className="thank-you">
-              <em>Thank you for your business!</em>
-              {invoice.notes && <div style={{ marginTop: "8px", fontSize: "12px", color: "#888" }}>{invoice.notes}</div>}
-            </div>
             <div className="tbox">
               {totalsRows()}
-              <div className="tr"><span style={{ fontWeight: "bold" }}>Total Invoice</span><span>{sym}{Number(invoice.total).toFixed(2)}</span></div>
+              <div className="tr"><span>Total Invoice</span><span>{sym}{Number(invoice.total).toFixed(2)}</span></div>
             </div>
           </div>
           {isPaid && (
@@ -991,13 +1055,19 @@ export default async function PublicInvoicePage({
             </div>
           )}
           {invoice.status === "cancelled" && <div style={{ textAlign: "center", padding: "8px", color: "#ef4444", fontWeight: "bold" }}>CANCELLED</div>}
-          {invoice.terms && (
+          {invoice.notes && (
             <div className="notes">
-              <div className="nb"><div className="nl">Terms &amp; Conditions</div><div className="nt">{invoice.terms}</div></div>
+              <div className="nb"><div className="nl">{inv.notesLabel || "Notes"}</div><div className="nt">{invoice.notes}</div></div>
+            </div>
+          )}
+          {invoice.terms && (
+            <div className="notes" style={{ paddingTop: "12px" }}>
+              <div className="nb"><div className="nl">{inv.termsLabel || "Terms & Conditions"}</div><div className="nt">{invoice.terms}</div></div>
             </div>
           )}
           {/* Professional: bank always visible; paid shown via rubber stamp above */}
           {bankSection()}
+          <div className="thank-note">Thank you for your business!</div>
           <div className="foot"><span className="fb">{brand?.name ?? "—"}</span><span className="fn">{invoice.invoiceNumber}</span></div>
         </div></div>
         {!isPreview && <PrintButton clientName={invoice.clientName} invoiceNumber={invoice.invoiceNumber} />}
@@ -1006,7 +1076,7 @@ export default async function PublicInvoicePage({
   }
 
   /* ── SQUARE ── PAID: green amount text + top-left watermark */
-  return (
+  if (template === "square") return (
     <div className="w">
       <style>{squareStyles(accent, isPreview)}</style>
       <div className="pg"><div className="card">
@@ -1088,7 +1158,7 @@ export default async function PublicInvoicePage({
         </div></div>
         {invoice.terms && (
           <div className="notes">
-            <div className="nb"><div className="nl">Terms</div><div className="nt">{invoice.terms}</div></div>
+            <div className="nb"><div className="nl">{inv.termsLabel || "Terms"}</div><div className="nt">{invoice.terms}</div></div>
           </div>
         )}
         {/* Square: bank always visible; paid shown via green amount in totals + watermark */}
@@ -1101,4 +1171,107 @@ export default async function PublicInvoicePage({
       </div></div>
     </div>
   );
+
+  /* ── ORIGINAL ── Clean white layout matching the PDF format */
+  if (template === "original") {
+    return (
+      <div className="w">
+        <style>{styles}</style>
+        <div className="pg"><div className="card">
+          {isPaid && <div className="paid-stamp">PAID</div>}
+          {/* Header: logo left, INVOICE right */}
+          <div className="hd">
+            <div className="hd-left">
+              {brand?.logoUrl
+                ? <img src={brand.logoUrl} alt="" className="logo" />
+                : <div className="logo-txt">{brand?.name ?? "—"}</div>}
+            </div>
+            <div className="hd-right">
+              <div className="hd-title">INVOICE</div>
+              <div className="hd-num"># {invoice.invoiceNumber}</div>
+            </div>
+          </div>
+
+          {/* Bill To (left) + Date/Balance (right) */}
+          <div className="info-row">
+            <div>
+              {brand?.name && <div className="logo-txt" style={{ marginBottom: "2px" }}>{brand.name.toUpperCase()}</div>}
+              {brand?.website && <div className="co-web">www.{brand.website.replace(/^https?:\/\/(www\.)?/, "")}</div>}
+              {brand?.email && <div className="co-web" style={{ marginBottom: "12px" }}>{brand.email}</div>}
+              <div className="bill-lbl">Bill To:</div>
+              {inv.clientCompany && <div className="bill-name">{inv.clientCompany}</div>}
+              <div className={inv.clientCompany ? "bill-detail" : "bill-name"}>{invoice.clientName}</div>
+              {invoice.clientEmail && <div className="bill-detail">{invoice.clientEmail}</div>}
+              {invoice.clientPhone && <div className="bill-detail">{invoice.clientPhone}</div>}
+              {invoice.clientAddress && <div className="bill-detail" style={{ marginTop: "4px", whiteSpace: "pre-wrap" }}>{invoice.clientAddress}</div>}
+            </div>
+            <table className="meta-tbl">
+              <tbody>
+                <tr><td>Date:</td><td>{dateStr}</td></tr>
+                {dueDateStr && <tr><td>Due Date:</td><td>{dueDateStr}</td></tr>}
+                <tr className="balance-row"><td>Balance Due:</td><td>{sym}{Number(invoice.total).toFixed(2)}</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Item table */}
+          <div className="tw">
+            <table>
+              <thead><tr>
+                <th>Item</th>
+                <th style={{ width: "80px" }}>Quantity</th>
+                <th style={{ width: "110px" }}>Rate</th>
+                <th style={{ width: "110px" }}>Amount</th>
+              </tr></thead>
+              <tbody>{itemRows()}</tbody>
+            </table>
+          </div>
+
+          {/* Totals */}
+          <div className="totals"><div className="tbox">
+            <div className="tr"><span className="tl">Subtotal:</span><span className="ta">{sym}{Number(invoice.subtotal).toFixed(2)}</span></div>
+            {Number(invoice.discountAmount) > 0 && <div className="tr"><span className="tl">Discount:</span><span className="ta" style={{ color: "#ef4444" }}>−{sym}{Number(invoice.discountAmount).toFixed(2)}</span></div>}
+            {invoice.taxPercent && Number(invoice.taxPercent) > 0
+              ? <div className="tr"><span className="tl">Tax ({Number(invoice.taxPercent)}%):</span><span className="ta">{sym}{Number(invoice.taxAmount).toFixed(2)}</span></div>
+              : <div className="tr"><span className="tl">Tax:</span><span className="ta">{sym}0.00</span></div>}
+            <div className="tr-total"><span>Total:</span><span>{sym}{Number(invoice.total).toFixed(2)}</span></div>
+          </div></div>
+
+          {/* Notes */}
+          {invoice.notes && (
+            <div className="notes-section">
+              <div className="notes-lbl">{inv.notesLabel || "Notes"}</div>
+              <div className="notes-txt">{invoice.notes}</div>
+            </div>
+          )}
+
+          {/* Bank Transfer Details — plain text style matching PDF */}
+          {inv.paymentMethod === "bank_transfer" && (inv.bankAccountName || inv.bankName) && (
+            <div className="bank-section">
+              <div className="bank-lbl">Bank Transfer Details:</div>
+              <div className="bank-line">
+                {inv.bankAccountName && <div><span className="bank-field-lbl">Account Title:</span> {inv.bankAccountName}</div>}
+                {inv.showBankName !== false && inv.bankName && <div><span className="bank-field-lbl">Bank Name:</span> {inv.bankName}</div>}
+                {inv.bankAccountNumber && <div><span className="bank-field-lbl">Account Number:</span> {inv.bankAccountNumber}</div>}
+                {inv.bankSortCode && <div><span className="bank-field-lbl">Sort Code:</span> {inv.bankSortCode}</div>}
+                {inv.bankIban && <div><span className="bank-field-lbl">IBAN:</span> {inv.bankIban}</div>}
+                {inv.bankSwift && <div><span className="bank-field-lbl">SWIFT:</span> {inv.bankSwift}</div>}
+              </div>
+            </div>
+          )}
+          {inv.paymentMethod !== "bank_transfer" && stripeSection}
+
+          {invoice.terms && (
+            <div className="notes-section" style={{ paddingTop: 0 }}>
+              <div className="notes-lbl">{inv.termsLabel || "Terms"}</div>
+              <div className="notes-txt">{invoice.terms}</div>
+            </div>
+          )}
+        </div></div>
+        {!isPreview && <PrintButton clientName={invoice.clientName} invoiceNumber={invoice.invoiceNumber} />}
+      </div>
+    );
+  }
+
+  return null;
 }

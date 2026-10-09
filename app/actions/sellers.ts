@@ -50,6 +50,23 @@ export async function deleteSellerProfile(name: string) {
   revalidatePath("/sellers/manage");
 }
 
+export async function upsertMonthlyTarget(
+  sellerName: string,
+  month: string, // "YYYY-MM"
+  frontTarget: number | null,
+  upsellTarget: number | null
+) {
+  await requireAdmin();
+  await prisma.sellerMonthlyTarget.upsert({
+    where: { sellerName_month: { sellerName, month } },
+    create: { sellerName, month, frontTarget, upsellTarget },
+    update: { frontTarget, upsellTarget },
+  });
+  revalidatePath("/sellers");
+  revalidatePath(`/sellers/${encodeURIComponent(sellerName)}`);
+  revalidatePath("/sellers/manage");
+}
+
 export async function toggleSellerRole(
   name: string,
   field: "isFrontSeller" | "isUpseller",

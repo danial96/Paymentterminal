@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/scope";
+import { requireAdmin, requirePermission } from "@/lib/scope";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
@@ -9,17 +9,19 @@ import { classifyServiceCategory } from "@/lib/serviceCategory";
 
 // --- Brands ---
 export async function createBrand(formData: FormData) {
-  await requireAdmin();
+  await requirePermission("brands");
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return;
   await prisma.brand.create({ data: { name } });
   revalidatePath("/admin/brands");
+  revalidatePath("/brands");
 }
 
 export async function deleteBrand(id: number) {
-  await requireAdmin();
+  await requirePermission("brands");
   await prisma.brand.delete({ where: { id } });
   revalidatePath("/admin/brands");
+  revalidatePath("/brands");
 }
 
 // --- Service Types ---
